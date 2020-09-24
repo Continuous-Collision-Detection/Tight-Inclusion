@@ -2,14 +2,6 @@ cmake_minimum_required(VERSION 3.8)
 project(TI_CCD)
 
 ################################################################################
-
-if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-    set(TIGHT_INCLUSION_TOPLEVEL_PROJECT ON)
-else()
-    set(TIGHT_INCLUSION_TOPLEVEL_PROJECT OFF)
-endif()
-
-
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -22,7 +14,7 @@ include(UseColors)
 include(TI_CCDUtils)
 
 #TODO set to off once the main is removed
-OPTION(TIGHT_INCLUSION_WITH_GMP   "Enable rational based predicates, for debug" TIGHT_INCLUSION_TOPLEVEL_PROJECT)
+OPTION(TIGHT_INCLUSION_WITH_GMP   "Enable rational based predicates, for debug" OFF)
 OPTION(TIGHT_INCLUSION_WITH_TIMER "Enable profiling timers, for debug"          OFF)
 
 include(${PROJECT_NAME}Dependencies)
@@ -53,14 +45,3 @@ endif()
 # WARNING: This requires a check  as it will break compatability with non-AVX
 #          processors.
 target_compile_options(tight_inclusion PUBLIC "-mavx2")
-
-################################################################################
-# Executable
-################################################################################
-if(TIGHT_INCLUSION_TOPLEVEL_PROJECT)
-  add_executable(${PROJECT_NAME}_bin src/main.cpp)
-  target_link_libraries(${PROJECT_NAME}_bin PUBLIC tight_inclusion)
-
-  set(DATA_PATH "${CMAKE_CURRENT_SOURCE_DIR}/data/")
-  target_compile_definitions(${PROJECT_NAME}_bin PUBLIC -DCCD_DATA_PATH=\"${DATA_PATH}\")
-endif()
