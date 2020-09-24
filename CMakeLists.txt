@@ -48,3 +48,5 @@ find_package(AVX)
 # Add SSE, AVX, and FMA flags to compiler flags
 string(REPLACE " " ";" SIMD_FLAGS "${AVX_FLAGS}")
 target_compile_options(tight_inclusion PRIVATE ${SIMD_FLAGS})
+
+target_compile_definitions(tight_inclusion PUBLIC NOMINMAX)
