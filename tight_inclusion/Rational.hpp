@@ -6,7 +6,7 @@
 namespace inclusion_ccd {
 
 class
-    Rational { // https://cs.nyu.edu/acsys/cvc3/releases/1.5/doc/rational-gmp_8cpp-source.html
+    Rational { 
 public:
     mpq_t value;
     void canonicalize() { mpq_canonicalize(value); }
