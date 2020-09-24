@@ -27,7 +27,6 @@ if(NOT TARGET Eigen3::Eigen)
     $<BUILD_INTERFACE:${TIGHT_INCLUSION_EXTERNAL}/eigen>
     $<INSTALL_INTERFACE:include>
   )
-  MESSAGE(STATUS "Asdasdasd ${TIGHT_INCLUSION_EXTERNAL}/eigen")
   set_property(TARGET tccd_eigen PROPERTY EXPORT_NAME Eigen3::Eigen)
   add_library(Eigen3::Eigen ALIAS tccd_eigen)
 endif()

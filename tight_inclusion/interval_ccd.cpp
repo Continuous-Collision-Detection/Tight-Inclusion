@@ -5,6 +5,8 @@
 #include <tight_inclusion/interval_ccd.hpp>
 #include <tight_inclusion/interval_root_finder.hpp>
 
+#include <vector>
+
 namespace inclusion_ccd
 {
 
@@ -468,6 +470,7 @@ namespace inclusion_ccd
         return false;
     }
 
+#ifdef TIGHT_INCLUSION_USE_GMP
     bool edgeEdgeCCD_rational(
         const Eigen::Vector3d &a0s,
         const Eigen::Vector3d &a1s,
@@ -578,7 +581,7 @@ namespace inclusion_ccd
         return is_impacting;
         return false;
     }
-
+#endif
     void print_time_1()
     {
         std::cout << "time of root finder, " << time0 << std::endl;

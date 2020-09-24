@@ -24,6 +24,7 @@ namespace inclusion_ccd
         return r;
     }
 
+#ifdef TIGHT_INCLUSION_USE_GMP
     std::array<Rational, 3> width(const std::array<std::pair<Rational, Rational>, 3> &x)
     {
         std::array<Rational, 3> w;
@@ -36,6 +37,7 @@ namespace inclusion_ccd
         }
         return w;
     }
+#endif
 
     Eigen::VectorX3d width(const Interval3 &x)
     {
@@ -473,6 +475,7 @@ namespace inclusion_ccd
         bboxes[5] = bbd_4_pts(bps); //v1
     }
 
+#ifdef TIGHT_INCLUSION_USE_GMP
     Vector3r function_f_ee_Rational(
         const Numccd &tpara, const Numccd &upara, const Numccd &vpara,
         const Eigen::Vector3d &a0sd,
@@ -625,6 +628,7 @@ namespace inclusion_ccd
         Vector3r p = (t1 - t0) * upara + (t2 - t0) * vpara + t0;
         return v - p;
     }
+#endif
 
     bool Origin_in_function_bounding_box_double(
         const Interval3 &paras,
@@ -850,6 +854,8 @@ namespace inclusion_ccd
             return false;
         return true;
     }
+
+#ifdef TIGHT_INCLUSION_USE_GMP
     bool Origin_in_function_bounding_box_Rational(
         const Interval3 &paras,
         const Eigen::Vector3d &a0s,
@@ -1128,6 +1134,7 @@ namespace inclusion_ccd
         result = newn;
         return t;
     }
+#endif
     std::pair<Singleinterval, Singleinterval> bisect(const Singleinterval &inter)
     {
         Numccd low = inter.first;
@@ -1173,6 +1180,8 @@ namespace inclusion_ccd
         result.second = i2;
         return result;
     }
+
+#ifdef TIGHT_INCLUSION_USE_GMP
     std::pair<std::pair<Rational, Rational>, std::pair<Rational, Rational>> bisect(const std::pair<Rational, Rational> &inter)
     {
         std::pair<std::pair<Rational, Rational>, std::pair<Rational, Rational>> result;
@@ -1186,6 +1195,9 @@ namespace inclusion_ccd
         result.second = single;
         return result;
     }
+
+#endif
+
     bool sum_no_larger_1(const Numccd &num1, const Numccd &num2)
     {
         long k1 = num1.first;
@@ -1252,6 +1264,8 @@ namespace inclusion_ccd
             return false;
         return true;
     }
+
+#ifdef TIGHT_INCLUSION_USE_GMP
     bool sum_no_larger_1_Rational(const Numccd &num1, const Numccd &num2)
     {
         long k1 = num1.first;
@@ -1267,6 +1281,7 @@ namespace inclusion_ccd
         else
             return true;
     }
+#endif
 
     // calculate the sign of f. dim is the dimension we are evaluating.
     template <typename T>
@@ -2058,6 +2073,7 @@ namespace inclusion_ccd
         return false;
     }
 
+#ifdef TIGHT_INCLUSION_USE_GMP
     bool interval_root_finder_Rational(
         const Eigen::VectorX3d &tol,
 
@@ -2177,7 +2193,7 @@ namespace inclusion_ccd
         }
         return false;
     }
-
+#endif
     void print_time_2()
     {
         std::cout << "how many times return from max_itr, " << refine_return << std::endl;
