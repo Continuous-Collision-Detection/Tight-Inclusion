@@ -64,7 +64,7 @@ std::array<double,8> function_ee(
             double edge0_vertex=(edge0_vertex1-edge0_vertex0)*u_up[i]/u_dw[i]+edge0_vertex0;
             double edge1_vertex=(edge1_vertex1-edge1_vertex0)*v_up[i]/v_dw[i]+edge1_vertex0;
             rst[i]=edge0_vertex-edge1_vertex;
-            
+
         }
         return rst;
     }
@@ -95,14 +95,14 @@ std::array<double,8> function_ee(
 
     //     }
     // }
-    void convert_tuv_to_array(const Interval3& itv, 
+    void convert_tuv_to_array(const Interval3& itv,
     std::array<double,8>& t_up,std::array<double,8>&t_dw,
     std::array<double,8>& u_up,std::array<double,8>&u_dw,
     std::array<double,8>& v_up,std::array<double,8>&v_dw){
         // t order: 0,0,0,0,1,1,1,1
         // u order: 0,0,1,1,0,0,1,1
         // v order: 0,1,0,1,0,1,0,1
-        double 
+        double
         t0_up=itv[0].first.first,t0_dw=power(1,itv[0].first.second),
         t1_up=itv[0].second.first,t1_dw=power(1,itv[0].second.second),
 
@@ -119,7 +119,7 @@ std::array<double,8> function_ee(
         v_dw={{v0_dw,v1_dw,v0_dw,v1_dw,v0_dw,v1_dw,v0_dw,v1_dw}};
     }
 
-    
+
 //     __m512d function_f_vf_vector(
 //     __m512d vs,__m512d t0s,__m512d t1s,__m512d t2s,
 //     __m512d ve,__m512d t0e,__m512d t1e,__m512d t2e,
@@ -151,13 +151,13 @@ std::array<double,8> function_ee(
 //         __m512d t02=_mm512_sub_pd(t2,t0);
 //         t02=_mm512_mul_pd(t02,v_up);
 //         t02=_mm512_div_pd(t02,v_dw);
-       
+
 //        __m512d pt=_mm512_add_pd(t01,t02);
 //         pt=_mm512_add_pd(pt,t0);
 
 //        return _mm512_sub_pd(v,pt);
 
-// } 
+// }
 
 // void convert_to_vector_pts(
 //     const double asd,const double bsd,const double csd,const double dsd,
@@ -181,7 +181,7 @@ std::array<double,8> function_ee(
 // void convert_to_vector_pts_uvt(
 //     const std::array<double,8> &t_up, const std::array<double,8> &t_dw,
 //     const std::array<double,8> &u_up, const std::array<double,8> &u_dw,
-//     const std::array<double,8> &v_up, const std::array<double,8> &v_dw, 
+//     const std::array<double,8> &v_up, const std::array<double,8> &v_dw,
 
 //     __m512d& tu, __m512d& td, __m512d& uu, __m512d& ud,__m512d& vu, __m512d& vd
 //     ){
@@ -228,7 +228,7 @@ std::array<double,8> function_ee(
 // auto x=function_ee(a0s,a1s,b0s,b1s,a0e,a1e,b0e,b1e,t_up,t_dw,u_up,u_dw,v_up,v_dw);
 // return x[0]+x[7];
 // }
-        
+
 //     }
 //     printf("%f %f %f %f %f %f %f %f\n",
 //     ptr[0], ptr[1], ptr[2], ptr[3], ptr[4], ptr[5], ptr[6], ptr[7]);
@@ -239,7 +239,7 @@ std::array<double,8> function_ee(
 //     // for(long i=0;i<1e9;i++){
 //     //     sum+=test_();
 //     // }
-    
+
 
 //     return sum;
 // }

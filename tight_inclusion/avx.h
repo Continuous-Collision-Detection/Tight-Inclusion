@@ -1,7 +1,7 @@
 #pragma once
 #include<tight_inclusion/interval.hpp>
 namespace inclusion_ccd{
-    void convert_tuv_to_array(const Interval3& itv, 
+    void convert_tuv_to_array(const Interval3& itv,
     std::array<double,8>& t_up,std::array<double,8>&t_dw,
     std::array<double,8>& u_up,std::array<double,8>&u_dw,
     std::array<double,8>& v_up,std::array<double,8>&v_dw);

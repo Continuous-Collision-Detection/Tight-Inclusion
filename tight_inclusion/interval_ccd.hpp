@@ -12,7 +12,7 @@
 namespace inclusion_ccd {
 
 
-// This function can give you the answer of continous collision detection with minimum 
+// This function can give you the answer of continous collision detection with minimum
 // seperation, and the earlist collision time if collision happens.
 // err is the filters calculated using the bounding box of the simulation scene.
 // If you are checking a single query without a scene, please set it as [-1,-1,-1].
@@ -20,11 +20,11 @@ namespace inclusion_ccd {
 // toi is the earlist time of collision if collision happens. If there is no collision, toi will be infinate.
 // tolerance is a user - input solving precision. we suggest to use 1e-6.
 // t_max is the upper bound of the time interval [0,t_max] to be checked. 0<=t_max<=1
-// max_itr is a user-defined value to terminate the algorithm earlier, and return a result under current 
+// max_itr is a user-defined value to terminate the algorithm earlier, and return a result under current
 // precision. please set max_itr either a big number like 1e7, or -1 which means it will not be terminated
 // earlier and the precision will be user-defined precision -- tolerance.
 // output_tolerance is the precision under max_itr ( > 0). if max_itr < 0, output_tolerance = tolerance;
-// CCD_TYPE is a switch to choose root-finding methods. 
+// CCD_TYPE is a switch to choose root-finding methods.
 // 0 is normal ccd, 
 // 1 is ccd with input time interval upper bound, using real tolerance, max_itr and horizontal tree,
 bool edgeEdgeCCD_double(
@@ -45,7 +45,7 @@ bool edgeEdgeCCD_double(
     double &output_tolerance,
     const int CCD_TYPE);
 
-// This function can give you the answer of continous collision detection with minimum 
+// This function can give you the answer of continous collision detection with minimum
 // seperation, and the earlist collision time if collision happens.
 // err is the filters calculated using the bounding box of the simulation scene.
 // If you are checking a single query without a scene, please set it as [-1,-1,-1].
@@ -53,12 +53,12 @@ bool edgeEdgeCCD_double(
 // toi is the earlist time of collision if collision happens. If there is no collision, toi will be infinate.
 // tolerance is a user - input solving precision. we suggest to use 1e-6.
 // t_max is the upper bound of the time interval [0,t_max] to be checked. 0<=t_max<=1
-// max_itr is a user-defined value to terminate the algorithm earlier, and return a result under current 
+// max_itr is a user-defined value to terminate the algorithm earlier, and return a result under current
 // precision. please set max_itr either a big number like 1e7, or -1 which means it will not be terminated
 // earlier and the precision will be user-defined precision -- tolerance.
 // output_tolerance is the precision under max_itr ( > 0). if max_itr < 0, output_tolerance = tolerance;
-// CCD_TYPE is a switch to choose root-finding methods. 
-// 0 is normal ccd, 
+// CCD_TYPE is a switch to choose root-finding methods.
+// 0 is normal ccd,
 // 1 is ccd with input time interval upper bound, using real tolerance, max_itr and horizontal tree,
 bool vertexFaceCCD_double(
     const Eigen::Vector3d& vertex_start,
