@@ -9,7 +9,7 @@
 #include <queue>
 #include <fstream>
 // #define COMPARE_WITH_RATIONAL
-// #define USE_TIMER
+
 // #define DEBUGING
 namespace inclusion_ccd
 {

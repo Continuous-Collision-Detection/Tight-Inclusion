@@ -77,7 +77,9 @@ bool vertexFaceCCD_double(
     const int max_itr,
     double &output_tolerance,
     const int CCD_TYPE);
+#ifdef TIGHT_INCLUSION_USE_GMP
 
+// this version is an naive implementation of Tight-Inclusion CCD without optimizations
 bool edgeEdgeCCD_rational(
     const Eigen::Vector3d& a0s,
     const Eigen::Vector3d& a1s,
@@ -90,7 +92,8 @@ bool edgeEdgeCCD_rational(
     const std::array<double, 3>& err,
     const double ms,
     double& toi);
-
+    
+// this version is an naive implementation of Tight-Inclusion CCD without optimizations
 bool vertexFaceCCD_rational(
     const Eigen::Vector3d& vertex_start,
     const Eigen::Vector3d& face_vertex0_start,
@@ -104,9 +107,7 @@ bool vertexFaceCCD_rational(
     const double ms,
     double& toi);
 
+#endif
 
-void print_time_1();
-
-void print_tol();
 
 } // namespace inclusion_ccd

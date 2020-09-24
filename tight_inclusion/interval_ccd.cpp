@@ -10,10 +10,9 @@
 namespace inclusion_ccd
 {
 
-    double time0 = 0, time1 = 0, time2 = 0;
+
     static double CCD_LENGTH_TOL = 1e-6;
-    double tol0 = 0, tol1 = 0, tol2 = 0, tol0n = 0, tol1n = 0, tol2n = 0;
-    double c00, c01, c10, c11, c20, c21;
+
 
     std::array<Eigen::Vector3d, 2>
     bbd_4_pts_new(const std::array<Eigen::Vector3d, 4> &pts)
@@ -338,8 +337,7 @@ namespace inclusion_ccd
 
         //////////////////////////////////////////////////////////
 
-        igl::Timer timer;
-        timer.start();
+
         bool is_impacting;
 
         // 0 is normal ccd without pre-check,
@@ -358,7 +356,7 @@ namespace inclusion_ccd
                 tol, tolerance, toi, false, err1, ms, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, t_max, max_itr, output_tolerance);
         }
 
-        time0 += timer.getElapsedTimeInMicroSec();
+
         // Return a conservative time-of-impact
         //    if (is_impacting) {
         //        toi =
@@ -435,8 +433,7 @@ namespace inclusion_ccd
         //////////////////////////////////////////////////////////
 
         // Interval3 toi_interval;
-        igl::Timer timer;
-        timer.start();
+        
         bool is_impacting;
 
         // 0 is normal ccd without pre-check,
@@ -506,12 +503,11 @@ namespace inclusion_ccd
         //////////////////////////////////////////////////////////
 
         std::array<std::pair<Rational, Rational>, 3> toi_interval;
-        igl::Timer timer;
-        timer.start();
+
         bool is_impacting = interval_root_finder_Rational(
             tol, toi_interval, false, err1, ms, a0s, a1s, b0s, b1s, a0e, a1e, b0e,
             b1e);
-        time0 += timer.getElapsedTimeInMicroSec();
+        
         // Return a conservative time-of-impact
         if (is_impacting)
         {
@@ -562,13 +558,12 @@ namespace inclusion_ccd
         //////////////////////////////////////////////////////////
 
         std::array<std::pair<Rational, Rational>, 3> toi_interval;
-        igl::Timer timer;
-        timer.start();
+
         bool is_impacting = interval_root_finder_Rational(
             tol, toi_interval, true, err1, ms, vertex_start, face_vertex0_start,
             face_vertex1_start, face_vertex2_start, vertex_end, face_vertex0_end,
             face_vertex1_end, face_vertex2_end);
-        time0 += timer.getElapsedTimeInMicroSec();
+        
         // std::cout<<"get result successfully"<<std::endl;
         // Return a conservative time-of-impact
         if (is_impacting)
@@ -582,19 +577,7 @@ namespace inclusion_ccd
         return false;
     }
 #endif
-    void print_time_1()
-    {
-        std::cout << "time of root finder, " << time0 << std::endl;
-    }
+    
 
-    void print_tol()
-    {
-        std::cout << "tol, " << tol0 << " " << tol1 << " " << tol2 << std::endl;
-        std::cout << "toln, " << tol0n << " " << tol1n << " " << tol2n << std::endl;
-        if (tol0 == 0 || tol1 == 0 || tol2 == 0)
-        {
-            std::cout << "***** tolerance is 0 for some cases" << std::endl;
-        }
-        std::cout << "lengths, " << c00 << ", " << c10 << ", " << c20 << std::endl;
-    }
+    
 } // namespace inclusion_ccd
