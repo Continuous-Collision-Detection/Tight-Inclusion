@@ -1121,7 +1121,9 @@ namespace inclusion_ccd
         }
         return false;
     }
-    // return power t. n=result*2^t
+    
+#endif
+// return power t. n=result*2^t
     long reduction(const long n, long &result)
     {
         int t = 0;
@@ -1134,7 +1136,7 @@ namespace inclusion_ccd
         result = newn;
         return t;
     }
-#endif
+
     std::pair<Singleinterval, Singleinterval> bisect(const Singleinterval &inter)
     {
         Numccd low = inter.first;
