@@ -42,6 +42,9 @@ if(TIGHT_INCLUSION_WITH_TIMER)
   target_compile_definitions(tight_inclusion PRIVATE TIGHT_INCLUSION_USE_TIMER)
 endif()
 
-# WARNING: This requires a check  as it will break compatability with non-AVX
-#          processors.
-target_compile_options(tight_inclusion PUBLIC "-mavx2")
+# Figure out AVX level support
+message(STATUS "Searching for AVX...")
+find_package(AVX)
+# Add SSE, AVX, and FMA flags to compiler flags
+string(REPLACE " " ";" SIMD_FLAGS "${AVX_FLAGS}")
+target_compile_options(tight_inclusion PRIVATE ${SIMD_FLAGS})
