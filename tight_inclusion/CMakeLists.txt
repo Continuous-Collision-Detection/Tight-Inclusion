@@ -7,6 +7,7 @@ tight_inclusion/interval.hpp
 tight_inclusion/Rational.hpp
 tight_inclusion/avx.h
 tight_inclusion/avx.cpp
+tight_inclusion/igl-Timer.h
 PARENT_SCOPE
 )
 ################################################################################
