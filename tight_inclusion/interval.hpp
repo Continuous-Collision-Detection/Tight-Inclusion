@@ -4,7 +4,6 @@
 #include <string>
 
 #include <Eigen/Core>
-// #include <boost/numeric/interval.hpp>
 #ifdef TIGHT_INCLUSION_USE_GMP
 #include <tight_inclusion/Rational.hpp>
 #endif
@@ -25,7 +24,6 @@ namespace inclusion_ccd
 namespace Eigen
 {
 
-    typedef Matrix<double, 3, 1> Vector3d;
     typedef Matrix<double, Dynamic, 1, ColMajor, 3, 1> VectorX3d;
 
 } // namespace Eigen
