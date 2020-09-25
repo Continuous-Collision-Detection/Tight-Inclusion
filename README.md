@@ -26,17 +26,12 @@ make
 
 ---
  
-##	Usage:
-```sh
-<PATH_TO_BINARY>/TI_CCD_bin  
-```
-**Note that:** Due to the limits of upload file size, we only provide a subset of queries
-
 ## Usage
 Include `#include <tight_inclusion/inclusion_ccd.hpp>`
+
 To check edge-edge ccd, use `bool edgeEdgeCCD_double();`
+
 To check vertex-face ccd, use `bool vertexFaceCCD_double();`
+
 Please read the annotations for the details of the parameter setting
 
-
-  Call one of the `is_outside` function with a triangle, point, or segment.
