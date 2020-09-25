@@ -2,7 +2,7 @@
 
 #include <tight_inclusion/igl-Timer.h>
 
-#include <tight_inclusion/interval_ccd.hpp>
+#include <tight_inclusion/inclusion_ccd.hpp>
 #include <tight_inclusion/interval_root_finder.hpp>
 
 #include <vector>
