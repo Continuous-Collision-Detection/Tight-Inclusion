@@ -1121,7 +1121,7 @@ namespace inclusion_ccd
         }
         return false;
     }
-    
+
 #endif
 // return power t. n=result*2^t
     long reduction(const long n, long &result)
@@ -1695,6 +1695,8 @@ namespace inclusion_ccd
             }
             else
             {
+                if (i1.first[0].first == i2.first[0].first)
+                    return false;
                 return !(less_than(i1.first[0].first, i2.first[0].first));
             }
         };
