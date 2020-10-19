@@ -576,8 +576,15 @@ namespace inclusion_ccd
         return is_impacting;
         return false;
     }
+
 #endif
-    
+bool using_rational_method(){
+    #ifdef TIGHT_INCLUSION_USE_GMP
+    return true;
+    #else
+    return false;
+    #endif
+}    
 
     
 } // namespace inclusion_ccd

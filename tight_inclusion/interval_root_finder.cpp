@@ -1435,7 +1435,7 @@ namespace inclusion_ccd
             timer.stop();
             time20 += timer.getElapsedTimeInMicroSec();
 #endif
-#ifdef COMPARE_WITH_RATIONAL // this is defined in the begining of this file
+#ifdef TIGHT_INCLUSION_USE_GMP // this is defined in the begining of this file
 
             zero_in = Origin_in_function_bounding_box_Rational(current, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, check_vf);
 
@@ -1758,12 +1758,12 @@ namespace inclusion_ccd
             bool zero_in;
             bool box_in;
             std::array<double, 3> true_tol;
-#ifdef COMPARE_WITH_RATIONAL // this is defined in the begining of this file
+#ifdef TIGHT_INCLUSION_USE_GMP // this is defined in the begining of this file
             std::array<double, 3> ms_3d;
             ms_3d[0] = ms;
             ms_3d[1] = ms;
             ms_3d[2] = ms;
-            zero_in = Origin_in_function_bounding_box_Rational_return_tolerance(current, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, check_vf, err_and_ms, box_in, true_tol);
+            zero_in = Origin_in_function_bounding_box_Rational_return_tolerance(current, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, check_vf, ms_3d, box_in, true_tol);
 
 #else
             zero_in = Origin_in_function_bounding_box_double_vector_return_tolerance(current, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, check_vf, err, ms, box_in, true_tol);

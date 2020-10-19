@@ -5,6 +5,11 @@ project(TI_CCD)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+    set(TIGHT_INCLUSION_TOPLEVEL_PROJECT ON)
+else()
+    set(TIGHT_INCLUSION_TOPLEVEL_PROJECT OFF)
+endif()
 ### Configuration
 set(TIGHT_INCLUSION_EXTERNAL "${CMAKE_CURRENT_SOURCE_DIR}/external")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
@@ -33,9 +38,10 @@ target_link_libraries(tight_inclusion PRIVATE warnings::all)
 #Optional
 #GMP
 if(TIGHT_INCLUSION_WITH_GMP)
+message(STATUS "TIGHT_INCLUSION_WITH_GMP is defined, now using rational root finder")
   target_include_directories(tight_inclusion PUBLIC ${GMP_INCLUDE_DIRS} src)
   target_link_libraries(tight_inclusion PUBLIC ${GMP_LIBRARIES})
-  target_compile_definitions(tight_inclusion PRIVATE TIGHT_INCLUSION_USE_GMP)
+  target_compile_definitions(tight_inclusion PUBLIC TIGHT_INCLUSION_USE_GMP)
 endif()
 
 if(TIGHT_INCLUSION_WITH_TIMER)
@@ -50,3 +56,11 @@ string(REPLACE " " ";" SIMD_FLAGS "${AVX_FLAGS}")
 target_compile_options(tight_inclusion PRIVATE ${SIMD_FLAGS})
 
 target_compile_definitions(tight_inclusion PUBLIC NOMINMAX)
+
+if(TIGHT_INCLUSION_TOPLEVEL_PROJECT)
+add_executable(Tight_Inclusion_bin
+app/main.cpp
+)
+target_link_libraries(Tight_Inclusion_bin PUBLIC tight_inclusion)
+
+endif()

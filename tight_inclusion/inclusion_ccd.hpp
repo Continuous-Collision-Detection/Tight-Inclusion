@@ -108,6 +108,6 @@ bool vertexFaceCCD_rational(
     double& toi);
 
 #endif
-
+bool using_rational_method();
 
 } // namespace inclusion_ccd
