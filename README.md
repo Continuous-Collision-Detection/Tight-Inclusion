@@ -1,28 +1,23 @@
-# Tight-Inclusion
-Tight-Inclusion Continuous Collision Detection 
+# Tight-Inclusion Continuous Collision Detection 
+A conservative CCD method with support for minimum separation.
 
-:warning: CAUTION: The Code Is Tested Using GCC, Probably Also Works On MSVC and Clang
+You can read more about this work in our ACM Transactions on Graphics paper:
 
+["A Large Scale Benchmark and an Inclusion-Based Algorithm forContinuous Collision Detection"](https://continuous-collision-detection.github.io/)
 
 ---
 
 ## Compiling Instruction 
 
-To compile the code, first you need to install 
-* CMake (https://cmake.org/), 
-* GMP (https://gmplib.org/) (GMP is required only when the CMake option TIGHT_INCLUSION_WITH_GMP is setted as ON)
+To compile the code, first make sure CMake is installed. 
 
-in your system. 
-
-To build the executable file, you can use CMake
+To build the library on Linux or maxOS:
 ```sh
-cd Tight-Inclusion/
 mkdir build
 cd build
-cmake ../  -DCMAKE_BUILD_TYPE=Release
-make
+cmake ../ -DCMAKE_BUILD_TYPE=Release
+make -j4
 ```
-
 
 ---
  
