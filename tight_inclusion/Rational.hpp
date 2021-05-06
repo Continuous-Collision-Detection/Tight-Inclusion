@@ -1,5 +1,12 @@
 #pragma once
-#ifdef TIGHT_INCLUSION_USE_GMP
+#ifdef TIGHT_INCLUSION_RUN_EXAMPLES
+#define TIGHT_INCLUSION_ENABLE_GMP
+#endif
+#ifdef TIGHT_INCLUSION_USE_GMP 
+#define TIGHT_INCLUSION_ENABLE_GMP
+#endif
+
+#ifdef TIGHT_INCLUSION_ENABLE_GMP
 #include <gmp.h>
 #include <iostream>
 
@@ -209,4 +216,5 @@ namespace inclusion_ccd
         }
     };
 } // namespace inclusion_ccd
+
 #endif

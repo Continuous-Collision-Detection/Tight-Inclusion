@@ -22,6 +22,7 @@ include(TI_CCDUtils)
 OPTION(TIGHT_INCLUSION_WITH_GMP   "Enable rational based predicates, for debug" OFF)
 OPTION(TIGHT_INCLUSION_WITH_TIMER "Enable profiling timers, for debug"          OFF)
 
+
 include(${PROJECT_NAME}Dependencies)
 
 
@@ -60,7 +61,15 @@ target_compile_definitions(tight_inclusion PUBLIC NOMINMAX)
 if(TIGHT_INCLUSION_TOPLEVEL_PROJECT)
 add_executable(Tight_Inclusion_bin
 app/main.cpp
+app/read_rational_csv.cpp
 )
 target_link_libraries(Tight_Inclusion_bin PUBLIC tight_inclusion)
-
+target_compile_definitions(Tight_Inclusion_bin PUBLIC
+    TICCD_EXAMPLE_QUERIES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/external/Sample-Queries/")
+ticcd_download_sample_queries()
+	if (NOT TIGHT_INCLUSION_WITH_GMP)
+		target_include_directories(tight_inclusion PUBLIC ${GMP_INCLUDE_DIRS} src)
+		target_link_libraries(tight_inclusion PUBLIC ${GMP_LIBRARIES})
+		target_compile_definitions(tight_inclusion PUBLIC TIGHT_INCLUSION_RUN_EXAMPLES)
+	endif()
 endif()

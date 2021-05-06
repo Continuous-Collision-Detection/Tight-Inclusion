@@ -29,3 +29,11 @@ function(ccd_download_eigen)
 	GIT_TAG       3.3.7
     )
 endfunction()
+
+# Sampled CCD Queries
+function(ticcd_download_sample_queries)
+    ccd_download_project(Sample-Queries
+    GIT_REPOSITORY https://github.com/Continuous-Collision-Detection/Sample-Queries.git
+    GIT_TAG        4d6cce33477d8d5c666c31c8ea23e1aea97be371
+  )
+endfunction()
