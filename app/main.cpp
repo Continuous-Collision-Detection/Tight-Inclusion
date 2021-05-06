@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include <vector>
-#include"read_rational_csv.hpp"
+
 
 #include <array>
 #include <tight_inclusion/inclusion_ccd.hpp>
@@ -12,21 +12,6 @@
 #include <cstdlib>
 
 using namespace inclusion_ccd;
-
-std::string root_path(TICCD_EXAMPLE_QUERIES_DIR);
-std::vector<std::string> simulation_folders
-= { { "chain", "cow-heads", "golf-ball", "mat-twist" } };
-std::vector<std::string> handcrafted_folders
-= { { 
-		"erleben-sliding-spike", "erleben-spike-wedge",
-	  "erleben-sliding-wedge", "erleben-wedge-crack", "erleben-spike-crack",
-	  "erleben-wedges", "erleben-cube-cliff-edges", 
-	"erleben-spike-hole",
-	  "erleben-cube-internal-edges", "erleben-spikes", "unit-tests" } };
-std::vector<std::string> fnames = { { "data_0_0.csv"}, {"data_0_1.csv" } };
-
-
-
 void case_check(){
   
 
@@ -61,6 +46,26 @@ void case_check(){
     }
     }
 
+
+
+
+
+
+
+#ifdef TIGHT_INCLUSION_RUN_EXAMPLES
+
+#include"read_rational_csv.hpp"
+std::string root_path(TICCD_EXAMPLE_QUERIES_DIR);
+std::vector<std::string> simulation_folders
+= { { "chain", "cow-heads", "golf-ball", "mat-twist" } };
+std::vector<std::string> handcrafted_folders
+= { { 
+		"erleben-sliding-spike", "erleben-spike-wedge",
+	  "erleben-sliding-wedge", "erleben-wedge-crack", "erleben-spike-crack",
+	  "erleben-wedges", "erleben-cube-cliff-edges", 
+	"erleben-spike-hole",
+	  "erleben-cube-internal-edges", "erleben-spikes", "unit-tests" } };
+std::vector<std::string> fnames = { { "data_0_0.csv"}, {"data_0_1.csv" } };
 void run_rational_data_single_method(
 	const bool is_edge_edge,
 	const bool is_simulation_data,
@@ -196,11 +201,16 @@ void run_code() {
 	std::cout << "finish Edge-Edge data" << std::endl;
 
 }
+#endif
 
 int main(int argc, char* argv[])
 {
 //    inclusion_ccd::Rational a;
+#ifdef TIGHT_INCLUSION_RUN_EXAMPLES
 	run_code();
+#else
+	case_check();
+#endif
 	std::cout << "done!" << std::endl;
 
     return 1;
