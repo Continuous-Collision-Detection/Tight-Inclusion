@@ -13,7 +13,7 @@ You can read more about this work in our ACM Transactions on Graphics paper:
 
 To compile the code, first make sure CMake is installed. 
 
-To build the library on Linux or maxOS:
+To build the library on Linux or macOS:
 ```sh
 mkdir build
 cd build
