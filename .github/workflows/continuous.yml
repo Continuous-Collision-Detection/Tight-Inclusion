@@ -103,7 +103,7 @@ jobs:
         # https://github.com/actions/cache/issues/101
       - name: Set env
         run: |
-          echo "::set-env name=appdata::$($env:LOCALAPPDATA)"
+          echo "name=appdata::$($env:LOCALAPPDATA)">> $GITHUB_ENV
 
       - name: Cache build
         id: cache-build
@@ -117,7 +117,7 @@ jobs:
           Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
           scoop install sccache --global
           # Scoop modifies the PATH so we make the modified PATH global.
-          echo "::set-env name=PATH::$env:PATH"
+          echo "name=PATH::$env:PATH">> $GITHUB_ENV
 
       - name: Configure and build
         shell: cmd
