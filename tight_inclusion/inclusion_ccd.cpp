@@ -4,7 +4,7 @@
 
 #include <tight_inclusion/inclusion_ccd.hpp>
 #include <tight_inclusion/interval_root_finder.hpp>
-
+#include <iomanip>
 #include <vector>
 
 namespace inclusion_ccd
@@ -353,7 +353,8 @@ namespace inclusion_ccd
         {
             assert(t_max >= 0 && t_max <= 1);
             is_impacting = interval_root_finder_double_horizontal_tree(
-                tol, tolerance, toi, false, err1, ms, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, t_max, max_itr, output_tolerance);
+                tol, tolerance, toi, false, err1, ms, a0s, a1s, b0s, b1s, 
+                a0e, a1e, b0e, b1e, t_max, max_itr, output_tolerance);
         }
 
 
@@ -364,10 +365,45 @@ namespace inclusion_ccd
         //    }
         // This time of impact is very dangerous for convergence
         assert(!is_impacting || toi >= 0);
+#ifdef TIGHT_INCLUSION_NO_ZERO_TOI
+
+        // this modification is for IPC simulation
+        if(toi==0){
+            // std::cout<<"ee toi == 0, info:\n"<<"tolerance "<<tolerance<<"\noutput_tolerance "<<
+            // output_tolerance<<"\nminimum distance "<<ms<<std::endl;
+            // std::cout<<"ms > 0? "<<(ms>0)<<std::endl;
+            // std::cout<<"t max "<<t_max<<std::endl;
+
+            // we rebuild the time interval
+            // since tol is conservative:
+            double new_max_time=std::min(tol[0]*10, 0.1);// this is the new time range    
+            //if early terminated, use tolerance; otherwise, use smaller tolerance
+            // althouth time resolution and tolerance is not the same thing, but decrease
+            // tolerance will be helpful
+            double new_tolerance=output_tolerance>tolerance?tolerance:0.1*tolerance;
+            double new_toi;
+            double new_output_tol;
+            bool res=edgeEdgeCCD_double(a0s, a1s, b0s, b1s, 
+                a0e, a1e, b0e, b1e,
+                err,ms,new_toi,new_tolerance,new_max_time,max_itr,new_output_tol,
+               CCD_TYPE);
+
+            if(res){
+                toi=new_toi;
+            }
+            else{
+                toi=new_max_time;
+            }
+            return true;
+        }
+
+#endif
+
+        //modification end
         return is_impacting;
         return false;
     }
-
+    int LEVEL_NBR=0;
     // This function can give you the answer of continous collision detection with minimum
     // seperation, and the earlist collision time if collision happens.
     // err is the filters calculated using the bounding box of the simulation scene.
@@ -463,6 +499,44 @@ namespace inclusion_ccd
         //    }
         // This time of impact is very dangerous for convergence
         // assert(!is_impacting || toi > 0);
+
+
+        // this modification is for IPC simulation
+        LEVEL_NBR++;
+#ifdef TIGHT_INCLUSION_NO_ZERO_TOI
+        if(toi==0){
+            // std::cout<<"vf toi == 0, info:\n"<<"tolerance "<<tolerance<<"\noutput_tolerance "<<
+            // output_tolerance<<"\nminimum distance "<<std::setprecision(17)<<ms<<std::endl;
+            // std::cout<<"ms > 0? "<<(ms>0)<<std::endl;
+            // std::cout<<"t max "<<t_max<<std::endl;
+            // std::cout<<"which level "<<LEVEL_NBR<<std::endl;
+
+            // we rebuild the time interval
+            // since tol is conservative:
+            double new_max_time=std::min(tol[0]*10, 0.1);// this is the new time range    
+            //if early terminated, use tolerance; otherwise, use smaller tolerance
+            // althouth time resolution and tolerance is not the same thing, but decrease
+            // tolerance will be helpful
+            double new_tolerance=output_tolerance>tolerance?tolerance:0.1*tolerance;
+            double new_toi;
+            double new_output_tol;
+            bool res=vertexFaceCCD_double(vertex_start, face_vertex0_start, face_vertex1_start,
+                face_vertex2_start, vertex_end, face_vertex0_end, face_vertex1_end,
+                face_vertex2_end,err,ms,new_toi,new_tolerance,new_max_time,max_itr,new_output_tol,
+               CCD_TYPE);
+
+            if(res){
+                toi=new_toi;
+            }
+            else{
+                toi=new_max_time;
+            }
+            LEVEL_NBR=0;
+            return true;
+        }
+#endif  
+        LEVEL_NBR=0;
+
         return is_impacting;
         return false;
     }
@@ -576,15 +650,8 @@ namespace inclusion_ccd
         return is_impacting;
         return false;
     }
-
 #endif
-bool using_rational_method(){
-    #ifdef TIGHT_INCLUSION_USE_GMP
-    return true;
-    #else
-    return false;
-    #endif
-}    
+    
 
     
 } // namespace inclusion_ccd

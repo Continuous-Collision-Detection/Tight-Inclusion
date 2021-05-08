@@ -22,7 +22,8 @@ include(TI_CCDUtils)
 OPTION(TIGHT_INCLUSION_WITH_GMP   "Enable rational based predicates, for debug" OFF)
 OPTION(TIGHT_INCLUSION_WITH_TESTS   "Enable test functions" OFF)
 OPTION(TIGHT_INCLUSION_WITH_TIMER "Enable profiling timers, for debug"          OFF)
-
+OPTION(TIGHT_INCLUSION_WITH_NO_ZERO_TOI 
+"Continue to earch solution in higher resolution if toi is 0"         OFF)
 
 include(${PROJECT_NAME}Dependencies)
 
@@ -56,7 +57,9 @@ find_package(AVX)
 # Add SSE, AVX, and FMA flags to compiler flags
 string(REPLACE " " ";" SIMD_FLAGS "${AVX_FLAGS}")
 target_compile_options(tight_inclusion PRIVATE ${SIMD_FLAGS})
-
+if (TIGHT_INCLUSION_WITH_NO_ZERO_TOI)
+  target_compile_definitions(tight_inclusion PRIVATE TIGHT_INCLUSION_NO_ZERO_TOI)
+endif()
 target_compile_definitions(tight_inclusion PUBLIC NOMINMAX)
 
 if(TIGHT_INCLUSION_TOPLEVEL_PROJECT)
