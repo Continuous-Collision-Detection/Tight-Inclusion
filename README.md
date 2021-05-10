@@ -7,8 +7,6 @@ You can read more about this work in our ACM Transactions on Graphics paper:
 
 ["A Large Scale Benchmark and an Inclusion-Based Algorithm forContinuous Collision Detection"](https://continuous-collision-detection.github.io/)
 
----
-
 ## Compiling Instruction 
 
 To compile the code, first make sure CMake is installed. 
@@ -20,8 +18,6 @@ cd build
 cmake ../ -DCMAKE_BUILD_TYPE=Release
 make -j4
 ```
-
----
  
 ## Usage
 Include `#include <tight_inclusion/inclusion_ccd.hpp>`
