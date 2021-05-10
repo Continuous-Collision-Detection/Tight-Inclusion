@@ -367,13 +367,16 @@ namespace inclusion_ccd
         assert(!is_impacting || toi >= 0);
 #ifdef TIGHT_INCLUSION_NO_ZERO_TOI
 
-        // this modification is for IPC simulation
+        // This modification is for CCD-filtered line-search (e.g., IPC)
+        // WARNING: This option assumes the initial distance is not zero.
         if (toi == 0)
         {
-            // std::cout<<"ee toi == 0, info:\n"<<"tolerance "<<tolerance<<"\noutput_tolerance "<<
-            // output_tolerance<<"\nminimum distance "<<ms<<std::endl;
-            // std::cout<<"ms > 0? "<<(ms>0)<<std::endl;
-            // std::cout<<"t max "<<t_max<<std::endl;
+            // std::cout << "ee toi == 0, info:\n"
+            //           << "tolerance " << tolerance << "\noutput_tolerance "
+            //           << output_tolerance << "\nminimum distance " << ms
+            //           << std::endl;
+            // std::cout << "ms > 0? " << (ms > 0) << std::endl;
+            // std::cout << "t max " << t_max << std::endl;
 
             // we rebuild the time interval
             // since tol is conservative:
@@ -505,24 +508,28 @@ namespace inclusion_ccd
         // This time of impact is very dangerous for convergence
         // assert(!is_impacting || toi > 0);
 
-        // this modification is for IPC simulation
         LEVEL_NBR++;
 #ifdef TIGHT_INCLUSION_NO_ZERO_TOI
+
+        // This modification is for CCD-filtered line-search (e.g., IPC)
+        // WARNING: This option assumes the initial distance is not zero.
         if (toi == 0)
         {
-            // std::cout<<"vf toi == 0, info:\n"<<"tolerance "<<tolerance<<"\noutput_tolerance "<<
-            // output_tolerance<<"\nminimum distance "<<std::setprecision(17)<<ms<<std::endl;
-            // std::cout<<"ms > 0? "<<(ms>0)<<std::endl;
-            // std::cout<<"t max "<<t_max<<std::endl;
-            // std::cout<<"which level "<<LEVEL_NBR<<std::endl;
+            // std::cout << "vf toi == 0, info:\n"
+            //           << "tolerance " << tolerance << "\noutput_tolerance "
+            //           << output_tolerance << "\nminimum distance "
+            //           << std::setprecision(17) << ms << std::endl;
+            // std::cout << "ms > 0? " << (ms > 0) << std::endl;
+            // std::cout << "t max " << t_max << std::endl;
+            // std::cout << "which level " << LEVEL_NBR << std::endl;
 
             // we rebuild the time interval
             // since tol is conservative:
             double new_max_time =
                 std::min(tol[0] * 10, 0.1); // this is the new time range
-            //if early terminated, use tolerance; otherwise, use smaller tolerance
-            // althouth time resolution and tolerance is not the same thing, but decrease
-            // tolerance will be helpful
+            // if early terminated, use tolerance; otherwise, use smaller
+            // tolerance althouth time resolution and tolerance is not the same
+            // thing, but decrease tolerance will be helpful
             double new_tolerance =
                 output_tolerance > tolerance ? tolerance : 0.1 * tolerance;
             double new_toi;
@@ -544,6 +551,7 @@ namespace inclusion_ccd
             LEVEL_NBR = 0;
             return true;
         }
+
 #endif
         LEVEL_NBR = 0;
 

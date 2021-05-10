@@ -6,10 +6,11 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-    set(TIGHT_INCLUSION_TOPLEVEL_PROJECT ON)
+  set(TIGHT_INCLUSION_TOPLEVEL_PROJECT ON)
 else()
-    set(TIGHT_INCLUSION_TOPLEVEL_PROJECT OFF)
+  set(TIGHT_INCLUSION_TOPLEVEL_PROJECT OFF)
 endif()
+
 ### Configuration
 set(TIGHT_INCLUSION_EXTERNAL "${CMAKE_CURRENT_SOURCE_DIR}/external")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
@@ -18,12 +19,10 @@ include(Warnings)
 include(UseColors)
 include(TI_CCDUtils)
 
-
-OPTION(TIGHT_INCLUSION_WITH_GMP   "Enable rational based predicates, for debug" OFF)
-OPTION(TIGHT_INCLUSION_WITH_TESTS   "Enable test functions" OFF)
-OPTION(TIGHT_INCLUSION_WITH_TIMER "Enable profiling timers, for debug"          OFF)
-OPTION(TIGHT_INCLUSION_WITH_NO_ZERO_TOI 
-"Continue to earch solution in higher resolution if toi is 0"         OFF)
+OPTION(TIGHT_INCLUSION_WITH_GMP          "Enable rational based predicates, for debug"  OFF)
+OPTION(TIGHT_INCLUSION_WITH_TESTS        "Enable test functions"                        OFF)
+OPTION(TIGHT_INCLUSION_WITH_TIMER        "Enable profiling timers, for debug"           OFF)
+OPTION(TIGHT_INCLUSION_WITH_NO_ZERO_TOI  "Enable refinment if CCD produces a zero ToI"  OFF)
 
 include(${PROJECT_NAME}Dependencies)
 
@@ -63,24 +62,24 @@ endif()
 target_compile_definitions(tight_inclusion PUBLIC NOMINMAX)
 
 if(TIGHT_INCLUSION_TOPLEVEL_PROJECT)
-if (TIGHT_INCLUSION_WITH_TESTS)
-add_executable(Tight_Inclusion_bin
-app/main.cpp
-app/read_rational_csv.cpp
-)
-else()
-add_executable(Tight_Inclusion_bin
-app/main.cpp
-)
-endif()
-target_link_libraries(Tight_Inclusion_bin PUBLIC tight_inclusion)
+  if (TIGHT_INCLUSION_WITH_TESTS)
+    add_executable(Tight_Inclusion_bin
+      app/main.cpp
+      app/read_rational_csv.cpp
+    )
+  else()
+    add_executable(Tight_Inclusion_bin app/main.cpp)
+  endif()
 
-ticcd_download_sample_queries()
-	if (NOT TIGHT_INCLUSION_WITH_GMP AND TIGHT_INCLUSION_WITH_TESTS)
-		target_include_directories(tight_inclusion PUBLIC ${GMP_INCLUDE_DIRS} src)
-		target_link_libraries(tight_inclusion PUBLIC ${GMP_LIBRARIES})
-		target_compile_definitions(tight_inclusion PUBLIC TIGHT_INCLUSION_RUN_EXAMPLES)
+  target_link_libraries(Tight_Inclusion_bin PUBLIC tight_inclusion)
+
+  ticcd_download_sample_queries()
+
+  if (NOT TIGHT_INCLUSION_WITH_GMP AND TIGHT_INCLUSION_WITH_TESTS)
+    target_include_directories(tight_inclusion PUBLIC ${GMP_INCLUDE_DIRS} src)
+    target_link_libraries(tight_inclusion PUBLIC ${GMP_LIBRARIES})
+    target_compile_definitions(tight_inclusion PUBLIC TIGHT_INCLUSION_RUN_EXAMPLES)
     target_compile_definitions(Tight_Inclusion_bin PUBLIC
     TICCD_EXAMPLE_QUERIES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/external/Sample-Queries/")
-	endif()
+  endif()
 endif()
