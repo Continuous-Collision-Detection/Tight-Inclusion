@@ -19,10 +19,10 @@ include(Warnings)
 include(UseColors)
 include(TI_CCDUtils)
 
-OPTION(TIGHT_INCLUSION_WITH_GMP          "Enable rational based predicates, for debug"  OFF)
-OPTION(TIGHT_INCLUSION_WITH_TESTS        "Enable test functions"                        OFF)
-OPTION(TIGHT_INCLUSION_WITH_TIMER        "Enable profiling timers, for debug"           OFF)
-OPTION(TIGHT_INCLUSION_WITH_NO_ZERO_TOI  "Enable refinment if CCD produces a zero ToI"  OFF)
+OPTION(TIGHT_INCLUSION_WITH_GMP          "Enable rational based predicates, for debug"   OFF)
+OPTION(TIGHT_INCLUSION_WITH_TESTS        "Enable test functions"                         OFF)
+OPTION(TIGHT_INCLUSION_WITH_TIMER        "Enable profiling timers, for debug"            OFF)
+OPTION(TIGHT_INCLUSION_WITH_NO_ZERO_TOI  "Enable refinement if CCD produces a zero ToI"  OFF)
 
 include(${PROJECT_NAME}Dependencies)
 
