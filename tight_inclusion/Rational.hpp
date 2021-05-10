@@ -2,7 +2,7 @@
 #ifdef TIGHT_INCLUSION_RUN_EXAMPLES
 #define TIGHT_INCLUSION_ENABLE_GMP
 #endif
-#ifdef TIGHT_INCLUSION_USE_GMP 
+#ifdef TIGHT_INCLUSION_USE_GMP
 #define TIGHT_INCLUSION_ENABLE_GMP
 #endif
 
@@ -12,9 +12,7 @@
 
 namespace inclusion_ccd
 {
-
-    class
-        Rational
+    class Rational
     {
     public:
         mpq_t value;

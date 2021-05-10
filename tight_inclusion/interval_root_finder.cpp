@@ -2,18 +2,20 @@
 #include <tight_inclusion/interval_root_finder.hpp>
 
 #include <stack>
-#include <tight_inclusion/igl-Timer.h>
 #include <iostream>
-#include <tight_inclusion/Rational.hpp>
-#include <tight_inclusion/avx.h>
 #include <queue>
 #include <fstream>
+
+#include <tight_inclusion/Timer.hpp>
+#include <tight_inclusion/Rational.hpp>
+#include <tight_inclusion/avx.hpp>
 // #define COMPARE_WITH_RATIONAL
 
 // #define DEBUGING
 namespace inclusion_ccd
 {
-    double time20 = 0, time21 = 0, time22 = 0, time23 = 0, time24 = 0, time25 = 0, time_rational = 0;
+    double time20 = 0, time21 = 0, time22 = 0, time23 = 0, time24 = 0,
+           time25 = 0, time_rational = 0;
     int refine = 0;
     int refine_return = 0;
 
@@ -25,7 +27,8 @@ namespace inclusion_ccd
     }
 
 #ifdef TIGHT_INCLUSION_USE_GMP
-    std::array<Rational, 3> width(const std::array<std::pair<Rational, Rational>, 3> &x)
+    std::array<Rational, 3>
+    width(const std::array<std::pair<Rational, Rational>, 3> &x)
     {
         std::array<Rational, 3> w;
 
@@ -39,9 +42,9 @@ namespace inclusion_ccd
     }
 #endif
 
-    Eigen::VectorX3d width(const Interval3 &x)
+    VectorMax3d width(const Interval3 &x)
     {
-        Eigen::VectorX3d w;
+        VectorMax3d w;
         w.resize(3);
         for (int i = 0; i < 3; i++)
         {
@@ -51,7 +54,8 @@ namespace inclusion_ccd
         return w;
     }
 
-    std::array<Eigen::Vector3d, 2> bbd_4_pts(const std::array<Eigen::Vector3d, 4> &pts)
+    std::array<Eigen::Vector3d, 2>
+    bbd_4_pts(const std::array<Eigen::Vector3d, 4> &pts)
     {
         Eigen::Vector3d min, max;
         min = pts[0];
@@ -75,7 +79,8 @@ namespace inclusion_ccd
         rst[1] = max;
         return rst;
     }
-    std::array<Eigen::Vector3d, 2> bbd_6_pts(const std::array<Eigen::Vector3d, 6> &pts)
+    std::array<Eigen::Vector3d, 2>
+    bbd_6_pts(const std::array<Eigen::Vector3d, 6> &pts)
     {
         Eigen::Vector3d min, max;
         min = pts[0];
@@ -115,59 +120,75 @@ namespace inclusion_ccd
         const Eigen::Vector3d &a1e,
         const Eigen::Vector3d &b0e,
         const Eigen::Vector3d &b1e,
-        const int dimension, T tp, const bool check_vf, const double eps)
+        const int dimension,
+        T tp,
+        const bool check_vf,
+        const double eps)
     {
 #ifdef TIGHT_INCLUSION_USE_TIMER
-        igl::Timer timer;
+        Timer timer;
 #endif
 
         /*
-{// smart way but no possibility of parallazation
-    double eva;
-    bool flag0=false, flag1=false;
-    for(int i=0;i<2;i++){
-        for(int j=0;j<2;j++){
-            for(int k=0;k<2;k++){
-                if(!check_vf){
+        { // smart way but no possibility of parallazation
+            double eva;
+            bool flag0 = false, flag1 = false;
+            for (int i = 0; i < 2; i++)
+            {
+                for (int j = 0; j < 2; j++)
+                {
+                    for (int k = 0; k < 2; k++)
+                    {
+                        if (!check_vf)
+                        {
 #ifdef TIGHT_INCLUSION_USE_TIMER
-                    timer.start();
+                            timer.start();
 #endif
-                    eva=function_f_ee(t[i],u[j],v[k],tp,dimension,a0s,a1s,b0s,b1s,a0e,a1e,b0e,b1e);
+                            eva = function_f_ee(t[i], u[j], v[k], tp, dimension,
+                                                a0s, a1s, b0s, b1s, a0e, a1e,
+                                                b0e, b1e);
 #ifdef TIGHT_INCLUSION_USE_TIMER
-                    timer.stop();
-                    time25+=timer.getElapsedTimeInMicroSec();
+                            timer.stop();
+                            time25 += timer.getElapsedTimeInMicroSec();
 #endif
-                }
-                else{
+                        }
+                        else
+                        {
 #ifdef TIGHT_INCLUSION_USE_TIMER
-                    timer.start();
+                            timer.start();
 #endif
-                    eva=function_f_vf(t[i],u[j],v[k],tp,dimension,a0s,a1s,b0s,b1s,a0e,a1e,b0e,b1e);
+                            eva = function_f_vf(t[i], u[j], v[k], tp, dimension,
+                                                a0s, a1s, b0s, b1s, a0e, a1e,
+                                                b0e, b1e);
 #ifdef TIGHT_INCLUSION_USE_TIMER
-                    timer.stop();
-                    time25+=timer.getElapsedTimeInMicroSec();
+                            timer.stop();
+                            time25 += timer.getElapsedTimeInMicroSec();
 #endif
-                }
-                if(eva<=eps&&eva>=-eps){
-                    return true;
-                }
-                if(eva<-eps){
-                    flag0=true;
-                }
-                if(eva>eps){
-                    flag1=true;
-                }
-                if(flag0&&flag1){
-                    return true;
+                        }
+                        if (eva <= eps && eva >= -eps)
+                        {
+                            return true;
+                        }
+                        if (eva < -eps)
+                        {
+                            flag0 = true;
+                        }
+                        if (eva > eps)
+                        {
+                            flag1 = true;
+                        }
+                        if (flag0 && flag1)
+                        {
+                            return true;
+                        }
+                    }
                 }
             }
+            if (flag0 && flag1)
+                return true;
+            return false;
         }
-    }
-    if(flag0&&flag1)
-    return true;
-    return false;
-}
-*/
+        */
         if (check_vf)
         { // test
             std::array<double, 8> vs;
@@ -182,7 +203,9 @@ namespace inclusion_ccd
                     for (int k = 0; k < 2; k++)
                     {
 
-                        vs[count] = function_f_vf(t[i], u[j], v[k], tp, dimension, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e);
+                        vs[count] = function_f_vf(
+                            t[i], u[j], v[k], tp, dimension, a0s, a1s, b0s, b1s,
+                            a0e, a1e, b0e, b1e);
 
                         count++;
                     }
@@ -226,7 +249,9 @@ namespace inclusion_ccd
                     for (int k = 0; k < 2; k++)
                     {
 
-                        vs[count] = function_f_ee(t[i], u[j], v[k], tp, dimension, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e);
+                        vs[count] = function_f_ee(
+                            t[i], u[j], v[k], tp, dimension, a0s, a1s, b0s, b1s,
+                            a0e, a1e, b0e, b1e);
                         count++;
                     }
                 }
@@ -259,9 +284,12 @@ namespace inclusion_ccd
     // if [-eps,eps] overlap, return true
     // bbox_in_eps tell us if the box is totally in eps box
     bool evaluate_bbox_one_dimension_vector(
-        std::array<double, 8> &t_up, std::array<double, 8> &t_dw,
-        std::array<double, 8> &u_up, std::array<double, 8> &u_dw,
-        std::array<double, 8> &v_up, std::array<double, 8> &v_dw,
+        std::array<double, 8> &t_up,
+        std::array<double, 8> &t_dw,
+        std::array<double, 8> &u_up,
+        std::array<double, 8> &u_dw,
+        std::array<double, 8> &v_up,
+        std::array<double, 8> &v_dw,
         const Eigen::Vector3d &a0s,
         const Eigen::Vector3d &a1s,
         const Eigen::Vector3d &b0s,
@@ -270,10 +298,13 @@ namespace inclusion_ccd
         const Eigen::Vector3d &a1e,
         const Eigen::Vector3d &b0e,
         const Eigen::Vector3d &b1e,
-        const int dimension, const bool check_vf, const double eps, bool &bbox_in_eps)
+        const int dimension,
+        const bool check_vf,
+        const double eps,
+        bool &bbox_in_eps)
     {
 #ifdef TIGHT_INCLUSION_USE_TIMER
-        igl::Timer timer;
+        Timer timer;
 #endif
         std::array<double, 8> vs;
         int count = 0;
@@ -283,13 +314,17 @@ namespace inclusion_ccd
 #endif
         if (check_vf)
         {
-            vs = function_vf(a0s[dimension], a1s[dimension], b0s[dimension], b1s[dimension], a0e[dimension], a1e[dimension], b0e[dimension], b1e[dimension], t_up, t_dw,
-                             u_up, u_dw, v_up, v_dw);
+            vs = function_vf(
+                a0s[dimension], a1s[dimension], b0s[dimension], b1s[dimension],
+                a0e[dimension], a1e[dimension], b0e[dimension], b1e[dimension],
+                t_up, t_dw, u_up, u_dw, v_up, v_dw);
         }
         else
         {
-            vs = function_ee(a0s[dimension], a1s[dimension], b0s[dimension], b1s[dimension], a0e[dimension], a1e[dimension], b0e[dimension], b1e[dimension], t_up, t_dw,
-                             u_up, u_dw, v_up, v_dw);
+            vs = function_ee(
+                a0s[dimension], a1s[dimension], b0s[dimension], b1s[dimension],
+                a0e[dimension], a1e[dimension], b0e[dimension], b1e[dimension],
+                t_up, t_dw, u_up, u_dw, v_up, v_dw);
         }
 #ifdef TIGHT_INCLUSION_USE_TIMER
         timer.stop();
@@ -324,9 +359,12 @@ namespace inclusion_ccd
     // bbox_in_eps tell us if the box is totally in eps box
     // ms is the minimum seperation
     bool evaluate_bbox_one_dimension_vector_return_tolerance(
-        std::array<double, 8> &t_up, std::array<double, 8> &t_dw,
-        std::array<double, 8> &u_up, std::array<double, 8> &u_dw,
-        std::array<double, 8> &v_up, std::array<double, 8> &v_dw,
+        std::array<double, 8> &t_up,
+        std::array<double, 8> &t_dw,
+        std::array<double, 8> &u_up,
+        std::array<double, 8> &u_dw,
+        std::array<double, 8> &v_up,
+        std::array<double, 8> &v_dw,
         const Eigen::Vector3d &a0s,
         const Eigen::Vector3d &a1s,
         const Eigen::Vector3d &b0s,
@@ -335,11 +373,15 @@ namespace inclusion_ccd
         const Eigen::Vector3d &a1e,
         const Eigen::Vector3d &b0e,
         const Eigen::Vector3d &b1e,
-        const int dimension, const bool check_vf, const double eps, const double ms, bool &bbox_in_eps,
+        const int dimension,
+        const bool check_vf,
+        const double eps,
+        const double ms,
+        bool &bbox_in_eps,
         double &tol)
     {
 #ifdef TIGHT_INCLUSION_USE_TIMER
-        igl::Timer timer;
+        Timer timer;
 #endif
         std::array<double, 8> vs;
         int count = 0;
@@ -349,13 +391,17 @@ namespace inclusion_ccd
 #endif
         if (check_vf)
         {
-            vs = function_vf(a0s[dimension], a1s[dimension], b0s[dimension], b1s[dimension], a0e[dimension], a1e[dimension], b0e[dimension], b1e[dimension], t_up, t_dw,
-                             u_up, u_dw, v_up, v_dw);
+            vs = function_vf(
+                a0s[dimension], a1s[dimension], b0s[dimension], b1s[dimension],
+                a0e[dimension], a1e[dimension], b0e[dimension], b1e[dimension],
+                t_up, t_dw, u_up, u_dw, v_up, v_dw);
         }
         else
         {
-            vs = function_ee(a0s[dimension], a1s[dimension], b0s[dimension], b1s[dimension], a0e[dimension], a1e[dimension], b0e[dimension], b1e[dimension], t_up, t_dw,
-                             u_up, u_dw, v_up, v_dw);
+            vs = function_ee(
+                a0s[dimension], a1s[dimension], b0s[dimension], b1s[dimension],
+                a0e[dimension], a1e[dimension], b0e[dimension], b1e[dimension],
+                t_up, t_dw, u_up, u_dw, v_up, v_dw);
         }
 #ifdef TIGHT_INCLUSION_USE_TIMER
         timer.stop();
@@ -398,7 +444,9 @@ namespace inclusion_ccd
         const Eigen::Vector3d &a1e,
         const Eigen::Vector3d &b0e,
         const Eigen::Vector3d &b1e,
-        T tp, const bool check_vf, std::array<std::array<Eigen::Vector3d, 2>, 6> &bboxes)
+        T tp,
+        const bool check_vf,
+        std::array<std::array<Eigen::Vector3d, 2>, 6> &bboxes)
     {
 
         int count = 0;
@@ -411,25 +459,31 @@ namespace inclusion_ccd
                 {
                     if (!check_vf)
                     {
-                        pts[count][0] =
-                            function_f_ee(t[i], u[j], v[k], tp, 0, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e);
+                        pts[count][0] = function_f_ee(
+                            t[i], u[j], v[k], tp, 0, a0s, a1s, b0s, b1s, a0e,
+                            a1e, b0e, b1e);
 
-                        pts[count][1] =
-                            function_f_ee(t[i], u[j], v[k], tp, 1, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e);
+                        pts[count][1] = function_f_ee(
+                            t[i], u[j], v[k], tp, 1, a0s, a1s, b0s, b1s, a0e,
+                            a1e, b0e, b1e);
 
-                        pts[count][2] =
-                            function_f_ee(t[i], u[j], v[k], tp, 2, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e);
+                        pts[count][2] = function_f_ee(
+                            t[i], u[j], v[k], tp, 2, a0s, a1s, b0s, b1s, a0e,
+                            a1e, b0e, b1e);
                     }
                     else
                     {
-                        pts[count][0] =
-                            function_f_vf(t[i], u[j], v[k], tp, 0, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e);
+                        pts[count][0] = function_f_vf(
+                            t[i], u[j], v[k], tp, 0, a0s, a1s, b0s, b1s, a0e,
+                            a1e, b0e, b1e);
 
-                        pts[count][1] =
-                            function_f_vf(t[i], u[j], v[k], tp, 1, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e);
+                        pts[count][1] = function_f_vf(
+                            t[i], u[j], v[k], tp, 1, a0s, a1s, b0s, b1s, a0e,
+                            a1e, b0e, b1e);
 
-                        pts[count][2] =
-                            function_f_vf(t[i], u[j], v[k], tp, 2, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e);
+                        pts[count][2] = function_f_vf(
+                            t[i], u[j], v[k], tp, 2, a0s, a1s, b0s, b1s, a0e,
+                            a1e, b0e, b1e);
                     }
                     count++;
                 }
@@ -477,7 +531,9 @@ namespace inclusion_ccd
 
 #ifdef TIGHT_INCLUSION_USE_GMP
     Vector3r function_f_ee_Rational(
-        const Numccd &tpara, const Numccd &upara, const Numccd &vpara,
+        const Numccd &tpara,
+        const Numccd &upara,
+        const Numccd &vpara,
         const Eigen::Vector3d &a0sd,
         const Eigen::Vector3d &a1sd,
         const Eigen::Vector3d &b0sd,
@@ -494,27 +550,26 @@ namespace inclusion_ccd
         int ud = upara.second;
         long vu = vpara.first;
         int vd = vpara.second;
-        Vector3r
-            a0s(a0sd[0], a0sd[1], a0sd[2]),
-            a1s(a1sd[0], a1sd[1], a1sd[2]),
-            b0s(b0sd[0], b0sd[1], b0sd[2]),
-            b1s(b1sd[0], b1sd[1], b1sd[2]),
-            a0e(a0ed[0], a0ed[1], a0ed[2]),
-            a1e(a1ed[0], a1ed[1], a1ed[2]),
-            b0e(b0ed[0], b0ed[1], b0ed[2]),
-            b1e(b1ed[0], b1ed[1], b1ed[2]);
+        Vector3r a0s(a0sd[0], a0sd[1], a0sd[2]), a1s(a1sd[0], a1sd[1], a1sd[2]),
+            b0s(b0sd[0], b0sd[1], b0sd[2]), b1s(b1sd[0], b1sd[1], b1sd[2]),
+            a0e(a0ed[0], a0ed[1], a0ed[2]), a1e(a1ed[0], a1ed[1], a1ed[2]),
+            b0e(b0ed[0], b0ed[1], b0ed[2]), b1e(b1ed[0], b1ed[1], b1ed[2]);
         Vector3r edge0_vertex0 = (a0e - a0s) * tu / power(1, td) + a0s;
         Vector3r edge0_vertex1 = (a1e - a1s) * tu / power(1, td) + a1s;
-        Vector3r edge0_vertex = (edge0_vertex1 - edge0_vertex0) * uu / power(1, ud) + edge0_vertex0;
+        Vector3r edge0_vertex =
+            (edge0_vertex1 - edge0_vertex0) * uu / power(1, ud) + edge0_vertex0;
 
         Vector3r edge1_vertex0 = (b0e - b0s) * tu / power(1, td) + b0s;
         Vector3r edge1_vertex1 = (b1e - b1s) * tu / power(1, td) + b1s;
-        Vector3r edge1_vertex = (edge1_vertex1 - edge1_vertex0) * vu / power(1, vd) + edge1_vertex0;
+        Vector3r edge1_vertex =
+            (edge1_vertex1 - edge1_vertex0) * vu / power(1, vd) + edge1_vertex0;
 
         return edge1_vertex - edge0_vertex;
     }
     Vector3r function_f_ee_Rational(
-        const Rational &tpara, const Rational &upara, const Rational &vpara,
+        const Rational &tpara,
+        const Rational &upara,
+        const Rational &vpara,
         const Eigen::Vector3d &a0sd,
         const Eigen::Vector3d &a1sd,
         const Eigen::Vector3d &b0sd,
@@ -525,15 +580,10 @@ namespace inclusion_ccd
         const Eigen::Vector3d &b1ed)
     {
 
-        Vector3r
-            a0s(a0sd[0], a0sd[1], a0sd[2]),
-            a1s(a1sd[0], a1sd[1], a1sd[2]),
-            b0s(b0sd[0], b0sd[1], b0sd[2]),
-            b1s(b1sd[0], b1sd[1], b1sd[2]),
-            a0e(a0ed[0], a0ed[1], a0ed[2]),
-            a1e(a1ed[0], a1ed[1], a1ed[2]),
-            b0e(b0ed[0], b0ed[1], b0ed[2]),
-            b1e(b1ed[0], b1ed[1], b1ed[2]);
+        Vector3r a0s(a0sd[0], a0sd[1], a0sd[2]), a1s(a1sd[0], a1sd[1], a1sd[2]),
+            b0s(b0sd[0], b0sd[1], b0sd[2]), b1s(b1sd[0], b1sd[1], b1sd[2]),
+            a0e(a0ed[0], a0ed[1], a0ed[2]), a1e(a1ed[0], a1ed[1], a1ed[2]),
+            b0e(b0ed[0], b0ed[1], b0ed[2]), b1e(b1ed[0], b1ed[1], b1ed[2]);
 
         // Vector3r las = (1-upara)*a0s+upara*a1s;
         // //std::cout<<"las, "<<las[0]<<", "<<las[1]<<", "<<las[2]<<std::endl;
@@ -552,16 +602,20 @@ namespace inclusion_ccd
 
         Vector3r edge0_vertex0 = (a0e - a0s) * tpara + a0s;
         Vector3r edge0_vertex1 = (a1e - a1s) * tpara + a1s;
-        Vector3r edge0_vertex = (edge0_vertex1 - edge0_vertex0) * upara + edge0_vertex0;
+        Vector3r edge0_vertex =
+            (edge0_vertex1 - edge0_vertex0) * upara + edge0_vertex0;
 
         Vector3r edge1_vertex0 = (b0e - b0s) * tpara + b0s;
         Vector3r edge1_vertex1 = (b1e - b1s) * tpara + b1s;
-        Vector3r edge1_vertex = (edge1_vertex1 - edge1_vertex0) * vpara + edge1_vertex0;
+        Vector3r edge1_vertex =
+            (edge1_vertex1 - edge1_vertex0) * vpara + edge1_vertex0;
 
         return edge1_vertex - edge0_vertex;
     }
     Vector3r function_f_vf_Rational(
-        const Numccd &tpara, const Numccd &upara, const Numccd &vpara,
+        const Numccd &tpara,
+        const Numccd &upara,
+        const Numccd &vpara,
         const Eigen::Vector3d &a0sd,
         const Eigen::Vector3d &a1sd,
         const Eigen::Vector3d &b0sd,
@@ -578,27 +632,25 @@ namespace inclusion_ccd
         int ud = upara.second;
         long vu = vpara.first;
         int vd = vpara.second;
-        Vector3r
-            vs(a0sd[0], a0sd[1], a0sd[2]),
-            t0s(a1sd[0], a1sd[1], a1sd[2]),
-            t1s(b0sd[0], b0sd[1], b0sd[2]),
-            t2s(b1sd[0], b1sd[1], b1sd[2]),
+        Vector3r vs(a0sd[0], a0sd[1], a0sd[2]), t0s(a1sd[0], a1sd[1], a1sd[2]),
+            t1s(b0sd[0], b0sd[1], b0sd[2]), t2s(b1sd[0], b1sd[1], b1sd[2]),
 
-            ve(a0ed[0], a0ed[1], a0ed[2]),
-            t0e(a1ed[0], a1ed[1], a1ed[2]),
-            t1e(b0ed[0], b0ed[1], b0ed[2]),
-            t2e(b1ed[0], b1ed[1], b1ed[2]);
+            ve(a0ed[0], a0ed[1], a0ed[2]), t0e(a1ed[0], a1ed[1], a1ed[2]),
+            t1e(b0ed[0], b0ed[1], b0ed[2]), t2e(b1ed[0], b1ed[1], b1ed[2]);
 
         Vector3r v = (ve - vs) * tu / power(1, td) + vs;
 
         Vector3r t0 = (t0e - t0s) * tu / power(1, td) + t0s;
         Vector3r t1 = (t1e - t1s) * tu / power(1, td) + t1s;
         Vector3r t2 = (t2e - t2s) * tu / power(1, td) + t2s;
-        Vector3r p = (t1 - t0) * uu / power(1, ud) + (t2 - t0) * vu / power(1, vd) + t0;
+        Vector3r p =
+            (t1 - t0) * uu / power(1, ud) + (t2 - t0) * vu / power(1, vd) + t0;
         return v - p;
     }
     Vector3r function_f_vf_Rational(
-        const Rational &tpara, const Rational &upara, const Rational &vpara,
+        const Rational &tpara,
+        const Rational &upara,
+        const Rational &vpara,
         const Eigen::Vector3d &a0sd,
         const Eigen::Vector3d &a1sd,
         const Eigen::Vector3d &b0sd,
@@ -609,16 +661,11 @@ namespace inclusion_ccd
         const Eigen::Vector3d &b1ed)
     {
 
-        Vector3r
-            vs(a0sd[0], a0sd[1], a0sd[2]),
-            t0s(a1sd[0], a1sd[1], a1sd[2]),
-            t1s(b0sd[0], b0sd[1], b0sd[2]),
-            t2s(b1sd[0], b1sd[1], b1sd[2]),
+        Vector3r vs(a0sd[0], a0sd[1], a0sd[2]), t0s(a1sd[0], a1sd[1], a1sd[2]),
+            t1s(b0sd[0], b0sd[1], b0sd[2]), t2s(b1sd[0], b1sd[1], b1sd[2]),
 
-            ve(a0ed[0], a0ed[1], a0ed[2]),
-            t0e(a1ed[0], a1ed[1], a1ed[2]),
-            t1e(b0ed[0], b0ed[1], b0ed[2]),
-            t2e(b1ed[0], b1ed[1], b1ed[2]);
+            ve(a0ed[0], a0ed[1], a0ed[2]), t0e(a1ed[0], a1ed[1], a1ed[2]),
+            t1e(b0ed[0], b0ed[1], b0ed[2]), t2e(b1ed[0], b1ed[1], b1ed[2]);
 
         Vector3r v = (ve - vs) * tpara + vs;
 
@@ -644,7 +691,7 @@ namespace inclusion_ccd
         const std::array<double, 3> &box)
     {
 #ifdef TIGHT_INCLUSION_USE_TIMER
-        igl::Timer timer;
+        Timer timer;
 #endif
         std::array<Numccd, 2> t, u, v;
 
@@ -660,7 +707,9 @@ namespace inclusion_ccd
 #ifdef TIGHT_INCLUSION_USE_TIMER
         timer.start();
 #endif
-        ck = evaluate_bbox_one_dimension(t, u, v, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, 0, input_type, check_vf, box[0]);
+        ck = evaluate_bbox_one_dimension(
+            t, u, v, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, 0, input_type,
+            check_vf, box[0]);
 #ifdef TIGHT_INCLUSION_USE_TIMER
         timer.stop();
         time23 += timer.getElapsedTimeInMicroSec();
@@ -670,7 +719,9 @@ namespace inclusion_ccd
 #ifdef TIGHT_INCLUSION_USE_TIMER
         timer.start();
 #endif
-        ck = evaluate_bbox_one_dimension(t, u, v, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, 1, input_type, check_vf, box[1]);
+        ck = evaluate_bbox_one_dimension(
+            t, u, v, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, 1, input_type,
+            check_vf, box[1]);
 #ifdef TIGHT_INCLUSION_USE_TIMER
         timer.stop();
         time23 += timer.getElapsedTimeInMicroSec();
@@ -680,7 +731,9 @@ namespace inclusion_ccd
 #ifdef TIGHT_INCLUSION_USE_TIMER
         timer.start();
 #endif
-        ck = evaluate_bbox_one_dimension(t, u, v, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, 2, input_type, check_vf, box[2]);
+        ck = evaluate_bbox_one_dimension(
+            t, u, v, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, 2, input_type,
+            check_vf, box[2]);
 #ifdef TIGHT_INCLUSION_USE_TIMER
         timer.stop();
         time23 += timer.getElapsedTimeInMicroSec();
@@ -704,10 +757,11 @@ namespace inclusion_ccd
         const Eigen::Vector3d &b0e,
         const Eigen::Vector3d &b1e,
         const bool check_vf,
-        const std::array<double, 3> &box, bool &box_in_eps)
+        const std::array<double, 3> &box,
+        bool &box_in_eps)
     {
 #ifdef TIGHT_INCLUSION_USE_TIMER
-        igl::Timer timer;
+        Timer timer;
 #endif
         box_in_eps = false;
         std::array<double, 8> t_up;
@@ -731,8 +785,9 @@ namespace inclusion_ccd
 #ifdef TIGHT_INCLUSION_USE_TIMER
             timer.start();
 #endif
-            ck = evaluate_bbox_one_dimension_vector(t_up, t_dw, u_up, u_dw, v_up, v_dw,
-                                                    a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, i, check_vf, box[i], box_in[i]);
+            ck = evaluate_bbox_one_dimension_vector(
+                t_up, t_dw, u_up, u_dw, v_up, v_dw, a0s, a1s, b0s, b1s, a0e,
+                a1e, b0e, b1e, i, check_vf, box[i], box_in[i]);
 #ifdef TIGHT_INCLUSION_USE_TIMER
             timer.stop();
             time23 += timer.getElapsedTimeInMicroSec();
@@ -762,11 +817,13 @@ namespace inclusion_ccd
         const Eigen::Vector3d &b0e,
         const Eigen::Vector3d &b1e,
         const bool check_vf,
-        const std::array<double, 3> &box, const double ms, bool &box_in_eps,
+        const std::array<double, 3> &box,
+        const double ms,
+        bool &box_in_eps,
         std::array<double, 3> &tolerance)
     {
 #ifdef TIGHT_INCLUSION_USE_TIMER
-        igl::Timer timer;
+        Timer timer;
 #endif
         box_in_eps = false;
         std::array<double, 8> t_up;
@@ -790,8 +847,10 @@ namespace inclusion_ccd
 #ifdef TIGHT_INCLUSION_USE_TIMER
             timer.start();
 #endif
-            ck = evaluate_bbox_one_dimension_vector_return_tolerance(t_up, t_dw, u_up, u_dw, v_up, v_dw,
-                                                                     a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, i, check_vf, box[i], ms, box_in[i], tolerance[i]);
+            ck = evaluate_bbox_one_dimension_vector_return_tolerance(
+                t_up, t_dw, u_up, u_dw, v_up, v_dw, a0s, a1s, b0s, b1s, a0e,
+                a1e, b0e, b1e, i, check_vf, box[i], ms, box_in[i],
+                tolerance[i]);
 #ifdef TIGHT_INCLUSION_USE_TIMER
             timer.stop();
             time23 += timer.getElapsedTimeInMicroSec();
@@ -805,8 +864,11 @@ namespace inclusion_ccd
         }
         return true;
     }
-    bool bounding_box_intersection(const Eigen::Vector3d &pmin, const Eigen::Vector3d &pmax,
-                                   const Eigen::Vector3d &qmin, const Eigen::Vector3d &qmax)
+    bool bounding_box_intersection(
+        const Eigen::Vector3d &pmin,
+        const Eigen::Vector3d &pmax,
+        const Eigen::Vector3d &qmin,
+        const Eigen::Vector3d &qmax)
     {
         if (pmax[0] < qmin[0] || pmax[1] < qmin[1] || pmax[2] < qmin[2])
         {
@@ -831,7 +893,7 @@ namespace inclusion_ccd
         const bool check_vf,
         const std::array<double, 3> &box)
     {
-        //igl::Timer timer;
+        //Timer timer;
         std::array<Numccd, 2> t, u, v;
 
         t[0] = paras[0].first;
@@ -844,13 +906,21 @@ namespace inclusion_ccd
         double input_type;
         std::array<std::array<Eigen::Vector3d, 2>, 6> bboxes;
         // get the bounding boxes
-        evaluate_tuv_bboxes(t, u, v, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, input_type, check_vf, bboxes);
+        evaluate_tuv_bboxes(
+            t, u, v, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, input_type,
+            check_vf, bboxes);
         //TODO
-        if (!evaluate_bbox_one_dimension(t, u, v, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, 0, input_type, check_vf, box[0]))
+        if (!evaluate_bbox_one_dimension(
+                t, u, v, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, 0, input_type,
+                check_vf, box[0]))
             return false;
-        if (!evaluate_bbox_one_dimension(t, u, v, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, 1, input_type, check_vf, box[1]))
+        if (!evaluate_bbox_one_dimension(
+                t, u, v, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, 1, input_type,
+                check_vf, box[1]))
             return false;
-        if (!evaluate_bbox_one_dimension(t, u, v, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, 2, input_type, check_vf, box[2]))
+        if (!evaluate_bbox_one_dimension(
+                t, u, v, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, 2, input_type,
+                check_vf, box[2]))
             return false;
         return true;
     }
@@ -865,9 +935,10 @@ namespace inclusion_ccd
         const Eigen::Vector3d &a0e,
         const Eigen::Vector3d &a1e,
         const Eigen::Vector3d &b0e,
-        const Eigen::Vector3d &b1e, const bool check_vf)
+        const Eigen::Vector3d &b1e,
+        const bool check_vf)
     {
-        //igl::Timer timer;
+        //Timer timer;
         std::array<Numccd, 2> t, u, v;
 
         t[0] = paras[0].first;
@@ -892,11 +963,15 @@ namespace inclusion_ccd
                     if (!check_vf)
                     {
                         //std::cout<<"ee"<<std::endl;
-                        pts[c] = function_f_ee_Rational(t[i], u[j], v[k], a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e);
+                        pts[c] = function_f_ee_Rational(
+                            t[i], u[j], v[k], a0s, a1s, b0s, b1s, a0e, a1e, b0e,
+                            b1e);
                     }
                     else
                     {
-                        pts[c] = function_f_vf_Rational(t[i], u[j], v[k], a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e);
+                        pts[c] = function_f_vf_Rational(
+                            t[i], u[j], v[k], a0s, a1s, b0s, b1s, a0e, a1e, b0e,
+                            b1e);
                     }
 
                     c++;
@@ -954,10 +1029,11 @@ namespace inclusion_ccd
         const Eigen::Vector3d &b0e,
         const Eigen::Vector3d &b1e,
         const bool check_vf,
-        const std::array<double, 3> &box, bool &box_in_eps,
+        const std::array<double, 3> &box,
+        bool &box_in_eps,
         std::array<double, 3> &tolerance)
     {
-        //igl::Timer timer;
+        //Timer timer;
         std::array<Numccd, 2> t, u, v;
         box_in_eps = true;
         t[0] = paras[0].first;
@@ -982,11 +1058,15 @@ namespace inclusion_ccd
                     if (!check_vf)
                     {
                         //std::cout<<"ee"<<std::endl;
-                        pts[c] = function_f_ee_Rational(t[i], u[j], v[k], a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e);
+                        pts[c] = function_f_ee_Rational(
+                            t[i], u[j], v[k], a0s, a1s, b0s, b1s, a0e, a1e, b0e,
+                            b1e);
                     }
                     else
                     {
-                        pts[c] = function_f_vf_Rational(t[i], u[j], v[k], a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e);
+                        pts[c] = function_f_vf_Rational(
+                            t[i], u[j], v[k], a0s, a1s, b0s, b1s, a0e, a1e, b0e,
+                            b1e);
                     }
 
                     c++;
@@ -1049,9 +1129,10 @@ namespace inclusion_ccd
         const Eigen::Vector3d &a0e,
         const Eigen::Vector3d &a1e,
         const Eigen::Vector3d &b0e,
-        const Eigen::Vector3d &b1e, const bool check_vf)
+        const Eigen::Vector3d &b1e,
+        const bool check_vf)
     {
-        //igl::Timer timer;
+        //Timer timer;
         std::array<Rational, 2> t, u, v;
 
         t[0] = paras[0].first;
@@ -1072,11 +1153,15 @@ namespace inclusion_ccd
 
                     if (!check_vf)
                     {
-                        pts[c] = function_f_ee_Rational(t[i], u[j], v[k], a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e);
+                        pts[c] = function_f_ee_Rational(
+                            t[i], u[j], v[k], a0s, a1s, b0s, b1s, a0e, a1e, b0e,
+                            b1e);
                     }
                     else
                     {
-                        pts[c] = function_f_vf_Rational(t[i], u[j], v[k], a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e);
+                        pts[c] = function_f_vf_Rational(
+                            t[i], u[j], v[k], a0s, a1s, b0s, b1s, a0e, a1e, b0e,
+                            b1e);
                     }
 
                     c++;
@@ -1123,7 +1208,7 @@ namespace inclusion_ccd
     }
 
 #endif
-// return power t. n=result*2^t
+    // return power t. n=result*2^t
     long reduction(const long n, long &result)
     {
         int t = 0;
@@ -1137,7 +1222,8 @@ namespace inclusion_ccd
         return t;
     }
 
-    std::pair<Singleinterval, Singleinterval> bisect(const Singleinterval &inter)
+    std::pair<Singleinterval, Singleinterval>
+    bisect(const Singleinterval &inter)
     {
         Numccd low = inter.first;
         Numccd up = inter.second;
@@ -1177,16 +1263,20 @@ namespace inclusion_ccd
         Singleinterval i1(low, newnum), i2(newnum, up);
         // std::cout<<"low,"<<Numccd2double(low)<<",up,"<<Numccd2double(up)<<", num, "<<Numccd2double(newnum)<<std::endl;
         // std::cout<<"new, k1, "<<newnum.first<<", n1, "<<newnum.second<<std::endl;
-        assert(Numccd2double(newnum) > Numccd2double(low) && Numccd2double(newnum) < Numccd2double(up));
+        assert(
+            Numccd2double(newnum) > Numccd2double(low)
+            && Numccd2double(newnum) < Numccd2double(up));
         result.first = i1;
         result.second = i2;
         return result;
     }
 
 #ifdef TIGHT_INCLUSION_USE_GMP
-    std::pair<std::pair<Rational, Rational>, std::pair<Rational, Rational>> bisect(const std::pair<Rational, Rational> &inter)
+    std::pair<std::pair<Rational, Rational>, std::pair<Rational, Rational>>
+    bisect(const std::pair<Rational, Rational> &inter)
     {
-        std::pair<std::pair<Rational, Rational>, std::pair<Rational, Rational>> result;
+        std::pair<std::pair<Rational, Rational>, std::pair<Rational, Rational>>
+            result;
         std::pair<Rational, Rational> single;
         Rational mid = (inter.first + inter.second) / 2;
         single.first = inter.first;
@@ -1258,7 +1348,8 @@ namespace inclusion_ccd
         }
         return false;
     }
-    bool interval_overlap_region(const Singleinterval &itv, const double r1, const double r2)
+    bool interval_overlap_region(
+        const Singleinterval &itv, const double r1, const double r2)
     {
         double b1 = Numccd2double(itv.first);
         double b2 = Numccd2double(itv.second);
@@ -1288,7 +1379,11 @@ namespace inclusion_ccd
     // calculate the sign of f. dim is the dimension we are evaluating.
     template <typename T>
     T function_f_ee(
-        const Numccd &tpara, const Numccd &upara, const Numccd &vpara, const T &type, const int dim,
+        const Numccd &tpara,
+        const Numccd &upara,
+        const Numccd &vpara,
+        const T &type,
+        const int dim,
         const Eigen::Vector3d &a0s,
         const Eigen::Vector3d &a1s,
         const Eigen::Vector3d &b0s,
@@ -1306,20 +1401,30 @@ namespace inclusion_ccd
         long vu = vpara.first;
         int vd = vpara.second;
 
-        T edge0_vertex0 = (T(a0e[dim]) - T(a0s[dim])) * tu / power(1, td) + T(a0s[dim]);
-        T edge0_vertex1 = (T(a1e[dim]) - T(a1s[dim])) * tu / power(1, td) + T(a1s[dim]);
-        T edge0_vertex = (edge0_vertex1 - edge0_vertex0) * uu / power(1, ud) + edge0_vertex0;
+        T edge0_vertex0 =
+            (T(a0e[dim]) - T(a0s[dim])) * tu / power(1, td) + T(a0s[dim]);
+        T edge0_vertex1 =
+            (T(a1e[dim]) - T(a1s[dim])) * tu / power(1, td) + T(a1s[dim]);
+        T edge0_vertex =
+            (edge0_vertex1 - edge0_vertex0) * uu / power(1, ud) + edge0_vertex0;
 
-        T edge1_vertex0 = (T(b0e[dim]) - T(b0s[dim])) * tu / power(1, td) + T(b0s[dim]);
-        T edge1_vertex1 = (T(b1e[dim]) - T(b1s[dim])) * tu / power(1, td) + T(b1s[dim]);
-        T edge1_vertex = (edge1_vertex1 - edge1_vertex0) * vu / power(1, vd) + edge1_vertex0;
+        T edge1_vertex0 =
+            (T(b0e[dim]) - T(b0s[dim])) * tu / power(1, td) + T(b0s[dim]);
+        T edge1_vertex1 =
+            (T(b1e[dim]) - T(b1s[dim])) * tu / power(1, td) + T(b1s[dim]);
+        T edge1_vertex =
+            (edge1_vertex1 - edge1_vertex0) * vu / power(1, vd) + edge1_vertex0;
 
         return edge1_vertex - edge0_vertex;
     }
 
     template <typename T>
     T function_f_vf(
-        const Numccd &tpara, const Numccd &upara, const Numccd &vpara, const T &type, const int dim,
+        const Numccd &tpara,
+        const Numccd &upara,
+        const Numccd &vpara,
+        const T &type,
+        const int dim,
         const Eigen::Vector3d &vs,
         const Eigen::Vector3d &t0s,
         const Eigen::Vector3d &t1s,
@@ -1342,7 +1447,8 @@ namespace inclusion_ccd
         T t0 = (T(t0e[dim]) - T(t0s[dim])) * tu / power(1, td) + T(t0s[dim]);
         T t1 = (T(t1e[dim]) - T(t1s[dim])) * tu / power(1, td) + T(t1s[dim]);
         T t2 = (T(t2e[dim]) - T(t2s[dim])) * tu / power(1, td) + T(t2s[dim]);
-        T p = (t1 - t0) * uu / power(1, ud) + (t2 - t0) * vu / power(1, vd) + t0;
+        T p =
+            (t1 - t0) * uu / power(1, ud) + (t2 - t0) * vu / power(1, vd) + t0;
         return v - p;
     }
 
@@ -1350,7 +1456,7 @@ namespace inclusion_ccd
     // be detected at t=0 of the next time step, but still may cause problems in
     // line-search based physical simulation
     bool interval_root_finder_double_normalCCD(
-        const Eigen::VectorX3d &tol,
+        const VectorMax3d &tol,
         double &toi,
         const bool check_vf,
         const std::array<double, 3> err,
@@ -1364,7 +1470,8 @@ namespace inclusion_ccd
         const Eigen::Vector3d &b0e,
         const Eigen::Vector3d &b1e)
     {
-        auto cmp = [](std::pair<Interval3, int> i1, std::pair<Interval3, int> i2) {
+        auto cmp = [](std::pair<Interval3, int> i1,
+                      std::pair<Interval3, int> i2) {
             return !(less_than(i1.first[0].first, i2.first[0].first));
         };
         Numccd low_number;
@@ -1384,7 +1491,10 @@ namespace inclusion_ccd
         iset[2] = init_interval;
         // Stack of intervals and the last split dimension
         // std::stack<std::pair<Interval3,int>> istack;
-        std::priority_queue<std::pair<Interval3, int>, std::vector<std::pair<Interval3, int>>, decltype(cmp)> istack(cmp);
+        std::priority_queue<
+            std::pair<Interval3, int>, std::vector<std::pair<Interval3, int>>,
+            decltype(cmp)>
+            istack(cmp);
         istack.emplace(iset, -1);
 
         // current intervals
@@ -1421,14 +1531,16 @@ namespace inclusion_ccd
             //     std::cout<<"here wrong, comparing"<<std::endl;
             // }
 #ifdef TIGHT_INCLUSION_USE_TIMER
-            igl::Timer timer;
+            Timer timer;
 
             timer.start();
 #endif
             refine++;
             bool zero_in;
             bool box_in;
-            zero_in = Origin_in_function_bounding_box_double_vector(current, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, check_vf, err_and_ms, box_in);
+            zero_in = Origin_in_function_bounding_box_double_vector(
+                current, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, check_vf,
+                err_and_ms, box_in);
 
 #ifdef TIGHT_INCLUSION_USE_TIMER
 
@@ -1437,7 +1549,8 @@ namespace inclusion_ccd
 #endif
 #ifdef TIGHT_INCLUSION_USE_GMP // this is defined in the begining of this file
 
-            zero_in = Origin_in_function_bounding_box_Rational(current, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, check_vf);
+            zero_in = Origin_in_function_bounding_box_Rational(
+                current, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, check_vf);
 
 #endif
             if (!zero_in)
@@ -1445,7 +1558,7 @@ namespace inclusion_ccd
 #ifdef TIGHT_INCLUSION_USE_TIMER
             timer.start();
 #endif
-            Eigen::VectorX3d widths = width(current);
+            VectorMax3d widths = width(current);
 #ifdef TIGHT_INCLUSION_USE_TIMER
             timer.stop();
             time21 += timer.getElapsedTimeInMicroSec();
@@ -1470,7 +1583,7 @@ namespace inclusion_ccd
             }
 
             std::array<bool, 3> check;
-            Eigen::VectorX3d widthratio;
+            VectorMax3d widthratio;
             widthratio.resize(3);
             check[0] = false;
             check[1] = false;
@@ -1489,7 +1602,8 @@ namespace inclusion_ccd
                 {
                     if (check[(i + 1) % 3] && check[(i + 2) % 3])
                     {
-                        if (widthratio(i) >= widthratio((i + 1) % 3) && widthratio(i) >= widthratio((i + 2) % 3))
+                        if (widthratio(i) >= widthratio((i + 1) % 3)
+                            && widthratio(i) >= widthratio((i + 2) % 3))
                         {
                             split_i = i;
                             break;
@@ -1521,7 +1635,9 @@ namespace inclusion_ccd
             }
             if (split_i < 0)
             {
-                std::cout << "ERROR OCCURRED HERE, DID NOT FIND THE RIGHT DIMENSION TO SPLIT" << std::endl;
+                std::cout
+                    << "ERROR OCCURRED HERE, DID NOT FIND THE RIGHT DIMENSION TO SPLIT"
+                    << std::endl;
             }
             // Bisect the next dimension that is greater than its tolerance
             // int split_i;
@@ -1531,15 +1647,18 @@ namespace inclusion_ccd
             //         break;
             //     }
             // }
-            std::pair<Singleinterval, Singleinterval> halves = bisect(current[split_i]);
+            std::pair<Singleinterval, Singleinterval> halves =
+                bisect(current[split_i]);
             if (!less_than(halves.first.first, halves.first.second))
             {
-                std::cout << "OVERFLOW HAPPENS WHEN SPLITTING INTERVALS" << std::endl;
+                std::cout << "OVERFLOW HAPPENS WHEN SPLITTING INTERVALS"
+                          << std::endl;
                 return true;
             }
             if (!less_than(halves.second.first, halves.second.second))
             {
-                std::cout << "OVERFLOW HAPPENS WHEN SPLITTING INTERVALS" << std::endl;
+                std::cout << "OVERFLOW HAPPENS WHEN SPLITTING INTERVALS"
+                          << std::endl;
                 return true;
             }
             if (check_vf)
@@ -1651,11 +1770,12 @@ namespace inclusion_ccd
 
     // when check_t_overlap = false, check [0,1]x[0,1]x[0,1]; otherwise, check [0, t_max]x[0,1]x[0,1]
     bool interval_root_finder_double_horizontal_tree(
-        const Eigen::VectorX3d &tol,
+        const VectorMax3d &tol,
         const double co_domain_tolerance,
         const Interval3 &iset,
         const bool check_t_overlap,
-        const double max_t, // check interval [0, max_t] when check_t_overlap is set as TRUE
+        const double
+            max_t, // check interval [0, max_t] when check_t_overlap is set as TRUE
         double &toi,
         const bool check_vf,
         const std::array<double, 3> err,
@@ -1679,14 +1799,16 @@ namespace inclusion_ccd
         // this is used to catch the tolerance for each level
         double temp_output_tolerance = co_domain_tolerance;
         //return time1 >= time2
-        auto time_cmp = [](std::pair<Interval3, int> i1, std::pair<Interval3, int> i2) {
+        auto time_cmp = [](std::pair<Interval3, int> i1,
+                           std::pair<Interval3, int> i2) {
             return !(less_than(i1.first[0].first, i2.first[0].first));
         };
 
         // check the tree level by level instead of going deep
         //(if level 1 != level 2, return level 1 >= level 2;
         // else, return time1 >= time2)
-        auto horiz_cmp = [](std::pair<Interval3, int> i1, std::pair<Interval3, int> i2) {
+        auto horiz_cmp = [](std::pair<Interval3, int> i1,
+                            std::pair<Interval3, int> i2) {
             if (i1.second != i2.second)
             {
                 {
@@ -1704,7 +1826,10 @@ namespace inclusion_ccd
         // Stack of intervals and the last split dimension
         // std::stack<std::pair<Interval3,int>> istack;
         auto cmp = horiz_cmp;
-        std::priority_queue<std::pair<Interval3, int>, std::vector<std::pair<Interval3, int>>, decltype(cmp)> istack(cmp);
+        std::priority_queue<
+            std::pair<Interval3, int>, std::vector<std::pair<Interval3, int>>,
+            decltype(cmp)>
+            istack(cmp);
         istack.emplace(iset, -1);
 
         // current intervals
@@ -1719,8 +1844,10 @@ namespace inclusion_ccd
         double temp_toi = toi;
         Numccd TOI;
         TOI.first = 4;
-        TOI.second = 0;        // set TOI as 4. this is to record the impact time of this level
-        Numccd TOI_SKIP = TOI; // this is to record the element that already small enough or contained in eps-box
+        TOI.second =
+            0; // set TOI as 4. this is to record the impact time of this level
+        Numccd TOI_SKIP =
+            TOI; // this is to record the element that already small enough or contained in eps-box
         bool use_skip = false; // this is to record if TOI_SKIP is used.
         //std::array<double,3>
         bool collision = false;
@@ -1750,7 +1877,7 @@ namespace inclusion_ccd
                 this_level_less_tol = true;
             }
 #ifdef TIGHT_INCLUSION_USE_TIMER
-            igl::Timer timer;
+            Timer timer;
 
             timer.start();
 #endif
@@ -1763,10 +1890,15 @@ namespace inclusion_ccd
             ms_3d[0] = ms;
             ms_3d[1] = ms;
             ms_3d[2] = ms;
-            zero_in = Origin_in_function_bounding_box_Rational_return_tolerance(current, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, check_vf, ms_3d, box_in, true_tol);
+            zero_in = Origin_in_function_bounding_box_Rational_return_tolerance(
+                current, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, check_vf,
+                ms_3d, box_in, true_tol);
 
 #else
-            zero_in = Origin_in_function_bounding_box_double_vector_return_tolerance(current, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, check_vf, err, ms, box_in, true_tol);
+            zero_in =
+                Origin_in_function_bounding_box_double_vector_return_tolerance(
+                    current, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, check_vf,
+                    err, ms, box_in, true_tol);
 #endif
 #ifdef TIGHT_INCLUSION_USE_TIMER
 
@@ -1779,13 +1911,15 @@ namespace inclusion_ccd
 #ifdef TIGHT_INCLUSION_USE_TIMER
             timer.start();
 #endif
-            Eigen::VectorX3d widths = width(current);
+            VectorMax3d widths = width(current);
 #ifdef TIGHT_INCLUSION_USE_TIMER
             timer.stop();
             time21 += timer.getElapsedTimeInMicroSec();
 #endif
 
-            bool tol_condition = true_tol[0] <= co_domain_tolerance && true_tol[1] <= co_domain_tolerance && true_tol[2] <= co_domain_tolerance;
+            bool tol_condition = true_tol[0] <= co_domain_tolerance
+                                 && true_tol[1] <= co_domain_tolerance
+                                 && true_tol[2] <= co_domain_tolerance;
 
             // Condition 1, stopping condition on t, u and v is satisfied. this is useless now since we have condition 2
             bool condition1 = (widths.array() <= tol.array()).all();
@@ -1837,8 +1971,12 @@ namespace inclusion_ccd
 
                     // if the real tolerance is larger than input, use the real one;
                     // if the real tolerance is smaller than input, use input
-                    temp_output_tolerance = std::max(std::max(std::max(true_tol[0], true_tol[1]), true_tol[2]), co_domain_tolerance);
-                    find_level_root = true; // this ensures always find the earlist root
+                    temp_output_tolerance = std::max(
+                        std::max(
+                            std::max(true_tol[0], true_tol[1]), true_tol[2]),
+                        co_domain_tolerance);
+                    find_level_root =
+                        true; // this ensures always find the earlist root
                 }
                 if (refine > max_itr)
                 {
@@ -1864,7 +2002,7 @@ namespace inclusion_ccd
             }
 
             std::array<bool, 3> check;
-            Eigen::VectorX3d widthratio;
+            VectorMax3d widthratio;
             widthratio.resize(3);
             check[0] = false;
             check[1] = false;
@@ -1883,7 +2021,8 @@ namespace inclusion_ccd
                 {
                     if (check[(i + 1) % 3] && check[(i + 2) % 3])
                     {
-                        if (widthratio(i) >= widthratio((i + 1) % 3) && widthratio(i) >= widthratio((i + 2) % 3))
+                        if (widthratio(i) >= widthratio((i + 1) % 3)
+                            && widthratio(i) >= widthratio((i + 2) % 3))
                         {
                             split_i = i;
                             break;
@@ -1915,7 +2054,9 @@ namespace inclusion_ccd
             }
             if (split_i < 0)
             {
-                std::cout << "ERROR OCCURRED HERE, DID NOT FIND THE RIGHT DIMENSION TO SPLIT" << std::endl;
+                std::cout
+                    << "ERROR OCCURRED HERE, DID NOT FIND THE RIGHT DIMENSION TO SPLIT"
+                    << std::endl;
             }
             // Bisect the next dimension that is greater than its tolerance
             // int split_i;
@@ -1925,15 +2066,18 @@ namespace inclusion_ccd
             //         break;
             //     }
             // }
-            std::pair<Singleinterval, Singleinterval> halves = bisect(current[split_i]);
+            std::pair<Singleinterval, Singleinterval> halves =
+                bisect(current[split_i]);
             if (!less_than(halves.first.first, halves.first.second))
             {
-                std::cout << "OVERFLOW HAPPENS WHEN SPLITTING INTERVALS" << std::endl;
+                std::cout << "OVERFLOW HAPPENS WHEN SPLITTING INTERVALS"
+                          << std::endl;
                 return true;
             }
             if (!less_than(halves.second.first, halves.second.second))
             {
-                std::cout << "OVERFLOW HAPPENS WHEN SPLITTING INTERVALS" << std::endl;
+                std::cout << "OVERFLOW HAPPENS WHEN SPLITTING INTERVALS"
+                          << std::endl;
                 return true;
             }
             if (check_vf)
@@ -1976,12 +2120,14 @@ namespace inclusion_ccd
                 {
                     if (check_t_overlap)
                     {
-                        if (interval_overlap_region(halves.second, 0, t_upper_bound))
+                        if (interval_overlap_region(
+                                halves.second, 0, t_upper_bound))
                         {
                             current[split_i] = halves.second;
                             istack.emplace(current, level + 1);
                         }
-                        if (interval_overlap_region(halves.first, 0, t_upper_bound))
+                        if (interval_overlap_region(
+                                halves.first, 0, t_upper_bound))
                         {
                             current[split_i] = halves.first;
                             istack.emplace(current, level + 1);
@@ -2000,7 +2146,8 @@ namespace inclusion_ccd
             {
                 if (check_t_overlap && split_i == 0)
                 {
-                    if (interval_overlap_region(halves.second, 0, t_upper_bound))
+                    if (interval_overlap_region(
+                            halves.second, 0, t_upper_bound))
                     {
                         current[split_i] = halves.second;
                         istack.emplace(current, level + 1);
@@ -2031,11 +2178,12 @@ namespace inclusion_ccd
     }
 
     bool interval_root_finder_double_horizontal_tree(
-        const Eigen::VectorX3d &tol,
+        const VectorMax3d &tol,
         const double co_domain_tolerance,
         double &toi,
         const bool check_vf,
-        const std::array<double, 3> err, // this is the maximum error on each axis when calculating the vertices, err, aka, filter
+        const std::array<double, 3>
+            err, // this is the maximum error on each axis when calculating the vertices, err, aka, filter
         const double ms,
         const Eigen::Vector3d &a0s,
         const Eigen::Vector3d &a1s,
@@ -2050,7 +2198,10 @@ namespace inclusion_ccd
         double &output_tolerance)
     {
 
-        bool check_t_overlap = max_time == 1 ? false : true; // if input max_time = 1, then no need to check overlap
+        bool check_t_overlap =
+            max_time == 1
+                ? false
+                : true; // if input max_time = 1, then no need to check overlap
 
         Numccd low_number;
         low_number.first = 0;
@@ -2069,8 +2220,9 @@ namespace inclusion_ccd
         iset[2] = init_interval;
 
         bool result = interval_root_finder_double_horizontal_tree(
-            tol, co_domain_tolerance, iset, check_t_overlap, max_time, toi, check_vf,
-            err, ms, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, max_itr, output_tolerance);
+            tol, co_domain_tolerance, iset, check_t_overlap, max_time, toi,
+            check_vf, err, ms, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, max_itr,
+            output_tolerance);
         if (result)
             return true;
 
@@ -2079,7 +2231,7 @@ namespace inclusion_ccd
 
 #ifdef TIGHT_INCLUSION_USE_GMP
     bool interval_root_finder_Rational(
-        const Eigen::VectorX3d &tol,
+        const VectorMax3d &tol,
 
         std::array<std::pair<Rational, Rational>, 3> &final,
         const bool check_vf,
@@ -2104,7 +2256,8 @@ namespace inclusion_ccd
         paracube[2] = interval01;
 
         // Stack of intervals and the last split dimension
-        std::stack<std::pair<std::array<std::pair<Rational, Rational>, 3>, int>> istack;
+        std::stack<std::pair<std::array<std::pair<Rational, Rational>, 3>, int>>
+            istack;
         istack.emplace(paracube, -1);
 
         // current intervals
@@ -2118,10 +2271,11 @@ namespace inclusion_ccd
             current = istack.top().first;
             int last_split = istack.top().second;
             istack.pop();
-            igl::Timer timer;
+            Timer timer;
 
             timer.start();
-            bool zero_in = Origin_in_function_bounding_box_Rational(current, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, check_vf);
+            bool zero_in = Origin_in_function_bounding_box_Rational(
+                current, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, check_vf);
             timer.stop();
             time_rational += timer.getElapsedTimeInMicroSec();
 
@@ -2131,7 +2285,9 @@ namespace inclusion_ccd
             std::array<Rational, 3> widths = width(current);
             timer.stop();
             time21 += timer.getElapsedTimeInMicroSec();
-            if (widths[0].to_double() <= tol(0) && widths[1].to_double() <= tol(1) && widths[2].to_double() <= tol(2))
+            if (widths[0].to_double() <= tol(0)
+                && widths[1].to_double() <= tol(1)
+                && widths[2].to_double() <= tol(2))
             {
                 final = current;
                 return true;
@@ -2147,7 +2303,9 @@ namespace inclusion_ccd
                     break;
                 }
             }
-            std::pair<std::pair<Rational, Rational>, std::pair<Rational, Rational>> halves = bisect(current[split_i]);
+            std::pair<
+                std::pair<Rational, Rational>, std::pair<Rational, Rational>>
+                halves = bisect(current[split_i]);
 
             if (check_vf)
             {
@@ -2200,22 +2358,25 @@ namespace inclusion_ccd
 #endif
     void print_time_2()
     {
-        std::cout << "how many times return from max_itr, " << refine_return << std::endl;
+        std::cout << "how many times return from max_itr, " << refine_return
+                  << std::endl;
         std::cout << "origin predicates, " << time20 << std::endl;
         std::cout << "width, " << time21 << std::endl;
         std::cout << "bisect, " << time22 << std::endl;
-        std::cout << "origin part1(evaluate 1 dimension), " << time23 << std::endl;
+        std::cout << "origin part1(evaluate 1 dimension), " << time23
+                  << std::endl;
         std::cout << "origin part2(convert tuv), " << time24 << std::endl;
-        std::cout << "time of call the vertex solving function, " << time25 << std::endl;
-        std::cout << "how many times of interval check for this query, " << refine << std::endl;
+        std::cout << "time of call the vertex solving function, " << time25
+                  << std::endl;
+        std::cout << "how many times of interval check for this query, "
+                  << refine << std::endl;
     }
-    double print_time_rational()
-    {
-        return time_rational;
-    }
+    double print_time_rational() { return time_rational; }
 
-    std::array<double, 3> get_numerical_error(const std::vector<Eigen::Vector3d> &vertices,
-                                              const bool &check_vf, const bool using_minimum_separation)
+    std::array<double, 3> get_numerical_error(
+        const std::vector<Eigen::Vector3d> &vertices,
+        const bool &check_vf,
+        const bool using_minimum_separation)
     {
         double eefilter;
         double vffilter;

@@ -1,18 +1,15 @@
 #include <iostream>
-
-#include <tight_inclusion/igl-Timer.h>
+#include <iomanip>
+#include <vector>
 
 #include <tight_inclusion/inclusion_ccd.hpp>
 #include <tight_inclusion/interval_root_finder.hpp>
-#include <iomanip>
-#include <vector>
+#include <tight_inclusion/Timer.hpp>
 
 namespace inclusion_ccd
 {
 
-
     static double CCD_LENGTH_TOL = 1e-6;
-
 
     std::array<Eigen::Vector3d, 2>
     bbd_4_pts_new(const std::array<Eigen::Vector3d, 4> &pts)
@@ -128,8 +125,10 @@ namespace inclusion_ccd
         double edge0_length = 0;
         double edge1_length = 0;
         dl = 3 * max_linf_4(p000, p001, p011, p010, p100, p101, p111, p110);
-        edge0_length = 3 * max_linf_4(p000, p100, p101, p001, p010, p110, p111, p011);
-        edge1_length = 3 * max_linf_4(p000, p100, p110, p010, p001, p101, p111, p011);
+        edge0_length =
+            3 * max_linf_4(p000, p100, p101, p001, p010, p110, p111, p011);
+        edge1_length =
+            3 * max_linf_4(p000, p100, p110, p010, p001, p101, p111, p011);
         // double diag=max_linf_4(
         // p000,p100,p110,p010,
         // p111,p011,p001,p101);
@@ -223,8 +222,10 @@ namespace inclusion_ccd
         // }
 
         dl = 3 * max_linf_4(p000, p001, p011, p010, p100, p101, p111, p110);
-        edge0_length = 3 * max_linf_4(p000, p100, p101, p001, p010, p110, p111, p011);
-        edge1_length = 3 * max_linf_4(p000, p100, p110, p010, p001, p101, p111, p011);
+        edge0_length =
+            3 * max_linf_4(p000, p100, p101, p001, p010, p110, p111, p011);
+        edge1_length =
+            3 * max_linf_4(p000, p100, p110, p010, p001, p101, p111, p011);
         // for(int i=0;i<3;i++){
         //     if(fabs(p000[i]-p100[i])>dl)
         //         dl=fabs(p000[i]-p100[i]);
@@ -337,7 +338,6 @@ namespace inclusion_ccd
 
         //////////////////////////////////////////////////////////
 
-
         bool is_impacting;
 
         // 0 is normal ccd without pre-check,
@@ -347,16 +347,16 @@ namespace inclusion_ccd
         if (CCD_TYPE == 0)
         {
             is_impacting = interval_root_finder_double_normalCCD(
-                tol, toi, false, err1, ms, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e);
+                tol, toi, false, err1, ms, a0s, a1s, b0s, b1s, a0e, a1e, b0e,
+                b1e);
         }
         if (CCD_TYPE == 1)
         {
             assert(t_max >= 0 && t_max <= 1);
             is_impacting = interval_root_finder_double_horizontal_tree(
-                tol, tolerance, toi, false, err1, ms, a0s, a1s, b0s, b1s, 
-                a0e, a1e, b0e, b1e, t_max, max_itr, output_tolerance);
+                tol, tolerance, toi, false, err1, ms, a0s, a1s, b0s, b1s, a0e,
+                a1e, b0e, b1e, t_max, max_itr, output_tolerance);
         }
-
 
         // Return a conservative time-of-impact
         //    if (is_impacting) {
@@ -368,7 +368,8 @@ namespace inclusion_ccd
 #ifdef TIGHT_INCLUSION_NO_ZERO_TOI
 
         // this modification is for IPC simulation
-        if(toi==0){
+        if (toi == 0)
+        {
             // std::cout<<"ee toi == 0, info:\n"<<"tolerance "<<tolerance<<"\noutput_tolerance "<<
             // output_tolerance<<"\nminimum distance "<<ms<<std::endl;
             // std::cout<<"ms > 0? "<<(ms>0)<<std::endl;
@@ -376,23 +377,26 @@ namespace inclusion_ccd
 
             // we rebuild the time interval
             // since tol is conservative:
-            double new_max_time=std::min(tol[0]*10, 0.1);// this is the new time range    
+            double new_max_time =
+                std::min(tol[0] * 10, 0.1); // this is the new time range
             //if early terminated, use tolerance; otherwise, use smaller tolerance
             // althouth time resolution and tolerance is not the same thing, but decrease
             // tolerance will be helpful
-            double new_tolerance=output_tolerance>tolerance?tolerance:0.1*tolerance;
+            double new_tolerance =
+                output_tolerance > tolerance ? tolerance : 0.1 * tolerance;
             double new_toi;
             double new_output_tol;
-            bool res=edgeEdgeCCD_double(a0s, a1s, b0s, b1s, 
-                a0e, a1e, b0e, b1e,
-                err,ms,new_toi,new_tolerance,new_max_time,max_itr,new_output_tol,
-               CCD_TYPE);
+            bool res = edgeEdgeCCD_double(
+                a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, err, ms, new_toi,
+                new_tolerance, new_max_time, max_itr, new_output_tol, CCD_TYPE);
 
-            if(res){
-                toi=new_toi;
+            if (res)
+            {
+                toi = new_toi;
             }
-            else{
-                toi=new_max_time;
+            else
+            {
+                toi = new_max_time;
             }
             return true;
         }
@@ -403,7 +407,7 @@ namespace inclusion_ccd
         return is_impacting;
         return false;
     }
-    int LEVEL_NBR=0;
+    int LEVEL_NBR = 0;
     // This function can give you the answer of continous collision detection with minimum
     // seperation, and the earlist collision time if collision happens.
     // err is the filters calculated using the bounding box of the simulation scene.
@@ -469,7 +473,7 @@ namespace inclusion_ccd
         //////////////////////////////////////////////////////////
 
         // Interval3 toi_interval;
-        
+
         bool is_impacting;
 
         // 0 is normal ccd without pre-check,
@@ -479,16 +483,17 @@ namespace inclusion_ccd
         if (CCD_TYPE == 0)
         {
             is_impacting = interval_root_finder_double_normalCCD(
-                tol, toi, true, err1, ms, vertex_start, face_vertex0_start, face_vertex1_start,
-                face_vertex2_start, vertex_end, face_vertex0_end, face_vertex1_end,
-                face_vertex2_end);
+                tol, toi, true, err1, ms, vertex_start, face_vertex0_start,
+                face_vertex1_start, face_vertex2_start, vertex_end,
+                face_vertex0_end, face_vertex1_end, face_vertex2_end);
         }
         if (CCD_TYPE == 1)
         {
             assert(t_max >= 0 && t_max <= 1);
             is_impacting = interval_root_finder_double_horizontal_tree(
-                tol, tolerance, toi, true, err1, ms, vertex_start, face_vertex0_start, face_vertex1_start,
-                face_vertex2_start, vertex_end, face_vertex0_end, face_vertex1_end,
+                tol, tolerance, toi, true, err1, ms, vertex_start,
+                face_vertex0_start, face_vertex1_start, face_vertex2_start,
+                vertex_end, face_vertex0_end, face_vertex1_end,
                 face_vertex2_end, t_max, max_itr, output_tolerance);
         }
 
@@ -500,11 +505,11 @@ namespace inclusion_ccd
         // This time of impact is very dangerous for convergence
         // assert(!is_impacting || toi > 0);
 
-
         // this modification is for IPC simulation
         LEVEL_NBR++;
 #ifdef TIGHT_INCLUSION_NO_ZERO_TOI
-        if(toi==0){
+        if (toi == 0)
+        {
             // std::cout<<"vf toi == 0, info:\n"<<"tolerance "<<tolerance<<"\noutput_tolerance "<<
             // output_tolerance<<"\nminimum distance "<<std::setprecision(17)<<ms<<std::endl;
             // std::cout<<"ms > 0? "<<(ms>0)<<std::endl;
@@ -513,29 +518,34 @@ namespace inclusion_ccd
 
             // we rebuild the time interval
             // since tol is conservative:
-            double new_max_time=std::min(tol[0]*10, 0.1);// this is the new time range    
+            double new_max_time =
+                std::min(tol[0] * 10, 0.1); // this is the new time range
             //if early terminated, use tolerance; otherwise, use smaller tolerance
             // althouth time resolution and tolerance is not the same thing, but decrease
             // tolerance will be helpful
-            double new_tolerance=output_tolerance>tolerance?tolerance:0.1*tolerance;
+            double new_tolerance =
+                output_tolerance > tolerance ? tolerance : 0.1 * tolerance;
             double new_toi;
             double new_output_tol;
-            bool res=vertexFaceCCD_double(vertex_start, face_vertex0_start, face_vertex1_start,
-                face_vertex2_start, vertex_end, face_vertex0_end, face_vertex1_end,
-                face_vertex2_end,err,ms,new_toi,new_tolerance,new_max_time,max_itr,new_output_tol,
-               CCD_TYPE);
+            bool res = vertexFaceCCD_double(
+                vertex_start, face_vertex0_start, face_vertex1_start,
+                face_vertex2_start, vertex_end, face_vertex0_end,
+                face_vertex1_end, face_vertex2_end, err, ms, new_toi,
+                new_tolerance, new_max_time, max_itr, new_output_tol, CCD_TYPE);
 
-            if(res){
-                toi=new_toi;
+            if (res)
+            {
+                toi = new_toi;
             }
-            else{
-                toi=new_max_time;
+            else
+            {
+                toi = new_max_time;
             }
-            LEVEL_NBR=0;
+            LEVEL_NBR = 0;
             return true;
         }
-#endif  
-        LEVEL_NBR=0;
+#endif
+        LEVEL_NBR = 0;
 
         return is_impacting;
         return false;
@@ -556,7 +566,8 @@ namespace inclusion_ccd
         double &toi)
     {
 
-        Eigen::Vector3d tol = compute_edge_edge_tolerance_new(a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, CCD_LENGTH_TOL);
+        Eigen::Vector3d tol = compute_edge_edge_tolerance_new(
+            a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, CCD_LENGTH_TOL);
 
         //////////////////////////////////////////////////////////
         // TODO this should be the error of the whole mesh
@@ -579,9 +590,9 @@ namespace inclusion_ccd
         std::array<std::pair<Rational, Rational>, 3> toi_interval;
 
         bool is_impacting = interval_root_finder_Rational(
-            tol, toi_interval, false, err1, ms, a0s, a1s, b0s, b1s, a0e, a1e, b0e,
-            b1e);
-        
+            tol, toi_interval, false, err1, ms, a0s, a1s, b0s, b1s, a0e, a1e,
+            b0e, b1e);
+
         // Return a conservative time-of-impact
         if (is_impacting)
         {
@@ -635,9 +646,9 @@ namespace inclusion_ccd
 
         bool is_impacting = interval_root_finder_Rational(
             tol, toi_interval, true, err1, ms, vertex_start, face_vertex0_start,
-            face_vertex1_start, face_vertex2_start, vertex_end, face_vertex0_end,
-            face_vertex1_end, face_vertex2_end);
-        
+            face_vertex1_start, face_vertex2_start, vertex_end,
+            face_vertex0_end, face_vertex1_end, face_vertex2_end);
+
         // std::cout<<"get result successfully"<<std::endl;
         // Return a conservative time-of-impact
         if (is_impacting)
@@ -651,13 +662,14 @@ namespace inclusion_ccd
         return false;
     }
 #endif
-    
-bool using_rational_method(){
-    #ifdef TIGHT_INCLUSION_USE_GMP
-    return true;
-    #else
-    return false;
-    #endif
-}    
-    
+
+    bool using_rational_method()
+    {
+#ifdef TIGHT_INCLUSION_USE_GMP
+        return true;
+#else
+        return false;
+#endif
+    }
+
 } // namespace inclusion_ccd
