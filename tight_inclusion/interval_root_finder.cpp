@@ -121,7 +121,6 @@ namespace inclusion_ccd
         const Eigen::Vector3d &b0e,
         const Eigen::Vector3d &b1e,
         const int dimension,
-        T tp,
         const bool check_vf,
         const double eps)
     {
@@ -144,7 +143,7 @@ namespace inclusion_ccd
 #ifdef TIGHT_INCLUSION_USE_TIMER
                             timer.start();
 #endif
-                            eva = function_f_ee(t[i], u[j], v[k], tp, dimension,
+                            eva = function_f_ee<T>(t[i], u[j], v[k], dimension,
                                                 a0s, a1s, b0s, b1s, a0e, a1e,
                                                 b0e, b1e);
 #ifdef TIGHT_INCLUSION_USE_TIMER
@@ -157,7 +156,7 @@ namespace inclusion_ccd
 #ifdef TIGHT_INCLUSION_USE_TIMER
                             timer.start();
 #endif
-                            eva = function_f_vf(t[i], u[j], v[k], tp, dimension,
+                            eva = function_f_vf<T>(t[i], u[j], v[k], dimension,
                                                 a0s, a1s, b0s, b1s, a0e, a1e,
                                                 b0e, b1e);
 #ifdef TIGHT_INCLUSION_USE_TIMER
@@ -203,8 +202,8 @@ namespace inclusion_ccd
                     for (int k = 0; k < 2; k++)
                     {
 
-                        vs[count] = function_f_vf(
-                            t[i], u[j], v[k], tp, dimension, a0s, a1s, b0s, b1s,
+                        vs[count] = function_f_vf<T>(
+                            t[i], u[j], v[k], dimension, a0s, a1s, b0s, b1s,
                             a0e, a1e, b0e, b1e);
 
                         count++;
@@ -249,8 +248,8 @@ namespace inclusion_ccd
                     for (int k = 0; k < 2; k++)
                     {
 
-                        vs[count] = function_f_ee(
-                            t[i], u[j], v[k], tp, dimension, a0s, a1s, b0s, b1s,
+                        vs[count] = function_f_ee<T>(
+                            t[i], u[j], v[k], dimension, a0s, a1s, b0s, b1s,
                             a0e, a1e, b0e, b1e);
                         count++;
                     }
@@ -444,7 +443,6 @@ namespace inclusion_ccd
         const Eigen::Vector3d &a1e,
         const Eigen::Vector3d &b0e,
         const Eigen::Vector3d &b1e,
-        T tp,
         const bool check_vf,
         std::array<std::array<Eigen::Vector3d, 2>, 6> &bboxes)
     {
@@ -459,31 +457,31 @@ namespace inclusion_ccd
                 {
                     if (!check_vf)
                     {
-                        pts[count][0] = function_f_ee(
-                            t[i], u[j], v[k], tp, 0, a0s, a1s, b0s, b1s, a0e,
-                            a1e, b0e, b1e);
+                        pts[count][0] = function_f_ee<T>(
+                            t[i], u[j], v[k], 0, a0s, a1s, b0s, b1s, a0e, a1e,
+                            b0e, b1e);
 
-                        pts[count][1] = function_f_ee(
-                            t[i], u[j], v[k], tp, 1, a0s, a1s, b0s, b1s, a0e,
-                            a1e, b0e, b1e);
+                        pts[count][1] = function_f_ee<T>(
+                            t[i], u[j], v[k], 1, a0s, a1s, b0s, b1s, a0e, a1e,
+                            b0e, b1e);
 
-                        pts[count][2] = function_f_ee(
-                            t[i], u[j], v[k], tp, 2, a0s, a1s, b0s, b1s, a0e,
-                            a1e, b0e, b1e);
+                        pts[count][2] = function_f_ee<T>(
+                            t[i], u[j], v[k], 2, a0s, a1s, b0s, b1s, a0e, a1e,
+                            b0e, b1e);
                     }
                     else
                     {
-                        pts[count][0] = function_f_vf(
-                            t[i], u[j], v[k], tp, 0, a0s, a1s, b0s, b1s, a0e,
-                            a1e, b0e, b1e);
+                        pts[count][0] = function_f_vf<T>(
+                            t[i], u[j], v[k], 0, a0s, a1s, b0s, b1s, a0e, a1e,
+                            b0e, b1e);
 
-                        pts[count][1] = function_f_vf(
-                            t[i], u[j], v[k], tp, 1, a0s, a1s, b0s, b1s, a0e,
-                            a1e, b0e, b1e);
+                        pts[count][1] = function_f_vf<T>(
+                            t[i], u[j], v[k], 1, a0s, a1s, b0s, b1s, a0e, a1e,
+                            b0e, b1e);
 
-                        pts[count][2] = function_f_vf(
-                            t[i], u[j], v[k], tp, 2, a0s, a1s, b0s, b1s, a0e,
-                            a1e, b0e, b1e);
+                        pts[count][2] = function_f_vf<T>(
+                            t[i], u[j], v[k], 2, a0s, a1s, b0s, b1s, a0e, a1e,
+                            b0e, b1e);
                     }
                     count++;
                 }
@@ -702,14 +700,13 @@ namespace inclusion_ccd
         v[0] = paras[2].first;
         v[1] = paras[2].second;
         //bool zero_0=false, zer0_1=false, zero_2=false;
-        double input_type;
         bool ck;
 #ifdef TIGHT_INCLUSION_USE_TIMER
         timer.start();
 #endif
-        ck = evaluate_bbox_one_dimension(
-            t, u, v, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, 0, input_type,
-            check_vf, box[0]);
+        ck = evaluate_bbox_one_dimension<double>(
+            t, u, v, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, 0, check_vf,
+            box[0]);
 #ifdef TIGHT_INCLUSION_USE_TIMER
         timer.stop();
         time23 += timer.getElapsedTimeInMicroSec();
@@ -719,9 +716,9 @@ namespace inclusion_ccd
 #ifdef TIGHT_INCLUSION_USE_TIMER
         timer.start();
 #endif
-        ck = evaluate_bbox_one_dimension(
-            t, u, v, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, 1, input_type,
-            check_vf, box[1]);
+        ck = evaluate_bbox_one_dimension<double>(
+            t, u, v, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, 1, check_vf,
+            box[1]);
 #ifdef TIGHT_INCLUSION_USE_TIMER
         timer.stop();
         time23 += timer.getElapsedTimeInMicroSec();
@@ -731,9 +728,9 @@ namespace inclusion_ccd
 #ifdef TIGHT_INCLUSION_USE_TIMER
         timer.start();
 #endif
-        ck = evaluate_bbox_one_dimension(
-            t, u, v, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, 2, input_type,
-            check_vf, box[2]);
+        ck = evaluate_bbox_one_dimension<double>(
+            t, u, v, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, 2, check_vf,
+            box[2]);
 #ifdef TIGHT_INCLUSION_USE_TIMER
         timer.stop();
         time23 += timer.getElapsedTimeInMicroSec();
@@ -903,24 +900,22 @@ namespace inclusion_ccd
         v[0] = paras[2].first;
         v[1] = paras[2].second;
         //bool zero_0=false, zer0_1=false, zero_2=false;
-        double input_type;
         std::array<std::array<Eigen::Vector3d, 2>, 6> bboxes;
         // get the bounding boxes
-        evaluate_tuv_bboxes(
-            t, u, v, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, input_type,
-            check_vf, bboxes);
+        evaluate_tuv_bboxes<double>(
+            t, u, v, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, check_vf, bboxes);
         //TODO
-        if (!evaluate_bbox_one_dimension(
-                t, u, v, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, 0, input_type,
-                check_vf, box[0]))
+        if (!evaluate_bbox_one_dimension<double>(
+                t, u, v, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, 0, check_vf,
+                box[0]))
             return false;
-        if (!evaluate_bbox_one_dimension(
-                t, u, v, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, 1, input_type,
-                check_vf, box[1]))
+        if (!evaluate_bbox_one_dimension<double>(
+                t, u, v, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, 1, check_vf,
+                box[1]))
             return false;
-        if (!evaluate_bbox_one_dimension(
-                t, u, v, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, 2, input_type,
-                check_vf, box[2]))
+        if (!evaluate_bbox_one_dimension<double>(
+                t, u, v, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, 2, check_vf,
+                box[2]))
             return false;
         return true;
     }
@@ -1382,7 +1377,6 @@ namespace inclusion_ccd
         const Numccd &tpara,
         const Numccd &upara,
         const Numccd &vpara,
-        const T &type,
         const int dim,
         const Eigen::Vector3d &a0s,
         const Eigen::Vector3d &a1s,
@@ -1423,13 +1417,11 @@ namespace inclusion_ccd
         const Numccd &tpara,
         const Numccd &upara,
         const Numccd &vpara,
-        const T &type,
         const int dim,
         const Eigen::Vector3d &vs,
         const Eigen::Vector3d &t0s,
         const Eigen::Vector3d &t1s,
         const Eigen::Vector3d &t2s,
-
         const Eigen::Vector3d &ve,
         const Eigen::Vector3d &t0e,
         const Eigen::Vector3d &t1e,
