@@ -39,21 +39,42 @@ Then you can run `./Tight_Inclusion_bin` to test the `handcrafted queries` in th
 ## Usage
 Include `#include <tight_inclusion/inclusion_ccd.hpp>`
 
-To check edge-edge ccd, use `bool edgeEdgeCCD_double();`
+To check edge-edge ccd, use `bool inclusion_ccd::edgeEdgeCCD_double()`;
 
-To check vertex-face ccd, use `bool vertexFaceCCD_double();`
+To check vertex-face ccd, use `bool inclusion_ccd::vertexFaceCCD_double()`;
 
 💡 If collision is detected, the ccd function will return `true`, otherwise, the ccd function will return `false`. Since our method is CONSERVATIVE, if the returned result is `false`, we guarantee that there is no collision happens. If the result is `true`, it is possible that there is no collision but we falsely report a collision, but we can guarantee that this happens only if the minimal distance between the two primitives in this time step is no larger than `tolerance + ms + err`. We wil explain these parameters below.  
 
 For both edge-edge ccd and vertex-face ccd, the input CCD query is presented by 8 vertices which are in the format of `Eigen::Vector3d`. Please read our code in `tight_inclusion/inclusion_ccd.hpp` for the correct input order of the vertices. 
-Beside the input vertices, there are some input and output parameters for users to tune the performace or to get more CCD information. here is a list of the explanation of the parameters:
+Beside the input vertices, there are some input and output parameters for users to tune the performace or to get more CCD information. Here is a list of the explanation of the parameters:
 
 ```
 input:
-    err         The numerical filters of the x, y and z coordinates. It measures the errors introduced by floating-point calculation.
-    ms          Minimum separation distance no less than 0. It guarantees that collision will be reported if the distance between the two primitives is less than ms.
-    tolerance   User-specific solving precision. It is the target maximal x, y, and z length of the inclusion function. We suggest the user to set it as 1e-6
+    err                 The numerical filters of the x, y and z coordinates. It measures the errors introduced by floating-point calculation when solving inclusion functions.
+    ms                  Minimum separation distance no less than 0. It guarantees that collision will be reported if the distance between the two primitives is less than ms.
+    tolerance           User-specific solving precision. It is the target maximal x, y, and z length of the inclusion function. We suggest the user to set it as 1e-6.
+    t_max               The time range [0, t_max] where we detect collisions. Since the input query implies the motion in time range [0, 1], t_max should no larger than 1.
+    max_itr             The parameter for early termination of the algorithm. If you set max_itr < 0, early termination will be disabled, but this may cause longer runtime. We suggest to set max_itr = 1e6.
+    CCD_TYPE            The parameter to choose collision detection algorithms. By default CCD_TYPE = 1. If set CCD_TYPE = 0, the code will switch to a naive conservative CCD algorithm, but lack of our advanced features. 
+    
+output:
+    toi                 Time of impact. If multiple collisions happen in this time step, it will return the earlist one. If there is no collision, the returned toi value will be std::numeric_limits<double>::infinity().
+    output_tolerance    The real solving precision. If early termination is enabled, the solving precision may not reach the target precision. This parameter will return the real solving precision when the code is terminated.
+```
+## Tip
+💡 The input parameter `err` is crucial to guarantee our algorithm to be a conservative method not affected by floating point rounding errors. To run a single query, you can set `err = {{-1, -1, -1}}` to enable a sub-function to calculate the real numerical filters when solving CCD. If you are integrating our CCD in simulators, you need to:
+
+-Include the headler: `#include <tight_inclusion/interval_root_finder.hpp>`.
+-Call `std::array<double, 3> err_vf = inclusion_ccd::get_numerical_error()` and `std::array<double, 3> err_ee = inclusion_ccd::get_numerical_error()`
+-Use the parameter `err_ee` each time you call `bool inclusion_ccd::edgeEdgeCCD_double()` and `err_vf` when you call `bool inclusion_ccd::vertexFaceCCD_double()`.
+
+The parameters for function `inclusion_ccd::get_numerical_error()` is explained below:
+```
+input:
+    vertices            Vertices of the Axies-Aligned-Bounding-Box of the simulation scene. Before you run the simulation, you need to conservatively estimate the Axies-Aligned-Bounding-Box in which the meshes will located during the whole simulation process, and the vertices should be the corners of the AABB.
+    check_vf            A boolean instruction showing if you are checking vertex-face or edge-edge CCD.
+    using_minimum_separation    A boolean instruction. If you are using minimum-separation CCD (the input parameter ms > 0), please set it as true.
+
 ```
 
-Please read the annotations for the details of the parameter setting
-
+To have a better understand, or to get more details of our Tight-Inclusion CCD algorithm, please refer to our paper.
