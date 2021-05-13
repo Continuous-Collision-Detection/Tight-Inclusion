@@ -55,14 +55,14 @@ input:
     ms                  Minimum separation distance no less than 0. It guarantees that collision will be reported if the distance between the two primitives is less than ms.
     tolerance           User-specific solving precision. It is the target maximal x, y, and z length of the inclusion function. We suggest the user to set it as 1e-6.
     t_max               The time range [0, t_max] where we detect collisions. Since the input query implies the motion in time range [0, 1], t_max should no larger than 1.
-    max_itr             The parameter for early termination of the algorithm. If you set max_itr < 0, early termination will be disabled, but this may cause longer runtime. We suggest to set max_itr = 1e6.
+    max_itr             The parameter to enable early termination of the algorithm. If you set max_itr < 0, early termination will be disabled, but this may cause longer runtime. We suggest to set max_itr = 1e6.
     CCD_TYPE            The parameter to choose collision detection algorithms. By default CCD_TYPE = 1. If set CCD_TYPE = 0, the code will switch to a naive conservative CCD algorithm, but lack of our advanced features. 
     
 output:
     toi                 Time of impact. If multiple collisions happen in this time step, it will return the earlist collision time. If there is no collision, the returned toi value will be std::numeric_limits<double>::infinity().
     output_tolerance    The real solving precision. If early termination is enabled, the solving precision may not reach the target precision. This parameter will return the real solving precision when the code is terminated.
 ```
-## Tip
+## Tips
 💡 The input parameter `err` is crucial to guarantee our algorithm to be a conservative method not affected by floating point rounding errors. To run a single query, you can set `err = {{-1, -1, -1}}` to enable a sub-function to calculate the real numerical filters when solving CCD. If you are integrating our CCD in simulators, you need to:
 
 - Include the headler: `#include <tight_inclusion/interval_root_finder.hpp>`.
@@ -77,5 +77,6 @@ input:
     using_minimum_separation    A boolean instruction. If you are using minimum-separation CCD (the input parameter ms > 0), please set it as true.
 
 ```
+💡 For some simulators which use non-zero minimum separation distance (`ms` > 0) to make sure intersection-free for each time-step, we have a CMake option `TIGHT_INCLUSION_WITH_NO_ZERO_TOI` to avoid the returned collision time `toi` is 0. You need to set `TIGHT_INCLUSION_WITH_NO_ZERO_TOI` as `ON` when compiling by: `cmake ../ -DCMAKE_BUILD_TYPE=Release -DTIGHT_INCLUSION_WITH_NO_ZERO_TOI=ON`. Then when you use the CCD functions, the code will continue the refinement in higher precision if the output `toi` is 0 under the given `tolerance`. So, the eventually `toi` will not be 0.
 
 To have a better understand, or to get more details of our Tight-Inclusion CCD algorithm, please refer to our paper.
