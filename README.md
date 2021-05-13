@@ -46,7 +46,8 @@ To check vertex-face ccd, use `bool inclusion_ccd::vertexFaceCCD_double()`;
 💡 If collision is detected, the ccd function will return `true`, otherwise, the ccd function will return `false`. Since our method is CONSERVATIVE, if the returned result is `false`, we guarantee that there is no collision happens. If the result is `true`, it is possible that there is no collision but we falsely report a collision, but we can guarantee that this happens only if the minimal distance between the two primitives in this time step is no larger than `tolerance + ms + err`. We wil explain these parameters below.  
 
 For both edge-edge ccd and vertex-face ccd, the input CCD query is presented by 8 vertices which are in the format of `Eigen::Vector3d`. Please read our code in `tight_inclusion/inclusion_ccd.hpp` for the correct input order of the vertices. 
-Beside the input vertices, there are some input and output parameters for users to tune the performace or to get more CCD information. Here is a list of the explanation of the parameters:
+
+Beside the input vertices, there are some input and output parameters for users to tune the performace or to get more CCD information. Here is a list of the explanations of the parameters:
 
 ```
 input:
@@ -64,9 +65,9 @@ output:
 ## Tip
 💡 The input parameter `err` is crucial to guarantee our algorithm to be a conservative method not affected by floating point rounding errors. To run a single query, you can set `err = {{-1, -1, -1}}` to enable a sub-function to calculate the real numerical filters when solving CCD. If you are integrating our CCD in simulators, you need to:
 
--Include the headler: `#include <tight_inclusion/interval_root_finder.hpp>`.
--Call `std::array<double, 3> err_vf = inclusion_ccd::get_numerical_error()` and `std::array<double, 3> err_ee = inclusion_ccd::get_numerical_error()`
--Use the parameter `err_ee` each time you call `bool inclusion_ccd::edgeEdgeCCD_double()` and `err_vf` when you call `bool inclusion_ccd::vertexFaceCCD_double()`.
+- Include the headler: `#include <tight_inclusion/interval_root_finder.hpp>`.
+- Call `std::array<double, 3> err_vf = inclusion_ccd::get_numerical_error()` and `std::array<double, 3> err_ee = inclusion_ccd::get_numerical_error()`
+- Use the parameter `err_ee` each time you call `bool inclusion_ccd::edgeEdgeCCD_double()` and `err_vf` when you call `bool inclusion_ccd::vertexFaceCCD_double()`.
 
 The parameters for function `inclusion_ccd::get_numerical_error()` is explained below:
 ```
