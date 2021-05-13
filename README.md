@@ -1,8 +1,8 @@
 # Tight-Inclusion Continuous Collision Detection 
 ![](./fig/line-search.jpg)
+[![Build](https://github.com/Continuous-Collision-Detection/Tight-Inclusion/actions/workflows/continuous.yml/badge.svg)](https://github.com/Continuous-Collision-Detection/Tight-Inclusion/actions/workflows/continuous.yml)
 A conservative Continuous Collision Detection (CCD) method with support for minimum separation.
 
-[![Build](https://github.com/Continuous-Collision-Detection/Tight-Inclusion/actions/workflows/continuous.yml/badge.svg)](https://github.com/Continuous-Collision-Detection/Tight-Inclusion/actions/workflows/continuous.yml)
 
 You can read more about this work in our ACM Transactions on Graphics paper:
 
@@ -59,7 +59,7 @@ input:
     CCD_TYPE            The parameter to choose collision detection algorithms. By default CCD_TYPE = 1. If set CCD_TYPE = 0, the code will switch to a naive conservative CCD algorithm, but lack of our advanced features. 
     
 output:
-    toi                 Time of impact. If multiple collisions happen in this time step, it will return the earlist one. If there is no collision, the returned toi value will be std::numeric_limits<double>::infinity().
+    toi                 Time of impact. If multiple collisions happen in this time step, it will return the earlist collision time. If there is no collision, the returned toi value will be std::numeric_limits<double>::infinity().
     output_tolerance    The real solving precision. If early termination is enabled, the solving precision may not reach the target precision. This parameter will return the real solving precision when the code is terminated.
 ```
 ## Tip
