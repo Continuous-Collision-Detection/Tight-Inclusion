@@ -9,12 +9,12 @@
 namespace inclusion_ccd
 {
 
-    static double CCD_LENGTH_TOL = 1e-6;
+    static Scalar CCD_LENGTH_TOL = 1e-6;
 
-    std::array<Eigen::Vector3d, 2>
-    bbd_4_pts_new(const std::array<Eigen::Vector3d, 4> &pts)
+    std::array<Vector3d, 2>
+    bbd_4_pts_new(const std::array<Vector3d, 4> &pts)
     {
-        Eigen::Vector3d min, max;
+        Vector3d min, max;
         min = pts[0];
         max = pts[0];
         for (int i = 1; i < 4; i++)
@@ -31,19 +31,19 @@ namespace inclusion_ccd
                 }
             }
         }
-        std::array<Eigen::Vector3d, 2> rst;
+        std::array<Vector3d, 2> rst;
         rst[0] = min;
         rst[1] = max;
         return rst;
     }
 
-    double max_diff(
-        const double b1min,
-        const double b1max,
-        const double b2min,
-        const double b2max)
+    Scalar max_diff(
+        const Scalar b1min,
+        const Scalar b1max,
+        const Scalar b2min,
+        const Scalar b2max)
     {
-        double r = 0;
+        Scalar r = 0;
         if (r < b1max - b1min)
             r = b1max - b1min;
         if (r < b2max - b2min)
@@ -56,20 +56,20 @@ namespace inclusion_ccd
     }
 
     // calculate maximum x, y and z diff
-    double get_max_axis_diff(
-        const std::array<Eigen::Vector3d, 2> &b1,
-        const std::array<Eigen::Vector3d, 2> &b2)
+    Scalar get_max_axis_diff(
+        const std::array<Vector3d, 2> &b1,
+        const std::array<Vector3d, 2> &b2)
     {
 
-        double x = max_diff(b1[0][0], b1[1][0], b2[0][0], b2[1][0]);
-        double y = max_diff(b1[0][1], b1[1][1], b2[0][1], b2[1][1]);
-        double z = max_diff(b1[0][2], b1[1][2], b2[0][2], b2[1][2]);
+        Scalar x = max_diff(b1[0][0], b1[1][0], b2[0][0], b2[1][0]);
+        Scalar y = max_diff(b1[0][1], b1[1][1], b2[0][1], b2[1][1]);
+        Scalar z = max_diff(b1[0][2], b1[1][2], b2[0][2], b2[1][2]);
         return std::max(std::max(x, y), z);
     }
 
-    double max_linf_dist(const Eigen::Vector3d &p1, const Eigen::Vector3d &p2)
+    Scalar max_linf_dist(const Vector3d &p1, const Vector3d &p2)
     {
-        double r = 0;
+        Scalar r = 0;
         for (int i = 0; i < 3; i++)
         {
             if (r < fabs(p1[i] - p2[i]))
@@ -80,17 +80,17 @@ namespace inclusion_ccd
         return r;
     }
 
-    double max_linf_4(
-        const Eigen::Vector3d &p1,
-        const Eigen::Vector3d &p2,
-        const Eigen::Vector3d &p3,
-        const Eigen::Vector3d &p4,
-        const Eigen::Vector3d &p1e,
-        const Eigen::Vector3d &p2e,
-        const Eigen::Vector3d &p3e,
-        const Eigen::Vector3d &p4e)
+    Scalar max_linf_4(
+        const Vector3d &p1,
+        const Vector3d &p2,
+        const Vector3d &p3,
+        const Vector3d &p4,
+        const Vector3d &p1e,
+        const Vector3d &p2e,
+        const Vector3d &p3e,
+        const Vector3d &p4e)
     {
-        double r = 0, temp = 0;
+        Scalar r = 0, temp = 0;
         temp = max_linf_dist(p1e, p1);
         if (r < temp)
             r = temp;
@@ -106,44 +106,44 @@ namespace inclusion_ccd
         return r;
     }
 
-    Eigen::Vector3d compute_face_vertex_tolerance_3d_new(
-        const Eigen::Vector3d &vs,
-        const Eigen::Vector3d &f0s,
-        const Eigen::Vector3d &f1s,
-        const Eigen::Vector3d &f2s,
-        const Eigen::Vector3d &ve,
-        const Eigen::Vector3d &f0e,
-        const Eigen::Vector3d &f1e,
-        const Eigen::Vector3d &f2e,
-        const double tolerance)
+    Vector3d compute_face_vertex_tolerance_3d_new(
+        const Vector3d &vs,
+        const Vector3d &f0s,
+        const Vector3d &f1s,
+        const Vector3d &f2s,
+        const Vector3d &ve,
+        const Vector3d &f0e,
+        const Vector3d &f1e,
+        const Vector3d &f2e,
+        const Scalar tolerance)
     {
-        Eigen::Vector3d p000 = vs - f0s, p001 = vs - f2s,
+        Vector3d p000 = vs - f0s, p001 = vs - f2s,
                         p011 = vs - (f1s + f2s - f0s), p010 = vs - f1s;
-        Eigen::Vector3d p100 = ve - f0e, p101 = ve - f2e,
+        Vector3d p100 = ve - f0e, p101 = ve - f2e,
                         p111 = ve - (f1e + f2e - f0e), p110 = ve - f1e;
-        double dl = 0;
-        double edge0_length = 0;
-        double edge1_length = 0;
+        Scalar dl = 0;
+        Scalar edge0_length = 0;
+        Scalar edge1_length = 0;
         dl = 3 * max_linf_4(p000, p001, p011, p010, p100, p101, p111, p110);
         edge0_length =
             3 * max_linf_4(p000, p100, p101, p001, p010, p110, p111, p011);
         edge1_length =
             3 * max_linf_4(p000, p100, p110, p010, p001, p101, p111, p011);
-        // double diag=max_linf_4(
+        // Scalar diag=max_linf_4(
         // p000,p100,p110,p010,
         // p111,p011,p001,p101);
 
-        // std::array<Eigen::Vector3d,2>
+        // std::array<Vector3d,2>
         // t0box=bbd_4_pts_new({{p000,p001,p010,p011}});
-        // std::array<Eigen::Vector3d,2>
+        // std::array<Vector3d,2>
         // t1box=bbd_4_pts_new({{p100,p101,p110,p111}});
-        // std::array<Eigen::Vector3d,2>
+        // std::array<Vector3d,2>
         // u0box=bbd_4_pts_new({{p000,p001,p100,p101}});
-        // std::array<Eigen::Vector3d,2>
+        // std::array<Vector3d,2>
         // u1box=bbd_4_pts_new({{p010,p011,p110,p111}});
-        // std::array<Eigen::Vector3d,2>
+        // std::array<Vector3d,2>
         // v0box=bbd_4_pts_new({{p000,p100,p010,p110}});
-        // std::array<Eigen::Vector3d,2>
+        // std::array<Vector3d,2>
         // v1box=bbd_4_pts_new({{p001,p101,p011,p111}});
         // dl=get_max_axis_diff(t0box,t1box);
         // edge0_length=get_max_axis_diff(u0box,u1box);
@@ -173,48 +173,48 @@ namespace inclusion_ccd
         //         if(edge1_length<fabs(f2e[i]-f0e[i]))
         //             edge1_length=fabs(f2e[i]-f0e[i]);
         //     }
-        //    //double edge_length = std::max(edge0_length, edge1_length);
+        //    //Scalar edge_length = std::max(edge0_length, edge1_length);
         //     c00=0;c10=0;c20=0;
         //     c00=dl;c10=edge0_length;c20=edge1_length;
-        return Eigen::Vector3d(
+        return Vector3d(
             tolerance / dl, tolerance / edge0_length, tolerance / edge1_length);
     }
 
-    Eigen::Vector3d compute_edge_edge_tolerance_new(
-        const Eigen::Vector3d &edge0_vertex0_start, // a0s
-        const Eigen::Vector3d &edge0_vertex1_start, // a1s
-        const Eigen::Vector3d &edge1_vertex0_start, // b0s
-        const Eigen::Vector3d &edge1_vertex1_start, // b1s
-        const Eigen::Vector3d &edge0_vertex0_end,
-        const Eigen::Vector3d &edge0_vertex1_end,
-        const Eigen::Vector3d &edge1_vertex0_end,
-        const Eigen::Vector3d &edge1_vertex1_end,
-        const double tolerance)
+    Vector3d compute_edge_edge_tolerance_new(
+        const Vector3d &edge0_vertex0_start, // a0s
+        const Vector3d &edge0_vertex1_start, // a1s
+        const Vector3d &edge1_vertex0_start, // b0s
+        const Vector3d &edge1_vertex1_start, // b1s
+        const Vector3d &edge0_vertex0_end,
+        const Vector3d &edge0_vertex1_end,
+        const Vector3d &edge1_vertex0_end,
+        const Vector3d &edge1_vertex1_end,
+        const Scalar tolerance)
     {
 
-        Eigen::Vector3d p000 = edge0_vertex0_start - edge1_vertex0_start,
+        Vector3d p000 = edge0_vertex0_start - edge1_vertex0_start,
                         p001 = edge0_vertex0_start - edge1_vertex1_start,
                         p011 = edge0_vertex1_start - edge1_vertex1_start,
                         p010 = edge0_vertex1_start - edge1_vertex0_start;
-        Eigen::Vector3d p100 = edge0_vertex0_end - edge1_vertex0_end,
+        Vector3d p100 = edge0_vertex0_end - edge1_vertex0_end,
                         p101 = edge0_vertex0_end - edge1_vertex1_end,
                         p111 = edge0_vertex1_end - edge1_vertex1_end,
                         p110 = edge0_vertex1_end - edge1_vertex0_end;
-        double dl = 0;
-        double edge0_length = 0;
-        double edge1_length = 0;
+        Scalar dl = 0;
+        Scalar edge0_length = 0;
+        Scalar edge1_length = 0;
         // {
-        //     std::array<Eigen::Vector3d,2>
+        //     std::array<Vector3d,2>
         //     t0box=bbd_4_pts_new({{p000,p001,p010,p011}});
-        // std::array<Eigen::Vector3d,2>
+        // std::array<Vector3d,2>
         // t1box=bbd_4_pts_new({{p100,p101,p110,p111}});
-        // std::array<Eigen::Vector3d,2>
+        // std::array<Vector3d,2>
         // u0box=bbd_4_pts_new({{p000,p001,p100,p101}});
-        // std::array<Eigen::Vector3d,2>
+        // std::array<Vector3d,2>
         // u1box=bbd_4_pts_new({{p010,p011,p110,p111}});
-        // std::array<Eigen::Vector3d,2>
+        // std::array<Vector3d,2>
         // v0box=bbd_4_pts_new({{p000,p100,p010,p110}});
-        // std::array<Eigen::Vector3d,2>
+        // std::array<Vector3d,2>
         // v1box=bbd_4_pts_new({{p001,p101,p011,p111}});
         // dl=get_max_axis_diff(t0box,t1box);
         // edge0_length=get_max_axis_diff(u0box,u1box);
@@ -237,9 +237,9 @@ namespace inclusion_ccd
         //         dl=fabs(p011[i]-p111[i]);
         // }
 
-        //    double dl=0;
-        //    double edge0_length=0;
-        //    double edge1_length=0;
+        //    Scalar dl=0;
+        //    Scalar edge0_length=0;
+        //    Scalar edge1_length=0;
         //     for(int i=0;i<3;i++){
         //         if(dl<fabs(edge0_vertex0_end[i]-edge0_vertex0_start[i]))
         //             dl=fabs(edge0_vertex0_end[i]-edge0_vertex0_start[i]);
@@ -273,7 +273,7 @@ namespace inclusion_ccd
         //             edge1_length=fabs(edge1_vertex1_end[i] -
         //             edge1_vertex0_end[i]);
         // }
-        return Eigen::Vector3d(
+        return Vector3d(
             tolerance / dl, tolerance / edge0_length, tolerance / edge1_length);
     }
 
@@ -293,32 +293,32 @@ namespace inclusion_ccd
     // 0 is normal ccd,
     // 1 is ccd with input time interval upper bound, using real tolerance, max_itr and horizontal tree,
     bool edgeEdgeCCD_double(
-        const Eigen::Vector3d &a0s,
-        const Eigen::Vector3d &a1s,
-        const Eigen::Vector3d &b0s,
-        const Eigen::Vector3d &b1s,
-        const Eigen::Vector3d &a0e,
-        const Eigen::Vector3d &a1e,
-        const Eigen::Vector3d &b0e,
-        const Eigen::Vector3d &b1e,
-        const std::array<double, 3> &err,
-        const double ms,
-        double &toi,
-        const double tolerance,
-        const double t_max,
+        const Vector3d &a0s,
+        const Vector3d &a1s,
+        const Vector3d &b0s,
+        const Vector3d &b1s,
+        const Vector3d &a0e,
+        const Vector3d &a1e,
+        const Vector3d &b0e,
+        const Vector3d &b1e,
+        const std::array<Scalar, 3> &err,
+        const Scalar ms,
+        Scalar &toi,
+        const Scalar tolerance,
+        const Scalar t_max,
         const int max_itr,
-        double &output_tolerance,
+        Scalar &output_tolerance,
         const int CCD_TYPE)
     {
 
-        Eigen::Vector3d tol = compute_edge_edge_tolerance_new(
+        Vector3d tol = compute_edge_edge_tolerance_new(
             a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, tolerance);
 
         //this should be the error of the whole mesh
-        std::array<double, 3> err1;
+        std::array<Scalar, 3> err1;
         if (err[0] < 0)
         { // if error[0]<0, means we need to calculate error here
-            std::vector<Eigen::Vector3d> vlist;
+            std::vector<Vector3d> vlist;
             vlist.emplace_back(a0s);
             vlist.emplace_back(a1s);
             vlist.emplace_back(b0s);
@@ -380,15 +380,15 @@ namespace inclusion_ccd
 
             // we rebuild the time interval
             // since tol is conservative:
-            double new_max_time =
+            Scalar new_max_time =
                 std::min(tol[0] * 10, 0.1); // this is the new time range
             //if early terminated, use tolerance; otherwise, use smaller tolerance
             // althouth time resolution and tolerance is not the same thing, but decrease
             // tolerance will be helpful
-            double new_tolerance =
+            Scalar new_tolerance =
                 output_tolerance > tolerance ? tolerance : 0.1 * tolerance;
-            double new_toi;
-            double new_output_tol;
+            Scalar new_toi;
+            Scalar new_output_tol;
             bool res = edgeEdgeCCD_double(
                 a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, err, ms, new_toi,
                 new_tolerance, new_max_time, max_itr, new_output_tol, CCD_TYPE);
@@ -428,35 +428,35 @@ namespace inclusion_ccd
     // 1 is ccd with input time interval upper bound, using real tolerance, max_itr and horizontal tree,
 
     bool vertexFaceCCD_double(
-        const Eigen::Vector3d &vertex_start,
-        const Eigen::Vector3d &face_vertex0_start,
-        const Eigen::Vector3d &face_vertex1_start,
-        const Eigen::Vector3d &face_vertex2_start,
-        const Eigen::Vector3d &vertex_end,
-        const Eigen::Vector3d &face_vertex0_end,
-        const Eigen::Vector3d &face_vertex1_end,
-        const Eigen::Vector3d &face_vertex2_end,
-        const std::array<double, 3> &err,
-        const double ms,
-        double &toi,
-        const double tolerance,
-        const double t_max,
+        const Vector3d &vertex_start,
+        const Vector3d &face_vertex0_start,
+        const Vector3d &face_vertex1_start,
+        const Vector3d &face_vertex2_start,
+        const Vector3d &vertex_end,
+        const Vector3d &face_vertex0_end,
+        const Vector3d &face_vertex1_end,
+        const Vector3d &face_vertex2_end,
+        const std::array<Scalar, 3> &err,
+        const Scalar ms,
+        Scalar &toi,
+        const Scalar tolerance,
+        const Scalar t_max,
         const int max_itr,
-        double &output_tolerance,
+        Scalar &output_tolerance,
         const int CCD_TYPE)
     {
 
-        Eigen::Vector3d tol = compute_face_vertex_tolerance_3d_new(
+        Vector3d tol = compute_face_vertex_tolerance_3d_new(
             vertex_start, face_vertex0_start, face_vertex1_start,
             face_vertex2_start, vertex_end, face_vertex0_end, face_vertex1_end,
             face_vertex2_end, tolerance);
 
         //////////////////////////////////////////////////////////
         // this is the error of the whole mesh
-        std::array<double, 3> err1;
+        std::array<Scalar, 3> err1;
         if (err[0] < 0)
         { // if error[0]<0, means we need to calculate error here
-            std::vector<Eigen::Vector3d> vlist;
+            std::vector<Vector3d> vlist;
             vlist.emplace_back(vertex_start);
             vlist.emplace_back(face_vertex0_start);
             vlist.emplace_back(face_vertex1_start);
@@ -525,15 +525,15 @@ namespace inclusion_ccd
 
             // we rebuild the time interval
             // since tol is conservative:
-            double new_max_time =
+            Scalar new_max_time =
                 std::min(tol[0] * 10, 0.1); // this is the new time range
             // if early terminated, use tolerance; otherwise, use smaller
             // tolerance althouth time resolution and tolerance is not the same
             // thing, but decrease tolerance will be helpful
-            double new_tolerance =
+            Scalar new_tolerance =
                 output_tolerance > tolerance ? tolerance : 0.1 * tolerance;
-            double new_toi;
-            double new_output_tol;
+            Scalar new_toi;
+            Scalar new_output_tol;
             bool res = vertexFaceCCD_double(
                 vertex_start, face_vertex0_start, face_vertex1_start,
                 face_vertex2_start, vertex_end, face_vertex0_end,
@@ -561,25 +561,25 @@ namespace inclusion_ccd
 
 #ifdef TIGHT_INCLUSION_USE_GMP
     bool edgeEdgeCCD_rational(
-        const Eigen::Vector3d &a0s,
-        const Eigen::Vector3d &a1s,
-        const Eigen::Vector3d &b0s,
-        const Eigen::Vector3d &b1s,
-        const Eigen::Vector3d &a0e,
-        const Eigen::Vector3d &a1e,
-        const Eigen::Vector3d &b0e,
-        const Eigen::Vector3d &b1e,
-        const std::array<double, 3> &err,
-        const double ms,
-        double &toi)
+        const Vector3d &a0s,
+        const Vector3d &a1s,
+        const Vector3d &b0s,
+        const Vector3d &b1s,
+        const Vector3d &a0e,
+        const Vector3d &a1e,
+        const Vector3d &b0e,
+        const Vector3d &b1e,
+        const std::array<Scalar, 3> &err,
+        const Scalar ms,
+        Scalar &toi)
     {
 
-        Eigen::Vector3d tol = compute_edge_edge_tolerance_new(
+        Vector3d tol = compute_edge_edge_tolerance_new(
             a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, CCD_LENGTH_TOL);
 
         //////////////////////////////////////////////////////////
         // TODO this should be the error of the whole mesh
-        std::vector<Eigen::Vector3d> vlist;
+        std::vector<Vector3d> vlist;
         vlist.emplace_back(a0s);
         vlist.emplace_back(a1s);
         vlist.emplace_back(b0s);
@@ -590,7 +590,7 @@ namespace inclusion_ccd
         vlist.emplace_back(b0e);
         vlist.emplace_back(b1e);
 
-        std::array<double, 3> err1;
+        std::array<Scalar, 3> err1;
         bool use_ms = ms > 0;
         err1 = get_numerical_error(vlist, false, use_ms);
         //////////////////////////////////////////////////////////
@@ -613,27 +613,27 @@ namespace inclusion_ccd
     }
 
     bool vertexFaceCCD_rational(
-        const Eigen::Vector3d &vertex_start,
-        const Eigen::Vector3d &face_vertex0_start,
-        const Eigen::Vector3d &face_vertex1_start,
-        const Eigen::Vector3d &face_vertex2_start,
-        const Eigen::Vector3d &vertex_end,
-        const Eigen::Vector3d &face_vertex0_end,
-        const Eigen::Vector3d &face_vertex1_end,
-        const Eigen::Vector3d &face_vertex2_end,
-        const std::array<double, 3> &err,
-        const double ms,
-        double &toi)
+        const Vector3d &vertex_start,
+        const Vector3d &face_vertex0_start,
+        const Vector3d &face_vertex1_start,
+        const Vector3d &face_vertex2_start,
+        const Vector3d &vertex_end,
+        const Vector3d &face_vertex0_end,
+        const Vector3d &face_vertex1_end,
+        const Vector3d &face_vertex2_end,
+        const std::array<Scalar, 3> &err,
+        const Scalar ms,
+        Scalar &toi)
     {
 
-        Eigen::Vector3d tol = compute_face_vertex_tolerance_3d_new(
+        Vector3d tol = compute_face_vertex_tolerance_3d_new(
             vertex_start, face_vertex0_start, face_vertex1_start,
             face_vertex2_start, vertex_end, face_vertex0_end, face_vertex1_end,
             face_vertex2_end, CCD_LENGTH_TOL);
         // std::cout<<"get tolerance successfully"<<std::endl;
         //////////////////////////////////////////////////////////
         // TODO this should be the error of the whole mesh
-        std::vector<Eigen::Vector3d> vlist;
+        std::vector<Vector3d> vlist;
         vlist.emplace_back(vertex_start);
         vlist.emplace_back(face_vertex0_start);
         vlist.emplace_back(face_vertex1_start);
@@ -644,7 +644,7 @@ namespace inclusion_ccd
         vlist.emplace_back(face_vertex1_end);
         vlist.emplace_back(face_vertex2_end);
 
-        std::array<double, 3> err1;
+        std::array<Scalar, 3> err1;
         bool use_ms = ms > 0;
         err1 = get_numerical_error(vlist, false, use_ms);
         // std::cout<<"get error successfully"<<std::endl;

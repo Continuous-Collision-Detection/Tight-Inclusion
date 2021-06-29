@@ -9,7 +9,7 @@
 #ifdef TIGHT_INCLUSION_ENABLE_GMP
 #include <gmp.h>
 #include <iostream>
-
+#include <tight_inclusion/Types.hpp>
 namespace inclusion_ccd
 {
     class Rational
@@ -106,7 +106,13 @@ namespace inclusion_ccd
             mpq_set_d(value, d);
             canonicalize();
         }
-
+        Rational(float d)
+        {
+            mpq_init(value);
+            double ddouble=d;// convert (float)d to double 
+            mpq_set_d(value, ddouble);
+            canonicalize();
+        }
         Rational(const mpq_t &v_)
         {
             mpq_init(value);
@@ -171,7 +177,13 @@ namespace inclusion_ccd
             //            canonicalize();
             return *this;
         }
-
+        Rational &operator=(const float x)
+        {
+            double xd=x;
+            mpq_set_d(value, xd);
+            //            canonicalize();
+            return *this;
+        }
         //> < ==
         friend bool operator<(const Rational &r, const Rational &r1)
         {

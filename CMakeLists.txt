@@ -23,6 +23,7 @@ OPTION(TIGHT_INCLUSION_WITH_GMP          "Enable rational based predicates, for 
 OPTION(TIGHT_INCLUSION_WITH_TESTS        "Enable test functions"                         OFF)
 OPTION(TIGHT_INCLUSION_WITH_TIMER        "Enable profiling timers, for debug"            OFF)
 OPTION(TIGHT_INCLUSION_WITH_NO_ZERO_TOI  "Enable refinement if CCD produces a zero ToI"  OFF)
+OPTION(TIGHT_INCLUSION_WITH_DOUBLE_PRECISION  "Enable double precision floating point numbers as input"  ON)
 
 include(${PROJECT_NAME}Dependencies)
 
@@ -59,6 +60,14 @@ target_compile_options(tight_inclusion PRIVATE ${SIMD_FLAGS})
 if (TIGHT_INCLUSION_WITH_NO_ZERO_TOI)
   target_compile_definitions(tight_inclusion PRIVATE TIGHT_INCLUSION_NO_ZERO_TOI)
 endif()
+
+if (TIGHT_INCLUSION_WITH_DOUBLE_PRECISION)
+  target_compile_definitions(tight_inclusion PUBLIC TIGHT_INCLUSION_DOUBLE)
+  message(STATUS "Using Double Precision Floating Points")
+else()
+message(STATUS "Using Single Precision Floating Points")  
+endif()
+
 target_compile_definitions(tight_inclusion PUBLIC NOMINMAX)
 
 if(TIGHT_INCLUSION_TOPLEVEL_PROJECT)

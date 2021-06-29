@@ -2,7 +2,7 @@
 #pragma once
 
 #include <Eigen/Core>
-
+#include <tight_inclusion/Types.hpp>
 #ifdef TIGHT_INCLUSION_USE_GMP
 #include <tight_inclusion/Rational.hpp>
 #endif

@@ -13,24 +13,28 @@
 using namespace inclusion_ccd;
 void case_check()
 {
-
-    const Eigen::Vector3d a0s(0.1, 0.1, 0.1);
-    const Eigen::Vector3d a1s(0, 0, 1);
-    const Eigen::Vector3d a0e(1, 0, 1);
-    const Eigen::Vector3d a1e(0, 1, 1);
-    const Eigen::Vector3d b0s(0.1, 0.1, 0.1);
-    const Eigen::Vector3d b1s(0, 0, 0);
-    const Eigen::Vector3d b0e(0, 1, 0);
-    const Eigen::Vector3d b1e(1, 0, 0);
+#ifdef TIGHT_INCLUSION_DOUBLE
+    std::cout<<"using double precision values as inputs"<<std::endl;
+#else
+std::cout<<"using single precision values as inputs"<<std::endl;
+#endif
+    const Vector3d a0s(0.1, 0.1, 0.1);
+    const Vector3d a1s(0, 0, 1);
+    const Vector3d a0e(1, 0, 1);
+    const Vector3d a1e(0, 1, 1);
+    const Vector3d b0s(0.1, 0.1, 0.1);
+    const Vector3d b1s(0, 0, 0);
+    const Vector3d b0e(0, 1, 0);
+    const Vector3d b1e(1, 0, 0);
 
     bool res;
-    std::array<double, 3> err = {{-1, -1, -1}};
-    double ms = 1e-8;
-    double toi;
-    const double tolerance = 1e-6;
-    const double t_max = 1;
+    std::array<Scalar, 3> err = {{-1, -1, -1}};
+    Scalar ms = 1e-8;
+    Scalar toi;
+    const Scalar tolerance = 1e-6;
+    const Scalar t_max = 1;
     const int max_itr = 1e6;
-    double output_tolerance;
+    Scalar output_tolerance;
     const int CCD_TYPE = 1;
     res = inclusion_ccd::edgeEdgeCCD_double(
         a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, err, ms, toi, tolerance, t_max,
@@ -211,7 +215,9 @@ int main(int argc, char *argv[])
 #else
     case_check();
 #endif
-    std::cout << "done!" << std::endl;
+
+std::cout<<"using double precision? "<<ticcd_using_double()<<std::endl;
+std::cout << "done!" << std::endl;
 
     return 0;
 }

@@ -2,7 +2,7 @@
 #pragma once
 
 #include <tight_inclusion/interval.hpp>
-
+#include <tight_inclusion/Types.hpp>
 #include <array>
 
 /**
@@ -28,21 +28,21 @@ namespace inclusion_ccd
 	// 0 is normal ccd,
 	// 1 is ccd with input time interval upper bound, using real tolerance, max_itr and horizontal tree,
 	bool edgeEdgeCCD_double(
-		const Eigen::Vector3d &a0_start,
-		const Eigen::Vector3d &a1_start,
-		const Eigen::Vector3d &b0_start,
-		const Eigen::Vector3d &b1_start,
-		const Eigen::Vector3d &a0_end,
-		const Eigen::Vector3d &a1_end,
-		const Eigen::Vector3d &b0_end,
-		const Eigen::Vector3d &b1_end,
-		const std::array<double, 3> &err,
-		const double ms,
-		double &toi,
-		const double tolerance,
-		const double t_max,
+		const Vector3d &a0_start,
+		const Vector3d &a1_start,
+		const Vector3d &b0_start,
+		const Vector3d &b1_start,
+		const Vector3d &a0_end,
+		const Vector3d &a1_end,
+		const Vector3d &b0_end,
+		const Vector3d &b1_end,
+		const std::array<Scalar, 3> &err,
+		const Scalar ms,
+		Scalar &toi,
+		const Scalar tolerance,
+		const Scalar t_max,
 		const int max_itr,
-		double &output_tolerance,
+		Scalar &output_tolerance,
 		const int CCD_TYPE = 1);
 
 	// This function can give you the answer of continous collision detection with minimum
@@ -61,51 +61,51 @@ namespace inclusion_ccd
 	// 0 is normal ccd,
 	// 1 is ccd with input time interval upper bound, using real tolerance, max_itr and horizontal tree,
 	bool vertexFaceCCD_double(
-		const Eigen::Vector3d &vertex_start,
-		const Eigen::Vector3d &face_vertex0_start,
-		const Eigen::Vector3d &face_vertex1_start,
-		const Eigen::Vector3d &face_vertex2_start,
-		const Eigen::Vector3d &vertex_end,
-		const Eigen::Vector3d &face_vertex0_end,
-		const Eigen::Vector3d &face_vertex1_end,
-		const Eigen::Vector3d &face_vertex2_end,
-		const std::array<double, 3> &err,
-		const double ms,
-		double &toi,
-		const double tolerance,
-		const double t_max,
+		const Vector3d &vertex_start,
+		const Vector3d &face_vertex0_start,
+		const Vector3d &face_vertex1_start,
+		const Vector3d &face_vertex2_start,
+		const Vector3d &vertex_end,
+		const Vector3d &face_vertex0_end,
+		const Vector3d &face_vertex1_end,
+		const Vector3d &face_vertex2_end,
+		const std::array<Scalar, 3> &err,
+		const Scalar ms,
+		Scalar &toi,
+		const Scalar tolerance,
+		const Scalar t_max,
 		const int max_itr,
-		double &output_tolerance,
+		Scalar &output_tolerance,
 		const int CCD_TYPE = 1);
 #ifdef TIGHT_INCLUSION_USE_GMP
 
 	// this version is an naive implementation of Tight-Inclusion CCD without optimizations
 	bool edgeEdgeCCD_rational(
-		const Eigen::Vector3d &a0s,
-		const Eigen::Vector3d &a1s,
-		const Eigen::Vector3d &b0s,
-		const Eigen::Vector3d &b1s,
-		const Eigen::Vector3d &a0e,
-		const Eigen::Vector3d &a1e,
-		const Eigen::Vector3d &b0e,
-		const Eigen::Vector3d &b1e,
-		const std::array<double, 3> &err,
-		const double ms,
-		double &toi);
+		const Vector3d &a0s,
+		const Vector3d &a1s,
+		const Vector3d &b0s,
+		const Vector3d &b1s,
+		const Vector3d &a0e,
+		const Vector3d &a1e,
+		const Vector3d &b0e,
+		const Vector3d &b1e,
+		const std::array<Scalar, 3> &err,
+		const Scalar ms,
+		Scalar &toi);
 
 	// this version is an naive implementation of Tight-Inclusion CCD without optimizations
 	bool vertexFaceCCD_rational(
-		const Eigen::Vector3d &vertex_start,
-		const Eigen::Vector3d &face_vertex0_start,
-		const Eigen::Vector3d &face_vertex1_start,
-		const Eigen::Vector3d &face_vertex2_start,
-		const Eigen::Vector3d &vertex_end,
-		const Eigen::Vector3d &face_vertex0_end,
-		const Eigen::Vector3d &face_vertex1_end,
-		const Eigen::Vector3d &face_vertex2_end,
-		const std::array<double, 3> &err,
-		const double ms,
-		double &toi);
+		const Vector3d &vertex_start,
+		const Vector3d &face_vertex0_start,
+		const Vector3d &face_vertex1_start,
+		const Vector3d &face_vertex2_start,
+		const Vector3d &vertex_end,
+		const Vector3d &face_vertex0_end,
+		const Vector3d &face_vertex1_end,
+		const Vector3d &face_vertex2_end,
+		const std::array<Scalar, 3> &err,
+		const Scalar ms,
+		Scalar &toi);
 
 #endif
 	bool using_rational_method();

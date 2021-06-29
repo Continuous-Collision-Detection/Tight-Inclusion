@@ -46,34 +46,34 @@ namespace inclusion_ccd
 
     // calculate a*(2^b)
     long power(const long a, const int b) { return a << b; }
-    std::array<double, 8> function_ee(
-        const double &a0s,
-        const double &a1s,
-        const double &b0s,
-        const double &b1s,
-        const double &a0e,
-        const double &a1e,
-        const double &b0e,
-        const double &b1e,
-        const std::array<double, 8> &t_up,
-        const std::array<double, 8> &t_dw,
-        const std::array<double, 8> &u_up,
-        const std::array<double, 8> &u_dw,
-        const std::array<double, 8> &v_up,
-        const std::array<double, 8> &v_dw)
+    std::array<Scalar, 8> function_ee(
+        const Scalar &a0s,
+        const Scalar &a1s,
+        const Scalar &b0s,
+        const Scalar &b1s,
+        const Scalar &a0e,
+        const Scalar &a1e,
+        const Scalar &b0e,
+        const Scalar &b1e,
+        const std::array<Scalar, 8> &t_up,
+        const std::array<Scalar, 8> &t_dw,
+        const std::array<Scalar, 8> &u_up,
+        const std::array<Scalar, 8> &u_dw,
+        const std::array<Scalar, 8> &v_up,
+        const std::array<Scalar, 8> &v_dw)
     {
-        std::array<double, 8> rst;
+        std::array<Scalar, 8> rst;
         for (int i = 0; i < 8; i++)
         {
-            double edge0_vertex0 = (a0e - a0s) * t_up[i] / t_dw[i] + a0s;
-            double edge0_vertex1 = (a1e - a1s) * t_up[i] / t_dw[i] + a1s;
-            double edge1_vertex0 = (b0e - b0s) * t_up[i] / t_dw[i] + b0s;
-            double edge1_vertex1 = (b1e - b1s) * t_up[i] / t_dw[i] + b1s;
+            Scalar edge0_vertex0 = (a0e - a0s) * t_up[i] / t_dw[i] + a0s;
+            Scalar edge0_vertex1 = (a1e - a1s) * t_up[i] / t_dw[i] + a1s;
+            Scalar edge1_vertex0 = (b0e - b0s) * t_up[i] / t_dw[i] + b0s;
+            Scalar edge1_vertex1 = (b1e - b1s) * t_up[i] / t_dw[i] + b1s;
 
-            double edge0_vertex =
+            Scalar edge0_vertex =
                 (edge0_vertex1 - edge0_vertex0) * u_up[i] / u_dw[i]
                 + edge0_vertex0;
-            double edge1_vertex =
+            Scalar edge1_vertex =
                 (edge1_vertex1 - edge1_vertex0) * v_up[i] / v_dw[i]
                 + edge1_vertex0;
             rst[i] = edge0_vertex - edge1_vertex;
@@ -81,55 +81,55 @@ namespace inclusion_ccd
         return rst;
     }
 
-    std::array<double, 8> function_vf(
-        const double &vs,
-        const double &t0s,
-        const double &t1s,
-        const double &t2s,
-        const double &ve,
-        const double &t0e,
-        const double &t1e,
-        const double &t2e,
-        const std::array<double, 8> &t_up,
-        const std::array<double, 8> &t_dw,
-        const std::array<double, 8> &u_up,
-        const std::array<double, 8> &u_dw,
-        const std::array<double, 8> &v_up,
-        const std::array<double, 8> &v_dw)
+    std::array<Scalar, 8> function_vf(
+        const Scalar &vs,
+        const Scalar &t0s,
+        const Scalar &t1s,
+        const Scalar &t2s,
+        const Scalar &ve,
+        const Scalar &t0e,
+        const Scalar &t1e,
+        const Scalar &t2e,
+        const std::array<Scalar, 8> &t_up,
+        const std::array<Scalar, 8> &t_dw,
+        const std::array<Scalar, 8> &u_up,
+        const std::array<Scalar, 8> &u_dw,
+        const std::array<Scalar, 8> &v_up,
+        const std::array<Scalar, 8> &v_dw)
     {
-        std::array<double, 8> rst;
+        std::array<Scalar, 8> rst;
         for (int i = 0; i < 8; i++)
         {
-            double v = (ve - vs) * t_up[i] / t_dw[i] + vs;
-            double t0 = (t0e - t0s) * t_up[i] / t_dw[i] + t0s;
-            double t1 = (t1e - t1s) * t_up[i] / t_dw[i] + t1s;
-            double t2 = (t2e - t2s) * t_up[i] / t_dw[i] + t2s;
-            double pt = (t1 - t0) * u_up[i] / u_dw[i]
+            Scalar v = (ve - vs) * t_up[i] / t_dw[i] + vs;
+            Scalar t0 = (t0e - t0s) * t_up[i] / t_dw[i] + t0s;
+            Scalar t1 = (t1e - t1s) * t_up[i] / t_dw[i] + t1s;
+            Scalar t2 = (t2e - t2s) * t_up[i] / t_dw[i] + t2s;
+            Scalar pt = (t1 - t0) * u_up[i] / u_dw[i]
                         + (t2 - t0) * v_up[i] / v_dw[i] + t0;
             rst[i] = v - pt;
         }
         return rst;
     }
 
-    // std::array<double,8> double_to_array(const double& a){
-    //     std::array<double,8> rst;
+    // std::array<Scalar,8> Scalar_to_array(const Scalar& a){
+    //     std::array<Scalar,8> rst;
     //     for(int i=0;i<8;i++){
 
     //     }
     // }
     void convert_tuv_to_array(
         const Interval3 &itv,
-        std::array<double, 8> &t_up,
-        std::array<double, 8> &t_dw,
-        std::array<double, 8> &u_up,
-        std::array<double, 8> &u_dw,
-        std::array<double, 8> &v_up,
-        std::array<double, 8> &v_dw)
+        std::array<Scalar, 8> &t_up,
+        std::array<Scalar, 8> &t_dw,
+        std::array<Scalar, 8> &u_up,
+        std::array<Scalar, 8> &u_dw,
+        std::array<Scalar, 8> &v_up,
+        std::array<Scalar, 8> &v_dw)
     {
         // t order: 0,0,0,0,1,1,1,1
         // u order: 0,0,1,1,0,0,1,1
         // v order: 0,1,0,1,0,1,0,1
-        double t0_up = itv[0].first.first,
+        Scalar t0_up = itv[0].first.first,
                t0_dw = power(1, itv[0].first.second),
                t1_up = itv[0].second.first,
                t1_dw = power(1, itv[0].second.second),
@@ -191,8 +191,8 @@ namespace inclusion_ccd
     // }
 
     // void convert_to_vector_pts(
-    //     const double asd,const double bsd,const double csd,const double dsd,
-    //     const double aed,const double bed,const double ced,const double ded,
+    //     const Scalar asd,const Scalar bsd,const Scalar csd,const Scalar dsd,
+    //     const Scalar aed,const Scalar bed,const Scalar ced,const Scalar ded,
 
     //     __m512d& as, __m512d& bs, __m512d& cs, __m512d& ds,
     //     __m512d& ae, __m512d& be, __m512d& ce, __m512d& de
