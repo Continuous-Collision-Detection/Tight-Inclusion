@@ -2374,13 +2374,23 @@ namespace inclusion_ccd
         Scalar vffilter;
         if (!using_minimum_separation)
         {
+#ifdef TIGHT_INCLUSION_DOUBLE
+            eefilter = 6.217248937900877e-15;
+            vffilter = 6.661338147750939e-15;
+#else
             eefilter = 3.814698e-06;
             vffilter = 4.053116e-06;
+#endif
         }
-        else
+        else// using minimum separation
         {
-            eefilter = 3.814698e-06;
+#ifdef TIGHT_INCLUSION_DOUBLE
+            eefilter = 7.105427357601002e-15;
+            vffilter = 7.549516567451064e-15;   
+#else
+            eefilter = 3.814698e-06;// TODO numbers need to be updated
             vffilter = 4.053116e-06;
+#endif
         }
 
         Scalar xmax = fabs(vertices[0][0]);
