@@ -2374,13 +2374,13 @@ namespace inclusion_ccd
         Scalar vffilter;
         if (!using_minimum_separation)
         {
-            eefilter = 6.217248937900877e-15;
-            vffilter = 6.661338147750939e-15;
+            eefilter = 3.814698e-06;
+            vffilter = 4.053116e-06;
         }
         else
         {
-            eefilter = 7.105427357601002e-15;
-            vffilter = 7.549516567451064e-15;
+            eefilter = 3.814698e-06;
+            vffilter = 4.053116e-06;
         }
 
         Scalar xmax = fabs(vertices[0][0]);

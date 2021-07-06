@@ -109,5 +109,40 @@ namespace inclusion_ccd
 
 #endif
 	bool using_rational_method();
-
+#ifdef TIGHT_INCLUSION_FWDI
+bool edgeEdgeCCD_double(
+		const Eigen::Vector3d &a0_start,
+		const Eigen::Vector3d &a1_start,
+		const Eigen::Vector3d &b0_start,
+		const Eigen::Vector3d &b1_start,
+		const Eigen::Vector3d &a0_end,
+		const Eigen::Vector3d &a1_end,
+		const Eigen::Vector3d &b0_end,
+		const Eigen::Vector3d &b1_end,
+		const std::array<double, 3> &err,
+		const double ms,
+		double &toi,
+		const double tolerance,
+		const double t_max,
+		const int max_itr,
+		double &output_tolerance,
+		const int CCD_TYPE = 1);
+bool vertexFaceCCD_double(
+		const Eigen::Vector3d &vertex_start,
+		const Eigen::Vector3d &face_vertex0_start,
+		const Eigen::Vector3d &face_vertex1_start,
+		const Eigen::Vector3d &face_vertex2_start,
+		const Eigen::Vector3d &vertex_end,
+		const Eigen::Vector3d &face_vertex0_end,
+		const Eigen::Vector3d &face_vertex1_end,
+		const Eigen::Vector3d &face_vertex2_end,
+		const std::array<double, 3> &err,
+		const double ms,
+		double &toi,
+		const double tolerance,
+		const double t_max,
+		const int max_itr,
+		double &output_tolerance,
+		const int CCD_TYPE = 1);
+#endif
 } // namespace inclusion_ccd

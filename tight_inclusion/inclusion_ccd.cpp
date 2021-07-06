@@ -680,4 +680,85 @@ namespace inclusion_ccd
 #endif
     }
 
+#ifdef TIGHT_INCLUSION_FWDI
+
+// these function are designed to test the performance of floating point vertion but with double inputs
+bool edgeEdgeCCD_double(
+		const Eigen::Vector3d &a0_start,
+		const Eigen::Vector3d &a1_start,
+		const Eigen::Vector3d &b0_start,
+		const Eigen::Vector3d &b1_start,
+		const Eigen::Vector3d &a0_end,
+		const Eigen::Vector3d &a1_end,
+		const Eigen::Vector3d &b0_end,
+		const Eigen::Vector3d &b1_end,
+		const std::array<double, 3> &err,
+		const double ms,
+		double &toi,
+		const double tolerance,
+		const double t_max,
+		const int max_itr,
+		double &output_tolerance,
+		const int CCD_TYPE){
+            Vector3d fa0_start=Vector3d(Scalar(a0_start(0)),Scalar(a0_start(1)),Scalar(a0_start(2)));
+            Vector3d fa1_start=Vector3d(Scalar(a1_start(0)),Scalar(a1_start(1)),Scalar(a1_start(2)));
+            Vector3d fb0_start=Vector3d(Scalar(b0_start(0)),Scalar(b0_start(1)),Scalar(b0_start(2)));
+            Vector3d fb1_start=Vector3d(Scalar(b1_start(0)),Scalar(b1_start(1)),Scalar(b1_start(2)));
+            Vector3d fa0_end=Vector3d(Scalar(a0_end(0)),Scalar(a0_end(1)),Scalar(a0_end(2)));
+            Vector3d fa1_end=Vector3d(Scalar(a1_end(0)),Scalar(a1_end(1)),Scalar(a1_end(2)));
+            Vector3d fb0_end=Vector3d(Scalar(b0_end(0)),Scalar(b0_end(1)),Scalar(b0_end(2)));
+            Vector3d fb1_end=Vector3d(Scalar(b1_end(0)),Scalar(b1_end(1)),Scalar(b1_end(2)));
+            std::array<Scalar, 3> ferr={{Scalar(err[0]),Scalar(err[1]),Scalar(err[2])}};
+            Scalar fms=ms;
+            Scalar ftoi=toi;
+            Scalar ftolerance=tolerance;
+            Scalar ft_max=t_max;
+            Scalar fouttol=output_tolerance;
+            bool result=edgeEdgeCCD_double(fa0_start,fa1_start,fb0_start,fb1_start,fa0_end,fa1_end,fb0_end,fb1_end,
+            ferr,fms,ftoi,ftolerance,ft_max,max_itr,fouttol,CCD_TYPE);
+            toi=ftoi;
+            output_tolerance=fouttol;
+            return result;
+        }
+bool vertexFaceCCD_double(
+		const Eigen::Vector3d &vertex_start,
+		const Eigen::Vector3d &face_vertex0_start,
+		const Eigen::Vector3d &face_vertex1_start,
+		const Eigen::Vector3d &face_vertex2_start,
+		const Eigen::Vector3d &vertex_end,
+		const Eigen::Vector3d &face_vertex0_end,
+		const Eigen::Vector3d &face_vertex1_end,
+		const Eigen::Vector3d &face_vertex2_end,
+		const std::array<double, 3> &err,
+		const double ms,
+		double &toi,
+		const double tolerance,
+		const double t_max,
+		const int max_itr,
+		double &output_tolerance,
+		const int CCD_TYPE){
+            Vector3d fvertex_start=Vector3d(Scalar(vertex_start(0)),Scalar(vertex_start(1)),Scalar(vertex_start(2)));
+            Vector3d fface_vertex0_start=Vector3d(Scalar(face_vertex0_start(0)),Scalar(face_vertex0_start(1)),Scalar(face_vertex0_start(2)));
+            Vector3d fface_vertex1_start=Vector3d(Scalar(face_vertex1_start(0)),Scalar(face_vertex1_start(1)),Scalar(face_vertex1_start(2)));
+            Vector3d fface_vertex2_start=Vector3d(Scalar(face_vertex2_start(0)),Scalar(face_vertex2_start(1)),Scalar(face_vertex2_start(2)));
+            Vector3d fvertex_end=Vector3d(Scalar(vertex_end(0)),Scalar(vertex_end(1)),Scalar(vertex_end(2)));
+            Vector3d fface_vertex0_end=Vector3d(Scalar(face_vertex0_end(0)),Scalar(face_vertex0_end(1)),Scalar(face_vertex0_end(2)));
+            Vector3d fface_vertex1_end=Vector3d(Scalar(face_vertex1_end(0)),Scalar(face_vertex1_end(1)),Scalar(face_vertex1_end(2)));
+            Vector3d fface_vertex2_end=Vector3d(Scalar(face_vertex2_end(0)),Scalar(face_vertex2_end(1)),Scalar(face_vertex2_end(2)));
+            
+            std::array<Scalar, 3> ferr={{Scalar(err[0]),Scalar(err[1]),Scalar(err[2])}};
+            Scalar fms=ms;
+            Scalar ftoi=toi;
+            Scalar ftolerance=tolerance;
+            Scalar ft_max=t_max;
+            Scalar fouttol=output_tolerance;
+            bool result=vertexFaceCCD_double(
+                fvertex_start,fface_vertex0_start,fface_vertex1_start,fface_vertex2_start,
+                fvertex_end,fface_vertex0_end,fface_vertex1_end,fface_vertex2_end,
+            ferr,fms,ftoi,ftolerance,ft_max,max_itr,fouttol,CCD_TYPE);
+            toi=ftoi;
+            output_tolerance=fouttol;
+            return result;
+        }
+#endif
 } // namespace inclusion_ccd

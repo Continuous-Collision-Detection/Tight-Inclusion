@@ -25,6 +25,10 @@ OPTION(TIGHT_INCLUSION_WITH_TIMER        "Enable profiling timers, for debug"   
 OPTION(TIGHT_INCLUSION_WITH_NO_ZERO_TOI  "Enable refinement if CCD produces a zero ToI"  OFF)
 OPTION(TIGHT_INCLUSION_WITH_DOUBLE_PRECISION  "Enable double precision floating point numbers as input"  ON)
 
+if(NOT TIGHT_INCLUSION_WITH_DOUBLE_PRECISION)
+OPTION(TIGHT_INCLUSION_FLOAT_WITH_DOUBLE_INPUT  "Enable converting double queries to float"  OFF)
+endif()
+
 include(${PROJECT_NAME}Dependencies)
 
 
@@ -67,7 +71,10 @@ if (TIGHT_INCLUSION_WITH_DOUBLE_PRECISION)
 else()
 message(STATUS "Using Single Precision Floating Points")  
 endif()
-
+if(TIGHT_INCLUSION_FLOAT_WITH_DOUBLE_INPUT)
+  target_compile_definitions(tight_inclusion PUBLIC TIGHT_INCLUSION_FWDI)
+  message(STATUS "Converting double inputs to float for tests")
+endif()
 target_compile_definitions(tight_inclusion PUBLIC NOMINMAX)
 
 if(TIGHT_INCLUSION_TOPLEVEL_PROJECT)

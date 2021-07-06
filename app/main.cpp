@@ -82,8 +82,6 @@ void run_rational_data_single_method(
 
     int nbr_larger_tol = 0;
     int nbr_diff_tol = 0;
-    double max_tol = 0;
-    double sum_tol = 0;
     Timer timer;
 
     int max_fnbr = is_simulation_data ? simulation_folders.size()
