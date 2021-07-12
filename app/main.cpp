@@ -48,6 +48,9 @@ std::cout<<"using single precision values as inputs"<<std::endl;
         std::cout << "the ccd using rational core result is " << res
                   << std::endl;
     }
+#ifdef CHECK_QUEUE_SIZE
+	std::cout << "queue size max " << return_queue_size() << std::endl;
+#endif
 }
 
 #ifdef TIGHT_INCLUSION_RUN_EXAMPLES

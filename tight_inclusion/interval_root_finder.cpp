@@ -18,7 +18,7 @@ namespace inclusion_ccd
            time25 = 0, time_rational = 0;
     int refine = 0;
     int refine_return = 0;
-
+	long queue_size = 0;
     // convert Numccd to double number
     Scalar Numccd2double(const Numccd &n)
     {
@@ -1783,7 +1783,7 @@ namespace inclusion_ccd
         const int max_itr,
         Scalar &output_tolerance)
     {
-
+		queue_size = 0;
         // if max_itr <0, output_tolerance= co_domain_tolerance;
         // else, output_tolearancewill be the precision after iteration time > max_itr
         output_tolerance = co_domain_tolerance;
@@ -1853,6 +1853,14 @@ namespace inclusion_ccd
         Scalar t_upper_bound = max_t; // 2*tol make it more conservative
         while (!istack.empty())
         {
+#ifdef CHECK_QUEUE_SIZE
+			long tmpsize = istack.size();
+			if (tmpsize > queue_size) {
+				queue_size = istack.size();
+			}
+#endif	
+			
+			
             current = istack.top().first;
             int level = istack.top().second;
             istack.pop();
@@ -2168,7 +2176,9 @@ namespace inclusion_ccd
 
         return false;
     }
-
+	long return_queue_size() {
+		return queue_size;
+	}
     bool interval_root_finder_double_horizontal_tree(
         const VectorMax3d &tol,
         const Scalar co_domain_tolerance,

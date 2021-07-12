@@ -1,5 +1,8 @@
 #pragma once
 #include <Eigen/Core>
+#define CHECK_QUEUE_SIZE
+
+
 static bool ticcd_using_double(){
 #ifdef TIGHT_INCLUSION_DOUBLE
 return true;

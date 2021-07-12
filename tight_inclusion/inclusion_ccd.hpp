@@ -109,6 +109,7 @@ namespace inclusion_ccd
 
 #endif
 	bool using_rational_method();
+	long return_queue_size();
 #ifdef TIGHT_INCLUSION_FWDI
 bool edgeEdgeCCD_double(
 		const Eigen::Vector3d &a0_start,
