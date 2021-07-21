@@ -287,98 +287,98 @@ namespace inclusion_ccd
         const std::array<Scalar, 3> &err,
         const Scalar ms,
         Scalar &toi,
-        const Scalar tolerance,
-        const Scalar t_max,
+        Scalar tolerance,
+        Scalar t_max,
         const int max_itr,
         Scalar &output_tolerance,
         const int CCD_TYPE,
         bool no_zero_toi)
     {
+        const int MAX_NO_ZERO_TOI_ITER = std::numeric_limits<int>::max();
+        // unsigned so can be larger than MAX_NO_ZERO_TOI_ITER
+        unsigned int no_zero_toi_iter = 0;
+        bool is_impacting, tmp_is_impacting;
 
-        Vector3d tol = compute_edge_edge_tolerance_new(
-            a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, tolerance);
-
-        //this should be the error of the whole mesh
-        std::array<Scalar, 3> err1;
-        if (err[0] < 0)
-        { // if error[0]<0, means we need to calculate error here
-            std::vector<Vector3d> vlist;
-            vlist.emplace_back(a0s);
-            vlist.emplace_back(a1s);
-            vlist.emplace_back(b0s);
-            vlist.emplace_back(b1s);
-
-            vlist.emplace_back(a0e);
-            vlist.emplace_back(a1e);
-            vlist.emplace_back(b0e);
-            vlist.emplace_back(b1e);
-            bool use_ms = ms > 0;
-            err1 = get_numerical_error(vlist, false, use_ms);
-        }
-        else
+        do
         {
-            err1 = err;
-        }
+            Vector3d tol = compute_edge_edge_tolerance_new(
+                a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, tolerance);
 
-        //////////////////////////////////////////////////////////
+            // this should be the error of the whole mesh
+            std::array<Scalar, 3> err1;
+            if (err[0] < 0)
+            { // if error[0]<0, means we need to calculate error here
+                std::vector<Vector3d> vlist;
+                vlist.emplace_back(a0s);
+                vlist.emplace_back(a1s);
+                vlist.emplace_back(b0s);
+                vlist.emplace_back(b1s);
 
-        bool is_impacting;
+                vlist.emplace_back(a0e);
+                vlist.emplace_back(a1e);
+                vlist.emplace_back(b0e);
+                vlist.emplace_back(b1e);
+                bool use_ms = ms > 0;
+                err1 = get_numerical_error(vlist, false, use_ms);
+            }
+            else
+            {
+                err1 = err;
+            }
 
-        // 0 is normal ccd without pre-check,
-        // 1 is ccd without pre-check, using real tolerance and horizontal tree,
-        // 2 is ccd with pre-check, using real tolerance and  horizontal tree
-        // int CCD_TYPE=2;
-        if (CCD_TYPE == 0)
-        {
-            is_impacting = interval_root_finder_double_normalCCD(
-                tol, toi, false, err1, ms, a0s, a1s, b0s, b1s, a0e, a1e, b0e,
-                b1e);
-        }
-        if (CCD_TYPE == 1)
-        {
-            assert(t_max >= 0 && t_max <= 1);
-            is_impacting = interval_root_finder_double_horizontal_tree(
-                tol, tolerance, toi, false, err1, ms, a0s, a1s, b0s, b1s, a0e,
-                a1e, b0e, b1e, t_max, max_itr, output_tolerance);
-        }
+            //////////////////////////////////////////////////////////
 
-        // Return a conservative time-of-impact
-        //    if (is_impacting) {
-        //        toi =
-        //        double(toi_interval[0].first.first)/pow(2,toi_interval[0].first.second);
-        //    }
-        // This time of impact is very dangerous for convergence
-        assert(!is_impacting || toi >= 0);
+            // 0 is normal ccd, and
+            // 1 is ccd with input time interval upper bound, using real tolerance, max_itr and horizontal tree.
+            if (CCD_TYPE == 0)
+            {
+                tmp_is_impacting = interval_root_finder_double_normalCCD(
+                    tol, toi, false, err1, ms, a0s, a1s, b0s, b1s, a0e, a1e,
+                    b0e, b1e);
+            }
+            else
+            {
+                assert(CCD_TYPE == 1);
+                assert(t_max >= 0 && t_max <= 1);
+                tmp_is_impacting = interval_root_finder_double_horizontal_tree(
+                    tol, tolerance, toi, false, err1, ms, a0s, a1s, b0s, b1s,
+                    a0e, a1e, b0e, b1e, t_max, max_itr, output_tolerance);
+            }
+            assert(!tmp_is_impacting || toi >= 0);
 
-        // This modification is for CCD-filtered line-search (e.g., IPC)
-        // WARNING: This option assumes the initial distance is not zero.
-        if (no_zero_toi && is_impacting && toi == 0)
-        {
-            // std::cout << "ee toi == 0, info:\n"
-            //           << "tolerance " << tolerance << "\noutput_tolerance "
-            //           << output_tolerance << "\nminimum distance " << ms
-            //           << std::endl;
-            // std::cout << "ms > 0? " << (ms > 0) << std::endl;
-            // std::cout << "t max " << t_max << std::endl;
+            if (no_zero_toi_iter == 0)
+            {
+                // This will be the final output because we might need to
+                // perform CCD again if the toi is zero. In which case we will
+                // use a smaller t_max for more time resolution.
+                is_impacting = tmp_is_impacting;
+            }
+            else
+            {
+                toi = tmp_is_impacting ? toi : t_max;
+            }
 
-            // we rebuild the time interval
-            // since tol is conservative:
-            Scalar new_max_time =
-                std::min(tol[0] * 10, 0.1); // this is the new time range
-            //if early terminated, use tolerance; otherwise, use smaller tolerance
-            // althouth time resolution and tolerance is not the same thing, but decrease
-            // tolerance will be helpful
-            Scalar new_tolerance =
-                output_tolerance > tolerance ? tolerance : 0.1 * tolerance;
-            Scalar new_toi;
-            Scalar new_output_tol;
-            bool new_is_impacting = edgeEdgeCCD_double(
-                a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, err, ms, new_toi,
-                new_tolerance, new_max_time, max_itr, new_output_tol, CCD_TYPE,
-                no_zero_toi);
+            if (tmp_is_impacting && toi == 0)
+            {
+                // This modification is for CCD-filtered line-search (e.g., IPC)
+                // we rebuild the time interval since tol is conservative:
+                // this is the new time range
+                t_max = std::min(tol[0] * 10, 0.1);
 
-            toi = new_is_impacting ? new_toi : new_max_time;
-        }
+                // if early terminated, use tolerance; otherwise, use smaller tolerance
+                // althouth time resolution and tolerance is not the same thing, but decrease
+                // tolerance will be helpful
+                tolerance =
+                    output_tolerance > tolerance ? tolerance : 0.1 * tolerance;
+            }
+
+            no_zero_toi_iter++;
+
+            // Only perform a second iteration if toi == 0.
+            // WARNING: This option assumes the initial distance is not zero.
+        } while (no_zero_toi && no_zero_toi_iter < MAX_NO_ZERO_TOI_ITER
+                 && tmp_is_impacting && toi == 0);
+        assert(!no_zero_toi || !is_impacting || toi != 0);
 
         return is_impacting;
     }
@@ -395,107 +395,103 @@ namespace inclusion_ccd
         const std::array<Scalar, 3> &err,
         const Scalar ms,
         Scalar &toi,
-        const Scalar tolerance,
-        const Scalar t_max,
+        Scalar tolerance,
+        Scalar t_max,
         const int max_itr,
         Scalar &output_tolerance,
         const int CCD_TYPE,
         bool no_zero_toi)
     {
+        const int MAX_NO_ZERO_TOI_ITER = std::numeric_limits<int>::max();
+        // unsigned so can be larger than MAX_NO_ZERO_TOI_ITER
+        unsigned int no_zero_toi_iter = 0;
+        bool is_impacting, tmp_is_impacting;
 
-        Vector3d tol = compute_face_vertex_tolerance_3d_new(
-            vertex_start, face_vertex0_start, face_vertex1_start,
-            face_vertex2_start, vertex_end, face_vertex0_end, face_vertex1_end,
-            face_vertex2_end, tolerance);
-
-        //////////////////////////////////////////////////////////
-        // this is the error of the whole mesh
-        std::array<Scalar, 3> err1;
-        if (err[0] < 0)
-        { // if error[0]<0, means we need to calculate error here
-            std::vector<Vector3d> vlist;
-            vlist.emplace_back(vertex_start);
-            vlist.emplace_back(face_vertex0_start);
-            vlist.emplace_back(face_vertex1_start);
-            vlist.emplace_back(face_vertex2_start);
-
-            vlist.emplace_back(vertex_end);
-            vlist.emplace_back(face_vertex0_end);
-            vlist.emplace_back(face_vertex1_end);
-            vlist.emplace_back(face_vertex2_end);
-            bool use_ms = ms > 0;
-            err1 = get_numerical_error(vlist, false, use_ms);
-        }
-        else
+        do
         {
-            err1 = err;
-        }
-        //////////////////////////////////////////////////////////
-
-        // Interval3 toi_interval;
-
-        bool is_impacting;
-
-        // 0 is normal ccd without pre-check,
-        // 1 is ccd without pre-check, using real tolerance and horizontal tree,
-        // 2 is ccd with pre-check, using real tolerance and  horizontal tree
-        // int CCD_TYPE=2;
-        if (CCD_TYPE == 0)
-        {
-            is_impacting = interval_root_finder_double_normalCCD(
-                tol, toi, true, err1, ms, vertex_start, face_vertex0_start,
-                face_vertex1_start, face_vertex2_start, vertex_end,
-                face_vertex0_end, face_vertex1_end, face_vertex2_end);
-        }
-        if (CCD_TYPE == 1)
-        {
-            assert(t_max >= 0 && t_max <= 1);
-            is_impacting = interval_root_finder_double_horizontal_tree(
-                tol, tolerance, toi, true, err1, ms, vertex_start,
-                face_vertex0_start, face_vertex1_start, face_vertex2_start,
-                vertex_end, face_vertex0_end, face_vertex1_end,
-                face_vertex2_end, t_max, max_itr, output_tolerance);
-        }
-
-        // Return a conservative time-of-impact
-        //    if (is_impacting) {
-        //        toi =
-        //        double(toi_interval[0].first.first)/pow(2,toi_interval[0].first.second);
-        //    }
-        // This time of impact is very dangerous for convergence
-        // assert(!is_impacting || toi > 0);
-
-        // This modification is for CCD-filtered line-search (e.g., IPC)
-        // WARNING: This option assumes the initial distance is not zero.
-        if (no_zero_toi && is_impacting && toi == 0)
-        {
-            // std::cout << "vf toi == 0, info:\n"
-            //           << "tolerance " << tolerance << "\noutput_tolerance "
-            //           << output_tolerance << "\nminimum distance "
-            //           << std::setprecision(17) << ms << std::endl;
-            // std::cout << "ms > 0? " << (ms > 0) << std::endl;
-            // std::cout << "t max " << t_max << std::endl;
-
-            // we rebuild the time interval
-            // since tol is conservative:
-            Scalar new_max_time =
-                std::min(tol[0] * 10, 0.1); // this is the new time range
-            // if early terminated, use tolerance; otherwise, use smaller
-            // tolerance althouth time resolution and tolerance is not the same
-            // thing, but decrease tolerance will be helpful
-            Scalar new_tolerance =
-                output_tolerance > tolerance ? tolerance : 0.1 * tolerance;
-            Scalar new_toi;
-            Scalar new_output_tol;
-            bool new_is_impacting = vertexFaceCCD_double(
+            Vector3d tol = compute_face_vertex_tolerance_3d_new(
                 vertex_start, face_vertex0_start, face_vertex1_start,
                 face_vertex2_start, vertex_end, face_vertex0_end,
-                face_vertex1_end, face_vertex2_end, err, ms, new_toi,
-                new_tolerance, new_max_time, max_itr, new_output_tol, CCD_TYPE,
-                no_zero_toi);
+                face_vertex1_end, face_vertex2_end, tolerance);
 
-            toi = new_is_impacting ? new_toi : new_max_time;
-        }
+            //////////////////////////////////////////////////////////
+            // this is the error of the whole mesh
+            std::array<Scalar, 3> err1;
+            if (err[0] < 0)
+            { // if error[0]<0, means we need to calculate error here
+                std::vector<Vector3d> vlist;
+                vlist.emplace_back(vertex_start);
+                vlist.emplace_back(face_vertex0_start);
+                vlist.emplace_back(face_vertex1_start);
+                vlist.emplace_back(face_vertex2_start);
+
+                vlist.emplace_back(vertex_end);
+                vlist.emplace_back(face_vertex0_end);
+                vlist.emplace_back(face_vertex1_end);
+                vlist.emplace_back(face_vertex2_end);
+                bool use_ms = ms > 0;
+                err1 = get_numerical_error(vlist, false, use_ms);
+            }
+            else
+            {
+                err1 = err;
+            }
+            //////////////////////////////////////////////////////////
+
+            // 0 is normal ccd, and
+            // 1 is ccd with input time interval upper bound, using real tolerance, max_itr and horizontal tree.
+            if (CCD_TYPE == 0)
+            {
+                tmp_is_impacting = interval_root_finder_double_normalCCD(
+                    tol, toi, true, err1, ms, vertex_start, face_vertex0_start,
+                    face_vertex1_start, face_vertex2_start, vertex_end,
+                    face_vertex0_end, face_vertex1_end, face_vertex2_end);
+            }
+            else
+            {
+                assert(CCD_TYPE == 1);
+                assert(t_max >= 0 && t_max <= 1);
+                tmp_is_impacting = interval_root_finder_double_horizontal_tree(
+                    tol, tolerance, toi, true, err1, ms, vertex_start,
+                    face_vertex0_start, face_vertex1_start, face_vertex2_start,
+                    vertex_end, face_vertex0_end, face_vertex1_end,
+                    face_vertex2_end, t_max, max_itr, output_tolerance);
+            }
+            assert(!tmp_is_impacting || toi >= 0);
+
+            if (no_zero_toi_iter == 0)
+            {
+                // This will be the final output because we might need to
+                // perform CCD again if the toi is zero. In which case we will
+                // use a smaller t_max for more time resolution.
+                is_impacting = tmp_is_impacting;
+            }
+            else
+            {
+                toi = tmp_is_impacting ? toi : t_max;
+            }
+
+            if (tmp_is_impacting && toi == 0)
+            {
+                // This modification is for CCD-filtered line-search (e.g., IPC)
+                // we rebuild the time interval since tol is conservative:
+                // this is the new time range
+                t_max = std::min(tol[0] * 10, 0.1);
+
+                // if early terminated, use tolerance; otherwise, use smaller tolerance
+                // althouth time resolution and tolerance is not the same thing, but decrease
+                // tolerance will be helpful
+                tolerance =
+                    output_tolerance > tolerance ? tolerance : 0.1 * tolerance;
+            }
+
+            no_zero_toi_iter++;
+
+            // Only perform a second iteration if toi == 0.
+            // WARNING: This option assumes the initial distance is not zero.
+        } while (no_zero_toi && no_zero_toi_iter < MAX_NO_ZERO_TOI_ITER
+                 && tmp_is_impacting && toi == 0);
+        assert(!no_zero_toi || !is_impacting || toi != 0);
 
         return is_impacting;
     }
