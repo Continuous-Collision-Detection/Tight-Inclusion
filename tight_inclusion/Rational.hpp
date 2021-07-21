@@ -16,20 +16,24 @@ namespace inclusion_ccd
     {
     public:
         mpq_t value;
+
         void canonicalize() { mpq_canonicalize(value); }
+
         int get_sign() const { return mpq_sgn(value); }
+
         void print_numerator()
         {
             mpz_t numerator;
             mpz_init(numerator);
-            //std::cout<<"++++++++++++"<<std::endl;
+            // std::cout<<"++++++++++++"<<std::endl;
             mpq_get_num(numerator, value);
-            //std::cout<<"*************"<<std::endl;
+            // std::cout<<"*************"<<std::endl;
             mpz_out_str(NULL, 10, numerator);
-            //long v=mpz_get_si(numerator);
-            //std::cout<<v;
+            // long v=mpz_get_si(numerator);
+            // std::cout<<v;
             mpz_clear(numerator);
         }
+
         void print_denominator()
         {
             mpz_t denominator;
@@ -41,6 +45,7 @@ namespace inclusion_ccd
             // std::cout<<v;
             mpz_clear(denominator);
         }
+
         long long get_numerator()
         {
             mpz_t numerator;
@@ -52,6 +57,7 @@ namespace inclusion_ccd
             mpz_clear(numerator);
             return v;
         }
+
         long long get_denominator()
         {
             mpz_t denominator;
@@ -64,6 +70,7 @@ namespace inclusion_ccd
             mpz_clear(denominator);
             return v;
         }
+
         std::string get_denominator_str()
         {
             mpz_t denominator;
@@ -75,6 +82,7 @@ namespace inclusion_ccd
             mpz_clear(denominator);
             return v;
         }
+
         std::string get_numerator_str()
         {
             mpz_t numerator;
@@ -87,6 +95,7 @@ namespace inclusion_ccd
             mpz_clear(numerator);
             return v;
         }
+
         double get_double(const std::string &num, const std::string &denom)
         {
             std::string tmp = num + "/" + denom;
@@ -106,18 +115,34 @@ namespace inclusion_ccd
             mpq_set_d(value, d);
             canonicalize();
         }
+
         Rational(float d)
         {
             mpq_init(value);
-            double ddouble=d;// convert (float)d to double 
+            double ddouble = d; // convert (float)d to double
             mpq_set_d(value, ddouble);
             canonicalize();
         }
+
+        Rational(int i)
+        {
+            mpq_init(value);
+            mpq_set_si(value, i, 1U);
+            canonicalize();
+        }
+
+        Rational(long i)
+        {
+            mpq_init(value);
+            mpq_set_si(value, i, 1U);
+            canonicalize();
+        }
+
         Rational(const mpq_t &v_)
         {
             mpq_init(value);
             mpq_set(value, v_);
-            //            canonicalize();
+            // canonicalize();
         }
 
         Rational(const Rational &other)
@@ -174,17 +199,32 @@ namespace inclusion_ccd
         Rational &operator=(const double x)
         {
             mpq_set_d(value, x);
-            //            canonicalize();
+            // canonicalize();
             return *this;
         }
+
         Rational &operator=(const float x)
         {
-            double xd=x;
+            double xd = x;
             mpq_set_d(value, xd);
-            //            canonicalize();
+            // canonicalize();
             return *this;
         }
-        //> < ==
+
+        Rational &operator=(const int x)
+        {
+            mpq_set_si(value, x, 1U);
+            // canonicalize();
+            return *this;
+        }
+
+        Rational &operator=(const long x)
+        {
+            mpq_set_si(value, x, 1U);
+            // canonicalize();
+            return *this;
+        }
+
         friend bool operator<(const Rational &r, const Rational &r1)
         {
             return mpq_cmp(r.value, r1.value) < 0;
@@ -215,10 +255,8 @@ namespace inclusion_ccd
             return !mpq_equal(r.value, r1.value);
         }
 
-        // to double
         double to_double() { return mpq_get_d(value); }
 
-        //<<
         friend std::ostream &operator<<(std::ostream &os, const Rational &r)
         {
             os << mpq_get_d(r.value);

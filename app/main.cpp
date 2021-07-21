@@ -14,9 +14,9 @@ using namespace inclusion_ccd;
 void case_check()
 {
 #ifdef TIGHT_INCLUSION_DOUBLE
-    std::cout<<"using double precision values as inputs"<<std::endl;
+    std::cout << "using double precision values as inputs" << std::endl;
 #else
-std::cout<<"using single precision values as inputs"<<std::endl;
+    std::cout << "using single precision values as inputs" << std::endl;
 #endif
     const Vector3d a0s(0.1, 0.1, 0.1);
     const Vector3d a1s(0, 0, 1);
@@ -49,7 +49,7 @@ std::cout<<"using single precision values as inputs"<<std::endl;
                   << std::endl;
     }
 #ifdef CHECK_QUEUE_SIZE
-	std::cout << "queue size max " << return_queue_size() << std::endl;
+    std::cout << "queue size max " << return_queue_size() << std::endl;
 #endif
 }
 
@@ -217,8 +217,9 @@ int main(int argc, char *argv[])
     case_check();
 #endif
 
-std::cout<<"using double precision? "<<ticcd_using_double()<<std::endl;
-std::cout << "done!" << std::endl;
+    std::cout << "using double precision? " << ticcd_using_double()
+              << std::endl;
+    std::cout << "done!" << std::endl;
 
     return 0;
 }

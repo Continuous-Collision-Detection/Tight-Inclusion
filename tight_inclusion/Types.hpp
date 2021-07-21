@@ -2,12 +2,12 @@
 #include <Eigen/Core>
 #define CHECK_QUEUE_SIZE
 
-
-static bool ticcd_using_double(){
+inline bool ticcd_using_double()
+{
 #ifdef TIGHT_INCLUSION_DOUBLE
-return true;
+    return true;
 #else
-return false;
+    return false;
 #endif
 }
 #ifdef TIGHT_INCLUSION_DOUBLE

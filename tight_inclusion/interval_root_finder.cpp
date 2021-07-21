@@ -18,7 +18,7 @@ namespace inclusion_ccd
            time25 = 0, time_rational = 0;
     int refine = 0;
     int refine_return = 0;
-	long queue_size = 0;
+    long queue_size = 0;
     // convert Numccd to double number
     Scalar Numccd2double(const Numccd &n)
     {
@@ -54,8 +54,7 @@ namespace inclusion_ccd
         return w;
     }
 
-    std::array<Vector3d, 2>
-    bbd_4_pts(const std::array<Vector3d, 4> &pts)
+    std::array<Vector3d, 2> bbd_4_pts(const std::array<Vector3d, 4> &pts)
     {
         Vector3d min, max;
         min = pts[0];
@@ -79,8 +78,7 @@ namespace inclusion_ccd
         rst[1] = max;
         return rst;
     }
-    std::array<Vector3d, 2>
-    bbd_6_pts(const std::array<Vector3d, 6> &pts)
+    std::array<Vector3d, 2> bbd_6_pts(const std::array<Vector3d, 6> &pts)
     {
         Vector3d min, max;
         min = pts[0];
@@ -1783,7 +1781,7 @@ namespace inclusion_ccd
         const int max_itr,
         Scalar &output_tolerance)
     {
-		queue_size = 0;
+        queue_size = 0;
         // if max_itr <0, output_tolerance= co_domain_tolerance;
         // else, output_tolearancewill be the precision after iteration time > max_itr
         output_tolerance = co_domain_tolerance;
@@ -1854,13 +1852,13 @@ namespace inclusion_ccd
         while (!istack.empty())
         {
 #ifdef CHECK_QUEUE_SIZE
-			long tmpsize = istack.size();
-			if (tmpsize > queue_size) {
-				queue_size = istack.size();
-			}
-#endif	
-			
-			
+            long tmpsize = istack.size();
+            if (tmpsize > queue_size)
+            {
+                queue_size = istack.size();
+            }
+#endif
+
             current = istack.top().first;
             int level = istack.top().second;
             istack.pop();
@@ -2176,9 +2174,7 @@ namespace inclusion_ccd
 
         return false;
     }
-	long return_queue_size() {
-		return queue_size;
-	}
+    long return_queue_size() { return queue_size; }
     bool interval_root_finder_double_horizontal_tree(
         const VectorMax3d &tol,
         const Scalar co_domain_tolerance,
@@ -2392,13 +2388,13 @@ namespace inclusion_ccd
             vffilter = 4.053116e-06;
 #endif
         }
-        else// using minimum separation
+        else // using minimum separation
         {
 #ifdef TIGHT_INCLUSION_DOUBLE
             eefilter = 7.105427357601002e-15;
-            vffilter = 7.549516567451064e-15;   
+            vffilter = 7.549516567451064e-15;
 #else
-            eefilter = 3.814698e-06;// TODO numbers need to be updated
+            eefilter = 3.814698e-06; // TODO numbers need to be updated
             vffilter = 4.053116e-06;
 #endif
         }
