@@ -291,7 +291,8 @@ namespace inclusion_ccd
         const Scalar t_max,
         const int max_itr,
         Scalar &output_tolerance,
-        const int CCD_TYPE)
+        const int CCD_TYPE,
+        bool no_zero_toi)
     {
 
         Vector3d tol = compute_edge_edge_tolerance_new(
@@ -348,11 +349,10 @@ namespace inclusion_ccd
         //    }
         // This time of impact is very dangerous for convergence
         assert(!is_impacting || toi >= 0);
-#ifdef TIGHT_INCLUSION_NO_ZERO_TOI
 
         // This modification is for CCD-filtered line-search (e.g., IPC)
         // WARNING: This option assumes the initial distance is not zero.
-        if (toi == 0)
+        if (no_zero_toi && is_impacting && toi == 0)
         {
             // std::cout << "ee toi == 0, info:\n"
             //           << "tolerance " << tolerance << "\noutput_tolerance "
@@ -372,28 +372,16 @@ namespace inclusion_ccd
                 output_tolerance > tolerance ? tolerance : 0.1 * tolerance;
             Scalar new_toi;
             Scalar new_output_tol;
-            bool res = edgeEdgeCCD_double(
+            bool new_is_impacting = edgeEdgeCCD_double(
                 a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, err, ms, new_toi,
-                new_tolerance, new_max_time, max_itr, new_output_tol, CCD_TYPE);
+                new_tolerance, new_max_time, max_itr, new_output_tol, CCD_TYPE,
+                no_zero_toi);
 
-            if (res)
-            {
-                toi = new_toi;
-            }
-            else
-            {
-                toi = new_max_time;
-            }
-            return true;
+            toi = new_is_impacting ? new_toi : new_max_time;
         }
 
-#endif
-
-        //modification end
         return is_impacting;
-        return false;
     }
-    int LEVEL_NBR = 0;
 
     bool vertexFaceCCD_double(
         const Vector3d &vertex_start,
@@ -411,7 +399,8 @@ namespace inclusion_ccd
         const Scalar t_max,
         const int max_itr,
         Scalar &output_tolerance,
-        const int CCD_TYPE)
+        const int CCD_TYPE,
+        bool no_zero_toi)
     {
 
         Vector3d tol = compute_face_vertex_tolerance_3d_new(
@@ -476,12 +465,9 @@ namespace inclusion_ccd
         // This time of impact is very dangerous for convergence
         // assert(!is_impacting || toi > 0);
 
-        LEVEL_NBR++;
-#ifdef TIGHT_INCLUSION_NO_ZERO_TOI
-
         // This modification is for CCD-filtered line-search (e.g., IPC)
         // WARNING: This option assumes the initial distance is not zero.
-        if (toi == 0)
+        if (no_zero_toi && is_impacting && toi == 0)
         {
             // std::cout << "vf toi == 0, info:\n"
             //           << "tolerance " << tolerance << "\noutput_tolerance "
@@ -489,7 +475,6 @@ namespace inclusion_ccd
             //           << std::setprecision(17) << ms << std::endl;
             // std::cout << "ms > 0? " << (ms > 0) << std::endl;
             // std::cout << "t max " << t_max << std::endl;
-            // std::cout << "which level " << LEVEL_NBR << std::endl;
 
             // we rebuild the time interval
             // since tol is conservative:
@@ -502,29 +487,17 @@ namespace inclusion_ccd
                 output_tolerance > tolerance ? tolerance : 0.1 * tolerance;
             Scalar new_toi;
             Scalar new_output_tol;
-            bool res = vertexFaceCCD_double(
+            bool new_is_impacting = vertexFaceCCD_double(
                 vertex_start, face_vertex0_start, face_vertex1_start,
                 face_vertex2_start, vertex_end, face_vertex0_end,
                 face_vertex1_end, face_vertex2_end, err, ms, new_toi,
-                new_tolerance, new_max_time, max_itr, new_output_tol, CCD_TYPE);
+                new_tolerance, new_max_time, max_itr, new_output_tol, CCD_TYPE,
+                no_zero_toi);
 
-            if (res)
-            {
-                toi = new_toi;
-            }
-            else
-            {
-                toi = new_max_time;
-            }
-            LEVEL_NBR = 0;
-            return true;
+            toi = new_is_impacting ? new_toi : new_max_time;
         }
 
-#endif
-        LEVEL_NBR = 0;
-
         return is_impacting;
-        return false;
     }
 
 #ifdef TIGHT_INCLUSION_USE_GMP
@@ -577,7 +550,6 @@ namespace inclusion_ccd
         // This time of impact is very dangerous for convergence
         // assert(!is_impacting || toi > 0);
         return is_impacting;
-        return false;
     }
 
     bool vertexFaceCCD_rational(
@@ -635,7 +607,6 @@ namespace inclusion_ccd
         // This time of impact is very dangerous for convergence
         // assert(!is_impacting || toi > 0);
         return is_impacting;
-        return false;
     }
 #endif
 
