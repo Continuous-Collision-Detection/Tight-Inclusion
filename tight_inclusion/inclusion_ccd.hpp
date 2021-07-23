@@ -7,6 +7,11 @@
 
 namespace inclusion_ccd
 {
+#ifdef TIGHT_INCLUSION_NO_ZERO_TOI
+    static const bool DEFAULT_NO_ZERO_TOI = true;
+#else
+    static const bool DEFAULT_NO_ZERO_TOI = false;
+#endif
 
     /// @brief This function can give you the answer of continous collision detection with minimum
     /// seperation, and the earlist collision time if collision happens.
@@ -36,11 +41,12 @@ namespace inclusion_ccd
         const std::array<Scalar, 3> &err,
         const Scalar ms,
         Scalar &toi,
-        const Scalar tolerance,
-        const Scalar t_max,
+        Scalar tolerance,
+        Scalar t_max,
         const int max_itr,
         Scalar &output_tolerance,
-        const int CCD_TYPE = 1);
+        const int CCD_TYPE = 1,
+        bool no_zero_toi = DEFAULT_NO_ZERO_TOI);
 
     /// This function can give you the answer of continous collision detection with minimum
     /// seperation, and the earlist collision time if collision happens.
@@ -70,13 +76,14 @@ namespace inclusion_ccd
         const std::array<Scalar, 3> &err,
         const Scalar ms,
         Scalar &toi,
-        const Scalar tolerance,
-        const Scalar t_max,
+        Scalar tolerance,
+        Scalar t_max,
         const int max_itr,
         Scalar &output_tolerance,
-        const int CCD_TYPE = 1);
-#ifdef TIGHT_INCLUSION_USE_GMP
+        const int CCD_TYPE = 1,
+        bool no_zero_toi = DEFAULT_NO_ZERO_TOI);
 
+#ifdef TIGHT_INCLUSION_USE_GMP
     // this version is an naive implementation of Tight-Inclusion CCD without optimizations
     bool edgeEdgeCCD_rational(
         const Vector3d &a0s,
