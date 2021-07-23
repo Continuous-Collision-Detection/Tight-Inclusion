@@ -377,7 +377,7 @@ namespace inclusion_ccd
             // Only perform a second iteration if toi == 0.
             // WARNING: This option assumes the initial distance is not zero.
         } while (no_zero_toi && no_zero_toi_iter < MAX_NO_ZERO_TOI_ITER
-                 && tmp_is_impacting && toi == 0);
+                 && tmp_is_impacting && toi == 0&&CCD_TYPE==1);
         assert(!no_zero_toi || !is_impacting || toi != 0);
 
         return is_impacting;
@@ -490,7 +490,7 @@ namespace inclusion_ccd
             // Only perform a second iteration if toi == 0.
             // WARNING: This option assumes the initial distance is not zero.
         } while (no_zero_toi && no_zero_toi_iter < MAX_NO_ZERO_TOI_ITER
-                 && tmp_is_impacting && toi == 0);
+                 && tmp_is_impacting && toi == 0&&CCD_TYPE==1);
         assert(!no_zero_toi || !is_impacting || toi != 0);
 
         return is_impacting;
