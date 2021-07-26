@@ -23,8 +23,8 @@ namespace inclusion_ccd
         std::array<double, 3> v;
         if (!infile.is_open())
         {
-            //std::cout << "Path Wrong!!!!" << std::endl;
-            //std::cout << "path, " << inputFileName << std::endl;
+            std::cout << "Path Wrong!!!!" << std::endl;
+            std::cout << "path, " << inputFileName << std::endl;
             Eigen::MatrixXd rst = Eigen::MatrixXd::Zero(1, 1);
             return rst;
         }

@@ -1942,6 +1942,7 @@ namespace inclusion_ccd
                 rnbr++;
                 // continue;
                 toi = Numccd2double(TOI) * impact_ratio;
+				//std::cout << "return 1" << std::endl;
                 return true;
                 // we don't need to compare with TOI_SKIP because we already continue
                 // when t>=TOI_SKIP

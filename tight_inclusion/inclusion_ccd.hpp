@@ -141,7 +141,8 @@ namespace inclusion_ccd
         const double t_max,
         const int max_itr,
         double &output_tolerance,
-        const int CCD_TYPE = 1);
+        const int CCD_TYPE = 1,
+		bool no_zero_toi = DEFAULT_NO_ZERO_TOI);
 
     bool vertexFaceCCD_double(
         const Eigen::Vector3d &vertex_start,
@@ -159,6 +160,7 @@ namespace inclusion_ccd
         const double t_max,
         const int max_itr,
         double &output_tolerance,
-        const int CCD_TYPE = 1);
+        const int CCD_TYPE = 1,
+		bool no_zero_toi = DEFAULT_NO_ZERO_TOI);
 #endif
 } // namespace inclusion_ccd

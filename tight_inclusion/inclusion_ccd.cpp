@@ -320,6 +320,7 @@ namespace inclusion_ccd
                 vlist.emplace_back(b1e);
                 bool use_ms = ms > 0;
                 err1 = get_numerical_error(vlist, false, use_ms);
+				std::cout << "err is " << err1[0] << " " << err1[1] << " " << err1[2] << " " << std::endl;
             }
             else
             {
@@ -363,7 +364,7 @@ namespace inclusion_ccd
                 // This modification is for CCD-filtered line-search (e.g., IPC)
                 // we rebuild the time interval since tol is conservative:
                 // this is the new time range
-                t_max = std::min(tol[0] * 10, 0.1);
+                t_max = std::min(tol[0] * 10, Scalar(0.1));
 
                 // if early terminated, use tolerance; otherwise, use smaller tolerance
                 // althouth time resolution and tolerance is not the same thing, but decrease
@@ -476,7 +477,7 @@ namespace inclusion_ccd
                 // This modification is for CCD-filtered line-search (e.g., IPC)
                 // we rebuild the time interval since tol is conservative:
                 // this is the new time range
-                t_max = std::min(tol[0] * 10, 0.1);
+                t_max = std::min(tol[0] * 10, Scalar(0.1));
 
                 // if early terminated, use tolerance; otherwise, use smaller tolerance
                 // althouth time resolution and tolerance is not the same thing, but decrease
@@ -624,7 +625,8 @@ namespace inclusion_ccd
         const double t_max,
         const int max_itr,
         double &output_tolerance,
-        const int CCD_TYPE)
+        const int CCD_TYPE,
+		bool no_zero_toi)
     {
         Vector3d fa0_start = Vector3d(
             Scalar(a0_start(0)), Scalar(a0_start(1)), Scalar(a0_start(2)));
@@ -652,7 +654,7 @@ namespace inclusion_ccd
         bool result = edgeEdgeCCD_double(
             fa0_start, fa1_start, fb0_start, fb1_start, fa0_end, fa1_end,
             fb0_end, fb1_end, ferr, fms, ftoi, ftolerance, ft_max, max_itr,
-            fouttol, CCD_TYPE);
+            fouttol, CCD_TYPE, no_zero_toi);
         toi = ftoi;
         output_tolerance = fouttol;
         return result;
@@ -674,7 +676,7 @@ namespace inclusion_ccd
         const double t_max,
         const int max_itr,
         double &output_tolerance,
-        const int CCD_TYPE)
+        const int CCD_TYPE, bool no_zero_toi)
     {
         Vector3d fvertex_start = Vector3d(
             Scalar(vertex_start(0)), Scalar(vertex_start(1)),
@@ -712,7 +714,7 @@ namespace inclusion_ccd
             fvertex_start, fface_vertex0_start, fface_vertex1_start,
             fface_vertex2_start, fvertex_end, fface_vertex0_end,
             fface_vertex1_end, fface_vertex2_end, ferr, fms, ftoi, ftolerance,
-            ft_max, max_itr, fouttol, CCD_TYPE);
+            ft_max, max_itr, fouttol, CCD_TYPE, no_zero_toi);
         toi = ftoi;
         output_tolerance = fouttol;
         return result;

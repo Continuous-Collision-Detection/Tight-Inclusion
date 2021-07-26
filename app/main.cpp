@@ -36,9 +36,10 @@ void case_check()
     const int max_itr = 1e6;
     Scalar output_tolerance;
     const int CCD_TYPE = 1;
-    res = inclusion_ccd::edgeEdgeCCD_double(
+	res = inclusion_ccd::edgeEdgeCCD_double(a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, err, ms, toi, tolerance, t_max, max_itr, output_tolerance);
+    /*res = inclusion_ccd::edgeEdgeCCD_double(
         a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, err, ms, toi, tolerance, t_max,
-        max_itr, output_tolerance, CCD_TYPE);
+        max_itr, output_tolerance);*/
     if (!using_rational_method())
     {
         std::cout << "the double ccd result is " << res << std::endl;
@@ -52,6 +53,9 @@ void case_check()
     std::cout << "queue size max " << return_queue_size() << std::endl;
 #endif
 }
+
+# define TIDBG
+
 
 #ifdef TIGHT_INCLUSION_RUN_EXAMPLES
 
@@ -97,8 +101,14 @@ void run_rational_data_single_method(
         for (int ff = 0; ff < 2; ff++)
         {
 
-            all_V = read_rational_csv(
-                root_path + folders[fnbr] + sub_folder + fnames[ff], results);
+			all_V = read_rational_csv(
+#ifdef TIDBG
+				"D:\\vs\\collision\\interval\\Tight-Inclusion\\build\\edge-edge-0474.csv",
+#else
+				root_path + folders[fnbr] + sub_folder + fnames[ff],
+#endif
+                
+				results);
             //assert(all_V.rows() % 8 == 0 && all_V.cols() == 3);
             if (all_V.rows() % 8 != 0 || all_V.cols() != 3)
             {
@@ -124,22 +134,39 @@ void run_rational_data_single_method(
 
                 int CCD_TYPE = 1;
                 timer.start();
-                if (is_edge_edge)
-                {
-                    new_result = edgeEdgeCCD_double(
-                        V.row(0), V.row(1), V.row(2), V.row(3), V.row(4),
-                        V.row(5), V.row(6), V.row(7), err, minimum_seperation,
-                        toi, tolerance, t_max, max_itr, output_tolerance,
-                        CCD_TYPE);
-                }
-                else
-                {
-                    new_result = vertexFaceCCD_double(
-                        V.row(0), V.row(1), V.row(2), V.row(3), V.row(4),
-                        V.row(5), V.row(6), V.row(7), err, minimum_seperation,
-                        toi, tolerance, t_max, max_itr, output_tolerance,
-                        CCD_TYPE);
-                }
+#ifdef TIDBG
+				if (i != 6382) {
+					continue;
+				}
+				new_result = edgeEdgeCCD_double(
+					V.row(0), V.row(1), V.row(2), V.row(3), V.row(4),
+					V.row(5), V.row(6), V.row(7), err, minimum_seperation,
+					toi, tolerance, t_max, max_itr, output_tolerance,
+					CCD_TYPE);
+				if (i == 6382) {
+					for (int row = 0; row < 8; row++) {
+						std::cout << V(row, 0) << "," << V(row, 1) << "," << V(row, 2) << "," << toi << std::endl;
+					}
+				}
+#else
+				if (is_edge_edge)
+				{
+					new_result = edgeEdgeCCD_double(
+						V.row(0), V.row(1), V.row(2), V.row(3), V.row(4),
+						V.row(5), V.row(6), V.row(7), err, minimum_seperation,
+						toi, tolerance, t_max, max_itr, output_tolerance,
+						CCD_TYPE);
+				}
+				else
+				{
+					new_result = vertexFaceCCD_double(
+						V.row(0), V.row(1), V.row(2), V.row(3), V.row(4),
+						V.row(5), V.row(6), V.row(7), err, minimum_seperation,
+						toi, tolerance, t_max, max_itr, output_tolerance,
+						CCD_TYPE);
+				}
+#endif
+               
 
                 new_timing += timer.getElapsedTimeInMicroSec();
                 std::cout << total_number << "\r" << std::flush;
@@ -178,6 +205,10 @@ void run_rational_data_single_method(
                     }
                 }
             }
+			std::cout << "fps " << new_false_positives << " fns " << new_false_negatives << " total queries " << total_number + 1
+				<<" total positives "<< total_positives << std::endl;
+
+			exit(0);
         }
     }
 
