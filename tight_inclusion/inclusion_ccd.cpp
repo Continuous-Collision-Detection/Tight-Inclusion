@@ -320,8 +320,8 @@ namespace inclusion_ccd
                 vlist.emplace_back(b1e);
                 bool use_ms = ms > 0;
                 err1 = get_numerical_error(vlist, false, use_ms);
-                std::cout << "err is " << err1[0] << " " << err1[1] << " "
-                          << err1[2] << " " << std::endl;
+                // std::cout << "err is " << err1[0] << " " << err1[1] << " "
+                //           << err1[2] << " " << std::endl;
             }
             else
             {
