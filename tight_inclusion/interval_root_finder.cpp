@@ -2222,10 +2222,8 @@ namespace inclusion_ccd
             tol, co_domain_tolerance, iset, check_t_overlap, max_time, toi,
             check_vf, err, ms, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, max_itr,
             output_tolerance);
-        if (result)
-            return true;
 
-        return false;
+        return result;
     }
 
 #ifdef TIGHT_INCLUSION_USE_GMP

@@ -320,7 +320,8 @@ namespace inclusion_ccd
                 vlist.emplace_back(b1e);
                 bool use_ms = ms > 0;
                 err1 = get_numerical_error(vlist, false, use_ms);
-				std::cout << "err is " << err1[0] << " " << err1[1] << " " << err1[2] << " " << std::endl;
+                std::cout << "err is " << err1[0] << " " << err1[1] << " "
+                          << err1[2] << " " << std::endl;
             }
             else
             {
@@ -378,7 +379,7 @@ namespace inclusion_ccd
             // Only perform a second iteration if toi == 0.
             // WARNING: This option assumes the initial distance is not zero.
         } while (no_zero_toi && no_zero_toi_iter < MAX_NO_ZERO_TOI_ITER
-                 && tmp_is_impacting && toi == 0&&CCD_TYPE==1);
+                 && tmp_is_impacting && toi == 0 && CCD_TYPE == 1);
         assert(!no_zero_toi || !is_impacting || toi != 0);
 
         return is_impacting;
@@ -491,7 +492,7 @@ namespace inclusion_ccd
             // Only perform a second iteration if toi == 0.
             // WARNING: This option assumes the initial distance is not zero.
         } while (no_zero_toi && no_zero_toi_iter < MAX_NO_ZERO_TOI_ITER
-                 && tmp_is_impacting && toi == 0&&CCD_TYPE==1);
+                 && tmp_is_impacting && toi == 0 && CCD_TYPE == 1);
         assert(!no_zero_toi || !is_impacting || toi != 0);
 
         return is_impacting;
@@ -626,7 +627,7 @@ namespace inclusion_ccd
         const int max_itr,
         double &output_tolerance,
         const int CCD_TYPE,
-		bool no_zero_toi)
+        bool no_zero_toi)
     {
         Vector3d fa0_start = Vector3d(
             Scalar(a0_start(0)), Scalar(a0_start(1)), Scalar(a0_start(2)));
@@ -676,7 +677,8 @@ namespace inclusion_ccd
         const double t_max,
         const int max_itr,
         double &output_tolerance,
-        const int CCD_TYPE, bool no_zero_toi)
+        const int CCD_TYPE,
+        bool no_zero_toi)
     {
         Vector3d fvertex_start = Vector3d(
             Scalar(vertex_start(0)), Scalar(vertex_start(1)),
