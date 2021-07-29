@@ -45,7 +45,13 @@ namespace inclusion_ccd
     //     }
 
     // calculate a*(2^b)
-    long power(const long a, const int b) { return a << b; }
+    long power(const long a, const int b)
+    {
+        // The fast bit shifting power trick only works if b is not too larger.
+        assert(b < 8 * sizeof(long) - 1);
+        // WARNING: Technically this can still fail with `b < 8 * sizeof(long) - 1` if `a > 1`.
+        return a << b;
+    }
     std::array<Scalar, 8> function_ee(
         const Scalar &a0s,
         const Scalar &a1s,
