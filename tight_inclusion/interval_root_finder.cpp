@@ -1930,6 +1930,7 @@ namespace inclusion_ccd
                 this_level_less_tol = false;
                 // this level has at least one box whose size > tolerance, thus we
                 // cannot directly return if find one box whose size < tolerance or box-in
+				//TODO think about it. maybe we can return even if this value is false, so we can terminate earlier.
             }
 
             // Condition 3, in this level, we find a box that zero-in and size < tolerance.
@@ -1942,7 +1943,7 @@ namespace inclusion_ccd
                 rnbr++;
                 // continue;
                 toi = Numccd2double(TOI) * impact_ratio;
-                //std::cout << "return 1" << std::endl;
+				//std::cout << "return 1" << std::endl;
                 return true;
                 // we don't need to compare with TOI_SKIP because we already continue
                 // when t>=TOI_SKIP
@@ -2384,7 +2385,7 @@ namespace inclusion_ccd
             vffilter = 6.661338147750939e-15;
 #else
             eefilter = 3.337861e-06;
-            vffilter = 3.576279e-06;
+			vffilter = 3.576279e-06;
 #endif
         }
         else // using minimum separation
@@ -2393,7 +2394,7 @@ namespace inclusion_ccd
             eefilter = 7.105427357601002e-15;
             vffilter = 7.549516567451064e-15;
 #else
-            eefilter = 3.814698e-06;
+            eefilter = 3.814698e-06; 
             vffilter = 4.053116e-06;
 #endif
         }
