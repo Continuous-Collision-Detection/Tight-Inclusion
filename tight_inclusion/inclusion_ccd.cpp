@@ -298,11 +298,12 @@ namespace inclusion_ccd
         // unsigned so can be larger than MAX_NO_ZERO_TOI_ITER
         unsigned int no_zero_toi_iter = 0;
         bool is_impacting, tmp_is_impacting;
-
+		Scalar tolerance_in = tolerance;
+		Scalar ms_in = ms;
         do
         {
             Vector3d tol = compute_edge_edge_tolerance_new(
-                a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, tolerance);
+                a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, tolerance_in);
 
             // this should be the error of the whole mesh
             std::array<Scalar, 3> err1;
@@ -335,15 +336,16 @@ namespace inclusion_ccd
             if (CCD_TYPE == 0)
             {
                 tmp_is_impacting = interval_root_finder_double_normalCCD(
-                    tol, toi, false, err1, ms, a0s, a1s, b0s, b1s, a0e, a1e,
+                    tol, toi, false, err1, ms_in, a0s, a1s, b0s, b1s, a0e, a1e,
                     b0e, b1e);
+				return tmp_is_impacting;
             }
             else
             {
                 assert(CCD_TYPE == 1);
                 assert(t_max >= 0 && t_max <= 1);
                 tmp_is_impacting = interval_root_finder_double_horizontal_tree(
-                    tol, tolerance, toi, false, err1, ms, a0s, a1s, b0s, b1s,
+                    tol, tolerance_in, toi, false, err1, ms_in, a0s, a1s, b0s, b1s,
                     a0e, a1e, b0e, b1e, t_max, max_itr, output_tolerance);
             }
             assert(!tmp_is_impacting || toi >= 0);
@@ -360,26 +362,34 @@ namespace inclusion_ccd
                 toi = tmp_is_impacting ? toi : t_max;
             }
 
-            if (tmp_is_impacting && toi == 0)
-            {
-                // This modification is for CCD-filtered line-search (e.g., IPC)
-                // we rebuild the time interval since tol is conservative:
-                // this is the new time range
-                t_max = std::min(tol[0] * 10, Scalar(0.1));
+			// This modification is for CCD-filtered line-search (e.g., IPC)
+			// strategies for dealing with toi = 0: 
+			// 1. shrink t_max (when reaches max_itr), 
+			// 2. shrink tolerance (when not reach max_itr and tolerance is big) or
+			// ms (when tolerance is too small comparing with ms)
+			if (tmp_is_impacting && toi == 0 && no_zero_toi) {
 
-                // if early terminated, use tolerance; otherwise, use smaller tolerance
-                // althouth time resolution and tolerance is not the same thing, but decrease
-                // tolerance will be helpful
-                tolerance =
-                    output_tolerance > tolerance ? tolerance : 0.1 * tolerance;
-            }
+				// meaning reaches max_itr, need to shrink the t_max to return a more accurate result to reach target tolerance.
+				if (output_tolerance > tolerance_in) {
+					t_max *= 0.9;
+				}
+				else {// meaning the given tolerance or ms is too large. need to shrink them, 
+					if (10 * tolerance_in < ms_in) {// ms is too large, shrink it
+						ms_in *= 0.5;
+					}
+					else {// tolerance is too large, shrink it
+						tolerance_in *= 0.5;
+					}
+				}
+			}
+
 
             no_zero_toi_iter++;
 
             // Only perform a second iteration if toi == 0.
             // WARNING: This option assumes the initial distance is not zero.
         } while (no_zero_toi && no_zero_toi_iter < MAX_NO_ZERO_TOI_ITER
-                 && tmp_is_impacting && toi == 0 && CCD_TYPE == 1);
+                 && tmp_is_impacting && toi == 0);
         assert(!no_zero_toi || !is_impacting || toi != 0);
 
         return is_impacting;
@@ -408,13 +418,14 @@ namespace inclusion_ccd
         // unsigned so can be larger than MAX_NO_ZERO_TOI_ITER
         unsigned int no_zero_toi_iter = 0;
         bool is_impacting, tmp_is_impacting;
-
+		Scalar tolerance_in = tolerance;
+		Scalar ms_in = ms;
         do
         {
             Vector3d tol = compute_face_vertex_tolerance_3d_new(
                 vertex_start, face_vertex0_start, face_vertex1_start,
                 face_vertex2_start, vertex_end, face_vertex0_end,
-                face_vertex1_end, face_vertex2_end, tolerance);
+                face_vertex1_end, face_vertex2_end, tolerance_in);
 
             //////////////////////////////////////////////////////////
             // this is the error of the whole mesh
@@ -445,16 +456,17 @@ namespace inclusion_ccd
             if (CCD_TYPE == 0)
             {
                 tmp_is_impacting = interval_root_finder_double_normalCCD(
-                    tol, toi, true, err1, ms, vertex_start, face_vertex0_start,
+                    tol, toi, true, err1, ms_in, vertex_start, face_vertex0_start,
                     face_vertex1_start, face_vertex2_start, vertex_end,
                     face_vertex0_end, face_vertex1_end, face_vertex2_end);
+				return tmp_is_impacting;
             }
             else
             {
                 assert(CCD_TYPE == 1);
                 assert(t_max >= 0 && t_max <= 1);
                 tmp_is_impacting = interval_root_finder_double_horizontal_tree(
-                    tol, tolerance, toi, true, err1, ms, vertex_start,
+                    tol, tolerance_in, toi, true, err1, ms_in, vertex_start,
                     face_vertex0_start, face_vertex1_start, face_vertex2_start,
                     vertex_end, face_vertex0_end, face_vertex1_end,
                     face_vertex2_end, t_max, max_itr, output_tolerance);
@@ -473,26 +485,33 @@ namespace inclusion_ccd
                 toi = tmp_is_impacting ? toi : t_max;
             }
 
-            if (tmp_is_impacting && toi == 0)
-            {
-                // This modification is for CCD-filtered line-search (e.g., IPC)
-                // we rebuild the time interval since tol is conservative:
-                // this is the new time range
-                t_max = std::min(tol[0] * 10, Scalar(0.1));
+			// This modification is for CCD-filtered line-search (e.g., IPC)
+			// strategies for dealing with toi = 0: 
+			// 1. shrink t_max (when reaches max_itr), 
+			// 2. shrink tolerance (when not reach max_itr and tolerance is big) or
+			// ms (when tolerance is too small comparing with ms)
+			if (tmp_is_impacting && toi == 0&& no_zero_toi) {
 
-                // if early terminated, use tolerance; otherwise, use smaller tolerance
-                // althouth time resolution and tolerance is not the same thing, but decrease
-                // tolerance will be helpful
-                tolerance =
-                    output_tolerance > tolerance ? tolerance : 0.1 * tolerance;
-            }
+				// meaning reaches max_itr, need to shrink the t_max to return a more accurate result to reach target tolerance.
+				if (output_tolerance > tolerance_in) {
+					t_max *= 0.9;
+				}
+				else {// meaning the given tolerance or ms is too large. need to shrink them, 
+					if (10 * tolerance_in < ms_in) {// ms is too large, shrink it
+						ms_in *= 0.5;
+					}
+					else {// tolerance is too large, shrink it
+						tolerance_in *= 0.5;
+					}
+				}
+			}
 
             no_zero_toi_iter++;
 
             // Only perform a second iteration if toi == 0.
             // WARNING: This option assumes the initial distance is not zero.
         } while (no_zero_toi && no_zero_toi_iter < MAX_NO_ZERO_TOI_ITER
-                 && tmp_is_impacting && toi == 0 && CCD_TYPE == 1);
+                 && tmp_is_impacting && toi == 0);
         assert(!no_zero_toi || !is_impacting || toi != 0);
 
         return is_impacting;
