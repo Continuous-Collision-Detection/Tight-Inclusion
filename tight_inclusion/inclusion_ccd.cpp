@@ -432,7 +432,7 @@ namespace inclusion_ccd
                 vlist.emplace_back(face_vertex1_end);
                 vlist.emplace_back(face_vertex2_end);
                 bool use_ms = ms > 0;
-                err1 = get_numerical_error(vlist, false, use_ms);
+                err1 = get_numerical_error(vlist, true, use_ms);
             }
             else
             {
