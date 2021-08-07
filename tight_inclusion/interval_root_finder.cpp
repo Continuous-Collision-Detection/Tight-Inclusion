@@ -1930,6 +1930,7 @@ namespace inclusion_ccd
                 this_level_less_tol = false;
                 // this level has at least one box whose size > tolerance, thus we
                 // cannot directly return if find one box whose size < tolerance or box-in
+				//TODO think about it. maybe we can return even if this value is false, so we can terminate earlier.
             }
 
             // Condition 3, in this level, we find a box that zero-in and size < tolerance.

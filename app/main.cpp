@@ -54,7 +54,7 @@ void case_check()
 #endif
 }
 
-# define TIDBG
+//# define TIDBG
 
 
 #ifdef TIGHT_INCLUSION_RUN_EXAMPLES
@@ -100,7 +100,10 @@ void run_rational_data_single_method(
     {
         for (int ff = 0; ff < 2; ff++)
         {
-
+			if (folders[fnbr] == "erleben-spike-hole"&&ff == 1)
+			{
+				continue;
+			}
 			all_V = read_rational_csv(
 #ifdef TIDBG
 				"D:\\vs\\collision\\interval\\Tight-Inclusion\\build\\edge-edge-0474.csv",
@@ -205,10 +208,12 @@ void run_rational_data_single_method(
                     }
                 }
             }
+#ifdef TIDBG
 			std::cout << "fps " << new_false_positives << " fns " << new_false_negatives << " total queries " << total_number + 1
 				<<" total positives "<< total_positives << std::endl;
 
 			exit(0);
+#endif
         }
     }
 
@@ -228,20 +233,78 @@ void run_code()
 {
     double ms = 0.0;
     double tolerance = 1e-6;
-    std::cout << "\nRunning Vertex-Face data" << std::endl;
+
+	std::cout << "\nRunning simulation Vertex-Face data" << std::endl;
+	run_rational_data_single_method(
+		/*is_edge_edge*/ false, /*is_simulation*/ true, ms, tolerance);
+	std::cout << "finish simulation Vertex-Face data" << std::endl;
+	std::cout << "\nRunning simulation Edge-Edge data" << std::endl;
+	run_rational_data_single_method(
+		/*is_edge_edge*/ true, /*is_simulation*/ true, ms, tolerance);
+	std::cout << "finish simulation Edge-Edge data" << std::endl;
+
+    std::cout << "\nRunning handcrafted Vertex-Face data" << std::endl;
     run_rational_data_single_method(
         /*is_edge_edge*/ false, /*is_simulation*/ false, ms, tolerance);
-    std::cout << "finish Vertex-Face data" << std::endl;
-    std::cout << "\nRunning Edge-Edge data" << std::endl;
+    std::cout << "finish handcrafted Vertex-Face data" << std::endl;
+    std::cout << "\nRunning handcrafted Edge-Edge data" << std::endl;
     run_rational_data_single_method(
         /*is_edge_edge*/ true, /*is_simulation*/ false, ms, tolerance);
-    std::cout << "finish Edge-Edge data" << std::endl;
+    std::cout << "finish handcrafted Edge-Edge data" << std::endl;
+
+
 }
 #endif
 
+//void run_dbg() {
+//	std::string file = "D:\\vs\\collision\\interval\\Tight-Inclusion\\build\\Release\\ee1simu1.csv";
+//	std::vector<double> tois;
+//	std::cout << "before read" << std::endl;
+//	Eigen::MatrixXd all_V = read_csv(file, tois);
+//	std::cout << "readed" << std::endl;
+//	if (all_V.rows() != tois.size() || all_V.rows() % 8 != 0) {
+//		std::cout << "wrong sizes, " << all_V.rows() << " " << tois.size() << std::endl;
+//	}
+//
+//	int v_size = all_V.rows() / 8;
+//	int counter = 0;
+//	double tolerance = 1e-6;
+//	double minimum_seperation = 0;
+//	int max_itr = 1e6;
+//	int total_positives = 0;
+//	int no_zero = 0;
+//	for (int i = 0; i < v_size; i++) {
+//		double toi_float = tois[i * 8];
+//		if (toi_float > 0) continue;
+//		Eigen::Matrix<double, 8, 3> V = all_V.middleRows<8>(8 * i);
+//		const std::array<double, 3> err = { {-1, -1, -1} };
+//
+//		double toi;
+//		const double t_max = 1;
+//
+//		double output_tolerance = tolerance;
+//
+//		int CCD_TYPE = 1;
+//		bool new_result = edgeEdgeCCD_double(
+//			V.row(0), V.row(1), V.row(2), V.row(3), V.row(4),
+//			V.row(5), V.row(6), V.row(7), err, minimum_seperation,
+//			toi, tolerance, t_max, max_itr, output_tolerance,
+//			CCD_TYPE);
+//		if (new_result) {
+//			total_positives += 1;
+//		}
+//		if (toi > 0) {
+//			no_zero += 1;
+//		}
+//
+//	}
+//	std::cout << "total positives " << total_positives << std::endl;
+//	std::cout << "no zero " << no_zero << std::endl;
+//}
+
 int main(int argc, char *argv[])
 {
-//    inclusion_ccd::Rational a;
+	//run_dbg();
 #ifdef TIGHT_INCLUSION_RUN_EXAMPLES
     run_code();
 #else
