@@ -1858,6 +1858,13 @@ namespace inclusion_ccd
                 queue_size = istack.size();
             }
 #endif
+#ifdef TI_LIMIT_QUEUE_SIZE
+			long tmpsize1 = istack.size();
+			if (tmpsize1 > MAX_QSIZE) {
+				return true;
+			}
+#endif
+
 
             current = istack.top().first;
             int level = istack.top().second;

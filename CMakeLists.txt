@@ -7,8 +7,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
   set(TIGHT_INCLUSION_TOPLEVEL_PROJECT ON)
+  message(STATUS "Tight-Inclusion CCD top-level project")
 else()
   set(TIGHT_INCLUSION_TOPLEVEL_PROJECT OFF)
+  message(STATUS "Tight-Inclusion CCD bottom-level project")
+#  message(STATUS "${CMAKE_CURRENT_SOURCE_DIR}")
+#  message(STATUS "${CMAKE_SOURCE_DIR}")
 endif()
 
 ### Configuration
@@ -24,6 +28,7 @@ OPTION(TIGHT_INCLUSION_WITH_TESTS        "Enable test functions"                
 OPTION(TIGHT_INCLUSION_WITH_TIMER        "Enable profiling timers, for debug"            OFF)
 OPTION(TIGHT_INCLUSION_WITH_NO_ZERO_TOI  "Enable refinement if CCD produces a zero ToI"  OFF)
 OPTION(TIGHT_INCLUSION_WITH_DOUBLE_PRECISION  "Enable double precision floating point numbers as input"  ON)
+OPTION(TIGHT_INCLUSION_LIMIT_QUEUE_SIZE  "Enable limitation of maximal queue size"  OFF)
 
 if(NOT TIGHT_INCLUSION_WITH_DOUBLE_PRECISION)
 OPTION(TIGHT_INCLUSION_FLOAT_WITH_DOUBLE_INPUT  "Enable converting double queries to float"  OFF)
@@ -71,6 +76,11 @@ if (TIGHT_INCLUSION_WITH_DOUBLE_PRECISION)
 else()
 message(STATUS "Using Single Precision Floating Points")  
 endif()
+if(TIGHT_INCLUSION_LIMIT_QUEUE_SIZE)
+	target_compile_definitions(tight_inclusion PUBLIC TI_LIMIT_QUEUE_SIZE)
+	message(STATUS "TICCD limiting maximal queue size")
+endif()
+
 if(TIGHT_INCLUSION_FLOAT_WITH_DOUBLE_INPUT)
   target_compile_definitions(tight_inclusion PUBLIC TIGHT_INCLUSION_FWDI)
   message(STATUS "Converting double inputs to float for tests")
@@ -78,6 +88,7 @@ endif()
 target_compile_definitions(tight_inclusion PUBLIC NOMINMAX)
 
 if(TIGHT_INCLUSION_TOPLEVEL_PROJECT)
+	#message(STATUS "Tight-Inclusion CCD top-level project")
   if (TIGHT_INCLUSION_WITH_TESTS)
     add_executable(Tight_Inclusion_bin
       app/main.cpp
