@@ -13,7 +13,7 @@ include(TI_CCDDownloadExternal)
 
 if(TIGHT_INCLUSION_WITH_GMP OR TIGHT_INCLUSION_WITH_TESTS)
   #GMP
-  find_package(GMPECCD)
+  find_package(GMP)
   IF(NOT ${GMP_FOUND})
           MESSAGE(FATAL_ERROR "Cannot find GMP")
   ENDIF()
