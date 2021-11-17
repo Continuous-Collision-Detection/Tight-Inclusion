@@ -41,8 +41,8 @@ namespace inclusion_ccd
         const std::array<Scalar, 3> &err,
         const Scalar ms,
         Scalar &toi,
-        Scalar tolerance,
-        Scalar t_max,
+        const Scalar tolerance,
+        const Scalar t_max,
         const int max_itr,
         Scalar &output_tolerance,
         const int CCD_TYPE = 1,
@@ -75,8 +75,8 @@ namespace inclusion_ccd
         const Vector3d &face_vertex2_end,
         const std::array<Scalar, 3> &err,
         const Scalar ms,
-        Scalar &toi,
-        Scalar tolerance,
+        const Scalar &toi,
+        const Scalar tolerance,
         Scalar t_max,
         const int max_itr,
         Scalar &output_tolerance,
@@ -124,6 +124,7 @@ namespace inclusion_ccd
 
     long return_queue_size();
 
+    // these function are designed to test the performance of floating point vertion but with double inputs
 #ifdef TIGHT_INCLUSION_FWDI
     bool edgeEdgeCCD_double(
         const Eigen::Vector3d &a0_start,

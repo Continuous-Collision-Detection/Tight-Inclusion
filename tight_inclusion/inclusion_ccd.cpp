@@ -284,11 +284,11 @@ namespace inclusion_ccd
         const Vector3d &a1e,
         const Vector3d &b0e,
         const Vector3d &b1e,
-        const std::array<Scalar, 3> &err,
-        const Scalar ms,
+        const std::array<Scalar, 3> &err_in,
+        const Scalar ms_in,
         Scalar &toi,
-        Scalar tolerance,
-        Scalar t_max,
+        const Scalar tolerance_in,
+        const Scalar t_max_in,
         const int max_itr,
         Scalar &output_tolerance,
         const int CCD_TYPE,
@@ -297,60 +297,63 @@ namespace inclusion_ccd
         const int MAX_NO_ZERO_TOI_ITER = std::numeric_limits<int>::max();
         // unsigned so can be larger than MAX_NO_ZERO_TOI_ITER
         unsigned int no_zero_toi_iter = 0;
+
         bool is_impacting, tmp_is_impacting;
-		Scalar tolerance_in = tolerance;
-		Scalar ms_in = ms;
+
+        // Mutable copies for no_zero_toi
+        Scalar t_max = t_max_in;
+        Scalar tolerance = tolerance_in;
+        Scalar ms = ms_in;
+
+        Vector3d tol = compute_edge_edge_tolerance_new(
+            a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, tolerance_in);
+
+        //////////////////////////////////////////////////////////
+        // this should be the error of the whole mesh
+        std::array<Scalar, 3> err;
+        if (err_in[0] < 0)
+        { // if error[0]<0, means we need to calculate error here
+            std::vector<Vector3d> vlist;
+            vlist.emplace_back(a0s);
+            vlist.emplace_back(a1s);
+            vlist.emplace_back(b0s);
+            vlist.emplace_back(b1s);
+
+            vlist.emplace_back(a0e);
+            vlist.emplace_back(a1e);
+            vlist.emplace_back(b0e);
+            vlist.emplace_back(b1e);
+            bool use_ms = ms > 0;
+            err = get_numerical_error(vlist, false, use_ms);
+        }
+        else
+        {
+            err = err_in;
+        }
+        //////////////////////////////////////////////////////////
+
         do
         {
-            Vector3d tol = compute_edge_edge_tolerance_new(
-                a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, tolerance_in);
-
-            // this should be the error of the whole mesh
-            std::array<Scalar, 3> err1;
-            if (err[0] < 0)
-            { // if error[0]<0, means we need to calculate error here
-                std::vector<Vector3d> vlist;
-                vlist.emplace_back(a0s);
-                vlist.emplace_back(a1s);
-                vlist.emplace_back(b0s);
-                vlist.emplace_back(b1s);
-
-                vlist.emplace_back(a0e);
-                vlist.emplace_back(a1e);
-                vlist.emplace_back(b0e);
-                vlist.emplace_back(b1e);
-                bool use_ms = ms > 0;
-                err1 = get_numerical_error(vlist, false, use_ms);
-                // std::cout << "err is " << err1[0] << " " << err1[1] << " "
-                //           << err1[2] << " " << std::endl;
-            }
-            else
-            {
-                err1 = err;
-            }
-
-            //////////////////////////////////////////////////////////
-
             // 0 is normal ccd, and
             // 1 is ccd with input time interval upper bound, using real tolerance, max_itr and horizontal tree.
             if (CCD_TYPE == 0)
             {
-                tmp_is_impacting = interval_root_finder_double_normalCCD(
-                    tol, toi, false, err1, ms_in, a0s, a1s, b0s, b1s, a0e, a1e,
-                    b0e, b1e);
-				return tmp_is_impacting;
+                // no handling for zero toi
+                return interval_root_finder_double_normalCCD(
+                    tol, toi, false, err, ms, a0s, a1s, b0s, b1s, a0e, a1e, b0e,
+                    b1e);
             }
             else
             {
                 assert(CCD_TYPE == 1);
                 assert(t_max >= 0 && t_max <= 1);
                 tmp_is_impacting = interval_root_finder_double_horizontal_tree(
-                    tol, tolerance_in, toi, false, err1, ms_in, a0s, a1s, b0s, b1s,
+                    tol, tolerance, toi, false, err, ms, a0s, a1s, b0s, b1s,
                     a0e, a1e, b0e, b1e, t_max, max_itr, output_tolerance);
             }
             assert(!tmp_is_impacting || toi >= 0);
 
-            if (no_zero_toi_iter == 0)
+            if (t_max == t_max_in)
             {
                 // This will be the final output because we might need to
                 // perform CCD again if the toi is zero. In which case we will
@@ -362,33 +365,34 @@ namespace inclusion_ccd
                 toi = tmp_is_impacting ? toi : t_max;
             }
 
-			// This modification is for CCD-filtered line-search (e.g., IPC)
-			// strategies for dealing with toi = 0: 
-			// 1. shrink t_max (when reaches max_itr), 
-			// 2. shrink tolerance (when not reach max_itr and tolerance is big) or
-			// ms (when tolerance is too small comparing with ms)
-			if (tmp_is_impacting && toi == 0 && no_zero_toi) {
+            // This modification is for CCD-filtered line-search (e.g., IPC)
+            // strategies for dealing with toi = 0:
+            // 1. shrink t_max (when reaches max_itr),
+            // 2. shrink tolerance (when not reach max_itr and tolerance is big) or
+            // ms (when tolerance is too small comparing with ms)
+            if (tmp_is_impacting && toi == 0 && no_zero_toi)
+            {
+                if (output_tolerance > tolerance)
+                {
+                    // reaches max_itr, so shrink t_max to return a more accurate result to reach target tolerance.
+                    t_max *= 0.9;
+                }
+                else if (10 * tolerance < ms)
+                {
+                    ms *= 0.5; // ms is too large, shrink it
+                }
+                else
+                {
+                    tolerance *= 0.5; // tolerance is too large, shrink it
 
-				// meaning reaches max_itr, need to shrink the t_max to return a more accurate result to reach target tolerance.
-				if (output_tolerance > tolerance_in) {
-					t_max *= 0.9;
-				}
-				else {// meaning the given tolerance or ms is too large. need to shrink them, 
-					if (10 * tolerance_in < ms_in) {// ms is too large, shrink it
-						ms_in *= 0.5;
-					}
-					else {// tolerance is too large, shrink it
-						tolerance_in *= 0.5;
-					}
-				}
-			}
-
-
-            no_zero_toi_iter++;
+                    tol = compute_edge_edge_tolerance_new(
+                        a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, tolerance);
+                }
+            }
 
             // Only perform a second iteration if toi == 0.
             // WARNING: This option assumes the initial distance is not zero.
-        } while (no_zero_toi && no_zero_toi_iter < MAX_NO_ZERO_TOI_ITER
+        } while (no_zero_toi && ++no_zero_toi_iter < MAX_NO_ZERO_TOI_ITER
                  && tmp_is_impacting && toi == 0);
         assert(!no_zero_toi || !is_impacting || toi != 0);
 
@@ -404,11 +408,11 @@ namespace inclusion_ccd
         const Vector3d &face_vertex0_end,
         const Vector3d &face_vertex1_end,
         const Vector3d &face_vertex2_end,
-        const std::array<Scalar, 3> &err,
-        const Scalar ms,
+        const std::array<Scalar, 3> &err_in,
+        const Scalar ms_in,
         Scalar &toi,
-        Scalar tolerance,
-        Scalar t_max,
+        const Scalar tolerance_in,
+        const Scalar t_max_in,
         const int max_itr,
         Scalar &output_tolerance,
         const int CCD_TYPE,
@@ -417,63 +421,68 @@ namespace inclusion_ccd
         const int MAX_NO_ZERO_TOI_ITER = std::numeric_limits<int>::max();
         // unsigned so can be larger than MAX_NO_ZERO_TOI_ITER
         unsigned int no_zero_toi_iter = 0;
+
         bool is_impacting, tmp_is_impacting;
-		Scalar tolerance_in = tolerance;
-		Scalar ms_in = ms;
+
+        // Mutable copies for no_zero_toi
+        Scalar t_max = t_max_in;
+        Scalar tolerance = tolerance_in;
+        Scalar ms = ms_in;
+
+        Vector3d tol = compute_face_vertex_tolerance_3d_new(
+            vertex_start, face_vertex0_start, face_vertex1_start,
+            face_vertex2_start, vertex_end, face_vertex0_end, face_vertex1_end,
+            face_vertex2_end, tolerance);
+
+        //////////////////////////////////////////////////////////
+        // this is the error of the whole mesh
+        std::array<Scalar, 3> err;
+        if (err_in[0] < 0)
+        { // if error[0]<0, means we need to calculate error here
+            std::vector<Vector3d> vlist;
+            vlist.emplace_back(vertex_start);
+            vlist.emplace_back(face_vertex0_start);
+            vlist.emplace_back(face_vertex1_start);
+            vlist.emplace_back(face_vertex2_start);
+
+            vlist.emplace_back(vertex_end);
+            vlist.emplace_back(face_vertex0_end);
+            vlist.emplace_back(face_vertex1_end);
+            vlist.emplace_back(face_vertex2_end);
+            bool use_ms = ms > 0;
+            err = get_numerical_error(vlist, true, use_ms);
+        }
+        else
+        {
+            err = err_in;
+        }
+        //////////////////////////////////////////////////////////
+
         do
         {
-            Vector3d tol = compute_face_vertex_tolerance_3d_new(
-                vertex_start, face_vertex0_start, face_vertex1_start,
-                face_vertex2_start, vertex_end, face_vertex0_end,
-                face_vertex1_end, face_vertex2_end, tolerance_in);
-
-            //////////////////////////////////////////////////////////
-            // this is the error of the whole mesh
-            std::array<Scalar, 3> err1;
-            if (err[0] < 0)
-            { // if error[0]<0, means we need to calculate error here
-                std::vector<Vector3d> vlist;
-                vlist.emplace_back(vertex_start);
-                vlist.emplace_back(face_vertex0_start);
-                vlist.emplace_back(face_vertex1_start);
-                vlist.emplace_back(face_vertex2_start);
-
-                vlist.emplace_back(vertex_end);
-                vlist.emplace_back(face_vertex0_end);
-                vlist.emplace_back(face_vertex1_end);
-                vlist.emplace_back(face_vertex2_end);
-                bool use_ms = ms > 0;
-                err1 = get_numerical_error(vlist, true, use_ms);
-            }
-            else
-            {
-                err1 = err;
-            }
-            //////////////////////////////////////////////////////////
-
             // 0 is normal ccd, and
             // 1 is ccd with input time interval upper bound, using real tolerance, max_itr and horizontal tree.
             if (CCD_TYPE == 0)
             {
-                tmp_is_impacting = interval_root_finder_double_normalCCD(
-                    tol, toi, true, err1, ms_in, vertex_start, face_vertex0_start,
+                // no handling for zero toi
+                return interval_root_finder_double_normalCCD(
+                    tol, toi, true, err, ms, vertex_start, face_vertex0_start,
                     face_vertex1_start, face_vertex2_start, vertex_end,
                     face_vertex0_end, face_vertex1_end, face_vertex2_end);
-				return tmp_is_impacting;
             }
             else
             {
                 assert(CCD_TYPE == 1);
                 assert(t_max >= 0 && t_max <= 1);
                 tmp_is_impacting = interval_root_finder_double_horizontal_tree(
-                    tol, tolerance_in, toi, true, err1, ms_in, vertex_start,
+                    tol, tolerance, toi, true, err, ms, vertex_start,
                     face_vertex0_start, face_vertex1_start, face_vertex2_start,
                     vertex_end, face_vertex0_end, face_vertex1_end,
                     face_vertex2_end, t_max, max_itr, output_tolerance);
             }
             assert(!tmp_is_impacting || toi >= 0);
 
-            if (no_zero_toi_iter == 0)
+            if (t_max == t_max_in)
             {
                 // This will be the final output because we might need to
                 // perform CCD again if the toi is zero. In which case we will
@@ -485,32 +494,37 @@ namespace inclusion_ccd
                 toi = tmp_is_impacting ? toi : t_max;
             }
 
-			// This modification is for CCD-filtered line-search (e.g., IPC)
-			// strategies for dealing with toi = 0: 
-			// 1. shrink t_max (when reaches max_itr), 
-			// 2. shrink tolerance (when not reach max_itr and tolerance is big) or
-			// ms (when tolerance is too small comparing with ms)
-			if (tmp_is_impacting && toi == 0&& no_zero_toi) {
+            // This modification is for CCD-filtered line-search (e.g., IPC)
+            // strategies for dealing with toi = 0:
+            // 1. shrink t_max (when reaches max_itr),
+            // 2. shrink tolerance (when not reach max_itr and tolerance is big) or
+            // ms (when tolerance is too small comparing with ms)
+            if (tmp_is_impacting && toi == 0 && no_zero_toi)
+            {
+                if (output_tolerance > tolerance)
+                {
+                    // reaches max_itr, so shrink t_max to return a more accurate result to reach target tolerance.
+                    t_max *= 0.9;
+                }
+                else if (10 * tolerance < ms)
+                {
+                    ms *= 0.5; // ms is too large, shrink it
+                }
+                else
+                {
+                    tolerance *= 0.5; // tolerance is too large, shrink it
 
-				// meaning reaches max_itr, need to shrink the t_max to return a more accurate result to reach target tolerance.
-				if (output_tolerance > tolerance_in) {
-					t_max *= 0.9;
-				}
-				else {// meaning the given tolerance or ms is too large. need to shrink them, 
-					if (10 * tolerance_in < ms_in) {// ms is too large, shrink it
-						ms_in *= 0.5;
-					}
-					else {// tolerance is too large, shrink it
-						tolerance_in *= 0.5;
-					}
-				}
-			}
-
-            no_zero_toi_iter++;
+                    // recompute this
+                    tol = compute_face_vertex_tolerance_3d_new(
+                        vertex_start, face_vertex0_start, face_vertex1_start,
+                        face_vertex2_start, vertex_end, face_vertex0_end,
+                        face_vertex1_end, face_vertex2_end, tolerance);
+                }
+            }
 
             // Only perform a second iteration if toi == 0.
             // WARNING: This option assumes the initial distance is not zero.
-        } while (no_zero_toi && no_zero_toi_iter < MAX_NO_ZERO_TOI_ITER
+        } while (no_zero_toi && ++no_zero_toi_iter < MAX_NO_ZERO_TOI_ITER
                  && tmp_is_impacting && toi == 0);
         assert(!no_zero_toi || !is_impacting || toi != 0);
 
