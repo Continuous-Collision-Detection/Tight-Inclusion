@@ -1,6 +1,6 @@
 #pragma once
 #include <Eigen/Core>
-#define CHECK_QUEUE_SIZE
+//#define CHECK_QUEUE_SIZE
 //#define TI_LIMIT_QUEUE_SIZE
 
 #ifdef TI_LIMIT_QUEUE_SIZE

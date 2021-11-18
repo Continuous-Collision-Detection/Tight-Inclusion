@@ -50,7 +50,7 @@ void case_check()
                   << std::endl;
     }
 #ifdef CHECK_QUEUE_SIZE
-    std::cout << "queue size max " << return_queue_size() << std::endl;
+    //std::cout << "queue size max " << return_queue_size() << std::endl;
 #endif
 }
 
