@@ -36,12 +36,12 @@ namespace inclusion_ccd
     Scalar get_max_axis_diff(
         const std::array<Vector3d, 2> &b1, const std::array<Vector3d, 2> &b2)
     {
-        return std::max({
+        return std::max({{
             (b1[1] - b1[0]).maxCoeff(),
             (b2[1] - b2[0]).maxCoeff(),
             (b2[0] - b1[1]).cwiseAbs().maxCoeff(),
             (b1[0] - b2[1]).cwiseAbs().maxCoeff(),
-        });
+        }});
     }
 
     inline Scalar max_linf_4(
@@ -55,10 +55,10 @@ namespace inclusion_ccd
         const Vector3d &p4e)
     {
         return std::max(
-            {(p1e - p1).lpNorm<Eigen::Infinity>(),
-             (p2e - p2).lpNorm<Eigen::Infinity>(),
-             (p3e - p3).lpNorm<Eigen::Infinity>(),
-             (p4e - p4).lpNorm<Eigen::Infinity>()});
+            {{(p1e - p1).lpNorm<Eigen::Infinity>(),
+              (p2e - p2).lpNorm<Eigen::Infinity>(),
+              (p3e - p3).lpNorm<Eigen::Infinity>(),
+              (p4e - p4).lpNorm<Eigen::Infinity>()}});
     }
 
     Vector3d compute_face_vertex_tolerance_3d_new(
