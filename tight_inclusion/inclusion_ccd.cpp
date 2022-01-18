@@ -28,8 +28,8 @@ namespace inclusion_ccd
         const Vector3d &p3)
     {
         return {
-            p0.cwiseMin(p1).cwiseMin(p2).cwiseMin(p3),
-            p0.cwiseMax(p1).cwiseMax(p2).cwiseMax(p3)};
+            {p0.cwiseMin(p1).cwiseMin(p2).cwiseMin(p3),
+             p0.cwiseMax(p1).cwiseMax(p2).cwiseMax(p3)}};
     }
 
     // calculate maximum x, y and z diff
