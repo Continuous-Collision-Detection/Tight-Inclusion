@@ -140,15 +140,13 @@ target_compile_features(tight_inclusion PUBLIC cxx_std_17)
 
 if(TIGHT_INCLUSION_TOPLEVEL_PROJECT)
     add_executable(Tight_Inclusion_bin "app/main.cpp")
-    if (TIGHT_INCLUSION_WITH_GMP)
-        target_sources(Tight_Inclusion_bin PUBLIC "app/read_rational_csv.cpp")
-    endif()
     target_link_libraries(Tight_Inclusion_bin PUBLIC tight_inclusion)
 
     set(TIGHT_INCLUSION_SAMPLE_QUERIES_DIR "${PROJECT_SOURCE_DIR}/sample-queries")
     include(sample_queries)
 
     if (TIGHT_INCLUSION_WITH_TESTS)
+        target_sources(Tight_Inclusion_bin PUBLIC "app/read_rational_csv.cpp")
         target_compile_definitions(Tight_Inclusion_bin PUBLIC TIGHT_INCLUSION_RUN_EXAMPLES)
         target_compile_definitions(Tight_Inclusion_bin PUBLIC
             TIGHT_INCLUSION_SAMPLE_QUERIES_DIR="${TIGHT_INCLUSION_SAMPLE_QUERIES_DIR}/")
