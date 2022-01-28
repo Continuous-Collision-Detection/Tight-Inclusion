@@ -22,10 +22,17 @@
 #endif
 #include <cstddef>
 
-namespace inclusion_ccd
-{
-    class Timer
-    {
+////////////////////////////////////////////////////////////////////////////////
+
+#ifdef TIGHT_INCLUSION_USE_TIMER
+#define TIGHT_INCLUSION_SCOPED_TIMER(total_time)                               \
+    ticcd::ScopedTimer __tight_inclusion_timer(total_time)
+#else
+#define TIGHT_INCLUSION_SCOPED_TIMER(total_time)
+#endif
+
+namespace ticcd {
+    class Timer {
     public:
         // default constructor
         Timer()
@@ -62,8 +69,7 @@ namespace inclusion_ccd
             uint64_t difference = endTime - startTime;
             static double conversion = 0.0;
 
-            if (conversion == 0.0)
-            {
+            if (conversion == 0.0) {
                 mach_timebase_info_data_t info;
                 kern_return_t err = mach_timebase_info(&info);
 
@@ -163,4 +169,36 @@ namespace inclusion_ccd
         timeval endCount;
 #endif
     };
-} // namespace inclusion_ccd
+
+    class ScopedTimer {
+    public:
+        ScopedTimer() : m_total_time(nullptr) { start(); }
+
+        ScopedTimer(double &total_time) : m_total_time(&total_time) { start(); }
+
+        virtual ~ScopedTimer() { stop(); }
+
+        inline void start() { m_timer.start(); }
+
+        inline void stop()
+        {
+            m_timer.stop();
+            if (m_total_time) {
+                *m_total_time += getElapsedTimeInMicroSec();
+            }
+        }
+
+        inline double getElapsedTimeInMicroSec()
+        {
+            return m_timer.getElapsedTimeInMicroSec();
+        }
+
+        inline const Timer &timer() { return m_timer; }
+
+    protected:
+        std::string m_msg;
+        Timer m_timer;
+        double *m_total_time;
+    };
+
+} // namespace ticcd
