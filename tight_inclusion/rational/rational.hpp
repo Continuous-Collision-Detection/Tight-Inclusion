@@ -1,19 +1,11 @@
 #pragma once
-#ifdef TIGHT_INCLUSION_RUN_EXAMPLES
-#define TIGHT_INCLUSION_ENABLE_GMP
-#endif
-#ifdef TIGHT_INCLUSION_USE_GMP
-#define TIGHT_INCLUSION_ENABLE_GMP
-#endif
 
-#ifdef TIGHT_INCLUSION_ENABLE_GMP
 #include <gmp.h>
 #include <iostream>
-#include <tight_inclusion/Types.hpp>
-namespace inclusion_ccd
-{
-    class Rational
-    {
+#include <tight_inclusion/types.hpp>
+
+namespace ticcd {
+    class Rational {
     public:
         mpq_t value;
 
@@ -263,6 +255,10 @@ namespace inclusion_ccd
             return os;
         }
     };
-} // namespace inclusion_ccd
 
-#endif
+    typedef Eigen::Matrix<Rational, 3, 1, Eigen::ColMajor | Eigen::DontAlign>
+        Vector3r;
+    typedef Eigen::Array<Rational, 3, 1, Eigen::ColMajor | Eigen::DontAlign>
+        Array3r;
+
+} // namespace ticcd

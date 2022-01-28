@@ -1,11 +1,10 @@
 //#include <immintrin.h>
-#include <stdio.h>
 #include <array>
 
 #include <tight_inclusion/avx.hpp>
 
-namespace inclusion_ccd
-{
+namespace ticcd {
+
     // __m512d function_f_ee_vector(
     //     __m512d a0s,__m512d a1s,__m512d b0s,__m512d b1s,
     //     __m512d a0e,__m512d a1e,__m512d b0e,__m512d b1e,
@@ -44,14 +43,6 @@ namespace inclusion_ccd
     //         return _mm512_sub_pd(edge1_vertex,edge0_vertex);
     //     }
 
-    // calculate a*(2^b)
-    long power(const long a, const int b)
-    {
-        // The fast bit shifting power trick only works if b is not too larger.
-        assert(b < 8 * sizeof(long) - 1);
-        // WARNING: Technically this can still fail with `b < 8 * sizeof(long) - 1` if `a > 1`.
-        return a << b;
-    }
     std::array<Scalar, 8> function_ee(
         const Scalar &a0s,
         const Scalar &a1s,
@@ -69,8 +60,7 @@ namespace inclusion_ccd
         const std::array<Scalar, 8> &v_dw)
     {
         std::array<Scalar, 8> rst;
-        for (int i = 0; i < 8; i++)
-        {
+        for (int i = 0; i < 8; i++) {
             Scalar edge0_vertex0 = (a0e - a0s) * t_up[i] / t_dw[i] + a0s;
             Scalar edge0_vertex1 = (a1e - a1s) * t_up[i] / t_dw[i] + a1s;
             Scalar edge1_vertex0 = (b0e - b0s) * t_up[i] / t_dw[i] + b0s;
@@ -104,8 +94,7 @@ namespace inclusion_ccd
         const std::array<Scalar, 8> &v_dw)
     {
         std::array<Scalar, 8> rst;
-        for (int i = 0; i < 8; i++)
-        {
+        for (int i = 0; i < 8; i++) {
             Scalar v = (ve - vs) * t_up[i] / t_dw[i] + vs;
             Scalar t0 = (t0e - t0s) * t_up[i] / t_dw[i] + t0s;
             Scalar t1 = (t1e - t1s) * t_up[i] / t_dw[i] + t1s;
@@ -117,12 +106,6 @@ namespace inclusion_ccd
         return rst;
     }
 
-    // std::array<Scalar,8> Scalar_to_array(const Scalar& a){
-    //     std::array<Scalar,8> rst;
-    //     for(int i=0;i<8;i++){
-
-    //     }
-    // }
     void convert_tuv_to_array(
         const Interval3 &itv,
         std::array<Scalar, 8> &t_up,
@@ -135,20 +118,18 @@ namespace inclusion_ccd
         // t order: 0,0,0,0,1,1,1,1
         // u order: 0,0,1,1,0,0,1,1
         // v order: 0,1,0,1,0,1,0,1
-        Scalar t0_up = itv[0].first.first,
-               t0_dw = power(1, itv[0].first.second),
-               t1_up = itv[0].second.first,
-               t1_dw = power(1, itv[0].second.second),
-
-               u0_up = itv[1].first.first,
-               u0_dw = power(1, itv[1].first.second),
-               u1_up = itv[1].second.first,
-               u1_dw = power(1, itv[1].second.second),
-
-               v0_up = itv[2].first.first,
-               v0_dw = power(1, itv[2].first.second),
-               v1_up = itv[2].second.first,
-               v1_dw = power(1, itv[2].second.second);
+        const Scalar t0_up = itv[0].lower.numerator,
+                     t0_dw = itv[0].lower.denominator(),
+                     t1_up = itv[0].upper.numerator,
+                     t1_dw = itv[0].upper.denominator(),
+                     u0_up = itv[1].lower.numerator,
+                     u0_dw = itv[1].lower.denominator(),
+                     u1_up = itv[1].upper.numerator,
+                     u1_dw = itv[1].upper.denominator(),
+                     v0_up = itv[2].lower.numerator,
+                     v0_dw = itv[2].lower.denominator(),
+                     v1_up = itv[2].upper.numerator,
+                     v1_dw = itv[2].upper.denominator();
         t_up = {{t0_up, t0_up, t0_up, t0_up, t1_up, t1_up, t1_up, t1_up}};
         t_dw = {{t0_dw, t0_dw, t0_dw, t0_dw, t1_dw, t1_dw, t1_dw, t1_dw}};
         u_up = {{u0_up, u0_up, u1_up, u1_up, u0_up, u0_up, u1_up, u1_up}};
@@ -237,45 +218,4 @@ namespace inclusion_ccd
     //     return v;
     // }
 
-    // void test(){
-    //     __m512d a=_mm512_setr_pd(3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0);
-    //     __m512d b=_mm512_setr_pd(1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0);
-    //     __m512d c=_mm512_setr_pd(4.0,4.0,4.0,4.0,8.0,8.0,8.0,8.0);
-    //     __m512d rst=function_test(a,b,c);
-    //     double *ptr = (double*)&rst;
-    //     for(int i=0;i<8;i++){
-    //         //printf("p%i %f\n", i, ptr[i]);
-    // double test_(){
-    //     std::array<double,8> a0s;
-    // std::array<double,8> a1s;
-    // std::array<double,8> b0s;
-    // std::array<double,8> b1s;
-    // std::array<double,8> a0e;
-    // std::array<double,8> a1e;
-    // std::array<double,8> b0e;
-    // std::array<double,8> b1e;
-    // std::array<double,8> t_up;
-    // std::array<double,8> t_dw;
-    // std::array<double,8> u_up;
-    // std::array<double,8> u_dw;
-    // std::array<double,8> v_up;
-    // std::array<double,8> v_dw;
-
-    // auto x=function_ee(a0s,a1s,b0s,b1s,a0e,a1e,b0e,b1e,t_up,t_dw,u_up,u_dw,v_up,v_dw);
-    // return x[0]+x[7];
-    // }
-
-    //     }
-    //     printf("%f %f %f %f %f %f %f %f\n",
-    //     ptr[0], ptr[1], ptr[2], ptr[3], ptr[4], ptr[5], ptr[6], ptr[7]);
-    // }
-} // namespace inclusion_ccd
-
-// int main(){
-//     double sum=0;
-//     // for(long i=0;i<1e9;i++){
-//     //     sum+=test_();
-//     // }
-
-//     return sum;
-// }
+} // namespace ticcd
