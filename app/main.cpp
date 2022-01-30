@@ -11,6 +11,9 @@
 
 #include <tight_inclusion/rational/ccd.hpp>
 
+#include <filesystem>
+namespace fs = std::filesystem;
+
 #ifdef TIGHT_INCLUSION_RUN_EXAMPLES
 #include "read_rational_csv.hpp"
 #endif
@@ -113,18 +116,16 @@ void run_rational_data_single_method(
                                       : handcrafted_folders.size();
     const auto folders =
         is_simulation_data ? simulation_folders : handcrafted_folders;
-    sub_folder = is_edge_edge ? "/edge-edge/" : "/vertex-face/";
+    sub_folder = is_edge_edge ? "edge-edge" : "vertex-face";
     for (int fnbr = 0; fnbr < max_fnbr; fnbr++) {
-        for (int ff = 0; ff < 2; ff++) {
-            if (folders[fnbr] == "erleben-spike-hole" && ff == 1) {
-                continue;
-            }
+        fs::path dir = fs::path(root_path) / folders[fnbr] / sub_folder;
+        for (const auto &csv_file : fs::directory_iterator(dir)) {
 
             all_V = rational::read_rational_csv(
 #ifdef TIDBG
                 root_path + "/golf-ball/vertex-face/data_0_0.csv",
 #else
-                root_path + folders[fnbr] + sub_folder + fnames[ff],
+                csv_file.path().string(),
 #endif
                 results);
 
@@ -204,9 +205,7 @@ void run_rational_data_single_method(
                     } else {
                         new_false_negatives++;
 
-                        std::cout << "false negative, "
-                                  << root_path + folders[fnbr] + sub_folder
-                                         + fnames[ff]
+                        std::cout << "false negative, " << csv_file.path()
                                   << ", " << i << std::endl;
                         for (int j = 0; j < 8; j++) {
                             std::cout << "v" << j << " " << V(j, 0) << ", "
