@@ -142,8 +142,8 @@ namespace ticcd {
         const Scalar t_max_in,
         const int max_itr,
         Scalar &output_tolerance,
-        const int CCD_TYPE,
-        bool no_zero_toi)
+        bool no_zero_toi,
+        const CCDRootFindingMethod ccd_method)
     {
         const int MAX_NO_ZERO_TOI_ITER = std::numeric_limits<int>::max();
         // unsigned so can be larger than MAX_NO_ZERO_TOI_ITER
@@ -182,19 +182,17 @@ namespace ticcd {
         //////////////////////////////////////////////////////////
 
         do {
-            // 0 is normal ccd, and
-            // 1 is ccd with input time interval upper bound, using real tolerance, max_itr and horizontal tree.
-            if (CCD_TYPE == 0) {
+            switch (ccd_method) {
+            case CCDRootFindingMethod::DEPTH_FIRST_SEARCH:
                 // no handling for zero toi
-                return edge_edge_interval_root_finder_normalCCD(
+                return edge_edge_interval_root_finder_DFS(
                     a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, tol, err, ms, toi);
-            } else {
-                assert(CCD_TYPE == 1);
+            case CCDRootFindingMethod::BREADTH_FIRST_SEARCH:
                 assert(t_max >= 0 && t_max <= 1);
-                tmp_is_impacting =
-                    edge_edge_interval_root_finder_horizontal_tree(
-                        a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, tol, tolerance,
-                        err, ms, t_max, max_itr, toi, output_tolerance);
+                tmp_is_impacting = edge_edge_interval_root_finder_BFS(
+                    a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, tol, tolerance, err,
+                    ms, t_max, max_itr, toi, output_tolerance);
+                break;
             }
             assert(!tmp_is_impacting || toi >= 0);
 
@@ -251,8 +249,8 @@ namespace ticcd {
         const Scalar t_max_in,
         const int max_itr,
         Scalar &output_tolerance,
-        const int CCD_TYPE,
-        bool no_zero_toi)
+        bool no_zero_toi,
+        const CCDRootFindingMethod ccd_method)
     {
         const int MAX_NO_ZERO_TOI_ITER = std::numeric_limits<int>::max();
         // unsigned so can be larger than MAX_NO_ZERO_TOI_ITER
@@ -293,23 +291,21 @@ namespace ticcd {
         //////////////////////////////////////////////////////////
 
         do {
-            // 0 is normal ccd, and
-            // 1 is ccd with input time interval upper bound, using real tolerance, max_itr and horizontal tree.
-            if (CCD_TYPE == 0) {
+            switch (ccd_method) {
+            case CCDRootFindingMethod::DEPTH_FIRST_SEARCH:
                 // no handling for zero toi
-                return vertex_face_interval_root_finder_normalCCD(
+                return vertex_face_interval_root_finder_DFS(
                     vertex_start, face_vertex0_start, face_vertex1_start,
                     face_vertex2_start, vertex_end, face_vertex0_end,
                     face_vertex1_end, face_vertex2_end, tol, err, ms, toi);
-            } else {
-                assert(CCD_TYPE == 1);
+            case CCDRootFindingMethod::BREADTH_FIRST_SEARCH:
                 assert(t_max >= 0 && t_max <= 1);
-                tmp_is_impacting =
-                    vertex_face_interval_root_finder_horizontal_tree(
-                        vertex_start, face_vertex0_start, face_vertex1_start,
-                        face_vertex2_start, vertex_end, face_vertex0_end,
-                        face_vertex1_end, face_vertex2_end, tol, tolerance, err,
-                        ms, t_max, max_itr, toi, output_tolerance);
+                tmp_is_impacting = vertex_face_interval_root_finder_BFS(
+                    vertex_start, face_vertex0_start, face_vertex1_start,
+                    face_vertex2_start, vertex_end, face_vertex0_end,
+                    face_vertex1_end, face_vertex2_end, tol, tolerance, err, ms,
+                    t_max, max_itr, toi, output_tolerance);
+                break;
             }
             assert(!tmp_is_impacting || toi >= 0);
 

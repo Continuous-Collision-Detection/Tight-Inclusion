@@ -216,7 +216,7 @@ namespace ticcd {
     // be detected at t=0 of the next time step, but still may cause problems in
     // line-search based physical simulation
     template <bool check_vf>
-    bool interval_root_finder_normalCCD(
+    bool interval_root_finder_DFS(
         const Vector3 &a0s,
         const Vector3 &a1s,
         const Vector3 &b0s,
@@ -321,7 +321,7 @@ namespace ticcd {
 
     // when check_t_overlap = false, check [0,1]x[0,1]x[0,1]; otherwise, check [0, t_max]x[0,1]x[0,1]
     template <bool check_vf>
-    bool interval_root_finder_horizontal_tree(
+    bool interval_root_finder_BFS(
         const Vector3 &a0s,
         const Vector3 &a1s,
         const Vector3 &b0s,
@@ -550,7 +550,7 @@ namespace ticcd {
     }
 
     template <bool check_vf>
-    bool interval_root_finder_horizontal_tree(
+    bool interval_root_finder_BFS(
         const Vector3 &a0s,
         const Vector3 &a1s,
         const Vector3 &b0s,
@@ -572,7 +572,7 @@ namespace ticcd {
         const Interval zero_to_one = Interval(NumCCD(0, 0), NumCCD(1, 0));
         Interval3 iset = {{zero_to_one, zero_to_one, zero_to_one}};
 
-        return interval_root_finder_horizontal_tree<check_vf>(
+        return interval_root_finder_BFS<check_vf>(
             a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, iset, tol,
             co_domain_tolerance, err, ms, max_time, max_itr, toi,
             output_tolerance);
@@ -628,7 +628,7 @@ namespace ticcd {
     //////////////////////////////////////////////////////////////////////////
     // Template instantiation
     //////////////////////////////////////////////////////////////////////////
-    bool edge_edge_interval_root_finder_normalCCD(
+    bool edge_edge_interval_root_finder_DFS(
         const Vector3 &a0s,
         const Vector3 &a1s,
         const Vector3 &b0s,
@@ -642,11 +642,11 @@ namespace ticcd {
         const Scalar ms,
         Scalar &toi)
     {
-        return interval_root_finder_normalCCD<false>(
+        return interval_root_finder_DFS<false>(
             a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, tol, err, ms, toi);
     }
 
-    bool vertex_face_interval_root_finder_normalCCD(
+    bool vertex_face_interval_root_finder_DFS(
         const Vector3 &vertex_start,
         const Vector3 &face_vertex0_start,
         const Vector3 &face_vertex1_start,
@@ -660,13 +660,13 @@ namespace ticcd {
         const Scalar ms,
         Scalar &toi)
     {
-        return interval_root_finder_normalCCD<true>(
+        return interval_root_finder_DFS<true>(
             vertex_start, face_vertex0_start, face_vertex1_start,
             face_vertex2_start, vertex_end, face_vertex0_end, face_vertex1_end,
             face_vertex2_end, tol, err, ms, toi);
     }
 
-    bool edge_edge_interval_root_finder_horizontal_tree(
+    bool edge_edge_interval_root_finder_BFS(
         const Vector3 &a0s,
         const Vector3 &a1s,
         const Vector3 &b0s,
@@ -685,12 +685,12 @@ namespace ticcd {
         Scalar &toi,
         Scalar &output_tolerance)
     {
-        return interval_root_finder_horizontal_tree<false>(
+        return interval_root_finder_BFS<false>(
             a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, tol, co_domain_tolerance,
             err, ms, max_time, max_itr, toi, output_tolerance);
     }
 
-    bool vertex_face_interval_root_finder_horizontal_tree(
+    bool vertex_face_interval_root_finder_BFS(
         const Vector3 &vertex_start,
         const Vector3 &face_vertex0_start,
         const Vector3 &face_vertex1_start,
@@ -709,7 +709,7 @@ namespace ticcd {
         Scalar &toi,
         Scalar &output_tolerance)
     {
-        return interval_root_finder_horizontal_tree<true>(
+        return interval_root_finder_BFS<true>(
             vertex_start, face_vertex0_start, face_vertex1_start,
             face_vertex2_start, vertex_end, face_vertex0_end, face_vertex1_end,
             face_vertex2_end, tol, co_domain_tolerance, err, ms, max_time,

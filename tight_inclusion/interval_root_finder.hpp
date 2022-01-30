@@ -12,7 +12,7 @@ namespace ticcd {
     // be detected at t=0 of the next time step, but still may cause problems in
     // line-search based physical simulation
 
-    bool edge_edge_interval_root_finder_normalCCD(
+    bool edge_edge_interval_root_finder_DFS(
         const Vector3 &a0s,
         const Vector3 &a1s,
         const Vector3 &b0s,
@@ -26,7 +26,7 @@ namespace ticcd {
         const Scalar ms,
         Scalar &toi);
 
-    bool vertex_face_interval_root_finder_normalCCD(
+    bool vertex_face_interval_root_finder_DFS(
         const Vector3 &vertex_start,
         const Vector3 &face_vertex0_start,
         const Vector3 &face_vertex1_start,
@@ -48,7 +48,7 @@ namespace ticcd {
     // 0<=max_time <=1
     // tree searching order is horizontal
 
-    bool edge_edge_interval_root_finder_horizontal_tree(
+    bool edge_edge_interval_root_finder_BFS(
         const Vector3 &a0s,
         const Vector3 &a1s,
         const Vector3 &b0s,
@@ -67,7 +67,7 @@ namespace ticcd {
         Scalar &toi,
         Scalar &output_tolerance);
 
-    bool vertex_face_interval_root_finder_horizontal_tree(
+    bool vertex_face_interval_root_finder_BFS(
         const Vector3 &vertex_start,
         const Vector3 &face_vertex0_start,
         const Vector3 &face_vertex1_start,

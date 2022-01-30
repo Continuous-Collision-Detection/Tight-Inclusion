@@ -9,6 +9,11 @@ namespace ticcd {
     static constexpr bool DEFAULT_NO_ZERO_TOI = false;
     static constexpr Scalar DEFAULT_CCD_DISTANCE_TOL = 1e-6;
 
+    enum class CCDRootFindingMethod {
+        DEPTH_FIRST_SEARCH,
+        BREADTH_FIRST_SEARCH,
+    };
+
     /// @brief This function can give you the answer of continous collision detection with minimum
     /// seperation, and the earlist collision time if collision happens.
     ///
@@ -22,9 +27,7 @@ namespace ticcd {
     ///                    precision. please set max_itr either a big number like 1e7, or -1 which means it will not be terminated
     ///                    earlier and the precision will be user-defined precision -- tolerance.
     /// @param[out] output_tolerance The precision under max_itr ( > 0). if max_itr < 0, output_tolerance = tolerance;
-    /// @param[in] CCD_TYPE A switch to choose root-finding methods.
-    ///                     0 is normal ccd,
-    ///                     1 is ccd with input time interval upper bound, using real tolerance, max_itr and horizontal tree.
+    /// @param[in] no_zero_toi Refine further if a zero toi is produced (assumes not initially in contact).
     bool edgeEdgeCCD(
         const Vector3 &a0_start,
         const Vector3 &a1_start,
@@ -41,8 +44,9 @@ namespace ticcd {
         const Scalar t_max,
         const int max_itr,
         Scalar &output_tolerance,
-        const int CCD_TYPE = 1,
-        bool no_zero_toi = DEFAULT_NO_ZERO_TOI);
+        bool no_zero_toi = DEFAULT_NO_ZERO_TOI,
+        const CCDRootFindingMethod ccd_method =
+            CCDRootFindingMethod::BREADTH_FIRST_SEARCH);
 
     /// This function can give you the answer of continous collision detection with minimum
     /// seperation, and the earlist collision time if collision happens.
@@ -57,9 +61,7 @@ namespace ticcd {
     ///                    precision. please set max_itr either a big number like 1e7, or -1 which means it will not be terminated
     ///                    earlier and the precision will be user-defined precision -- tolerance.
     /// @param[out] output_tolerance The precision under max_itr ( > 0). if max_itr < 0, output_tolerance = tolerance;
-    /// @param[in] CCD_TYPE A switch to choose root-finding methods.
-    ///                     0 is normal ccd,
-    ///                     1 is ccd with input time interval upper bound, using real tolerance, max_itr and horizontal tree.
+    /// @param[in] no_zero_toi Refine further if a zero toi is produced (assumes not initially in contact).
     bool vertexFaceCCD(
         const Vector3 &vertex_start,
         const Vector3 &face_vertex0_start,
@@ -76,8 +78,9 @@ namespace ticcd {
         const Scalar t_max,
         const int max_itr,
         Scalar &output_tolerance,
-        const int CCD_TYPE = 1,
-        bool no_zero_toi = DEFAULT_NO_ZERO_TOI);
+        bool no_zero_toi = DEFAULT_NO_ZERO_TOI,
+        const CCDRootFindingMethod ccd_method =
+            CCDRootFindingMethod::BREADTH_FIRST_SEARCH);
 
     Array3 compute_face_vertex_tolerances(
         const Vector3 &vs,
