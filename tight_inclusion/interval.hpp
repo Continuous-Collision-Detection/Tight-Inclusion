@@ -15,7 +15,7 @@ namespace ticcd {
     inline uint64_t pow2(const uint8_t exponent) { return power(1l, exponent); }
 
     // return power t. n=result*2^t
-    long reduction(const long n, long &result);
+    uint8_t reduction(const uint64_t n, uint64_t &result);
 
     //<k,n> pair present a number k/pow(2,n)
     struct NumCCD {

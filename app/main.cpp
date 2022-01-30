@@ -9,12 +9,11 @@
 #include <tight_inclusion/ccd.hpp>
 #include <tight_inclusion/timer.hpp>
 
-#include <tight_inclusion/rational/ccd.hpp>
-
 #include <filesystem>
 namespace fs = std::filesystem;
 
 #ifdef TIGHT_INCLUSION_RUN_EXAMPLES
+#include <tight_inclusion/rational/ccd.hpp>
 #include "read_rational_csv.hpp"
 #endif
 

@@ -16,9 +16,9 @@ namespace ticcd {
     }
 
     // return power t. n=result*2^t
-    uint64_t reduction(const uint64_t n, uint64_t &result)
+    uint8_t reduction(const uint64_t n, uint64_t &result)
     {
-        int t = 0;
+        uint8_t t = 0;
         result = n;
         while (result != 0 && (result & 1) == 0) {
             result >>= 1;
@@ -40,7 +40,7 @@ namespace ticcd {
         x.val = p_x;
 
         denom_power = abs(x.parts.exponent - 127) + 23;
-        numerator = x.parts.mantisa | (1l << 23);
+        numerator = x.parts.mantisa | (uint32_t(1) << 23);
         for (int i = 0; i < 23; i++) {
             if ((numerator & 1) == 0) {
                 numerator >>= 1;
@@ -66,7 +66,7 @@ namespace ticcd {
         x.val = p_x;
 
         denom_power = abs(x.parts.exponent - 1023) + 52;
-        numerator = x.parts.mantisa | (1l << 52);
+        numerator = x.parts.mantisa | (uint64_t(1) << 52);
         for (int i = 0; i < 52; i++) {
             if ((numerator & 1) == 0) {
                 numerator >>= 1;
@@ -89,11 +89,11 @@ namespace ticcd {
             result.denom_power = n2 - reduction(k1 + k2, result.numerator);
         } else if (n2 > n1) {
             result.numerator = k1 * pow2(n2 - n1) + k2;
-            assert(k % 2 == 1);
+            assert(result.numerator % 2 == 1);
             result.denom_power = n2;
         } else { // n2 < n1
             result.numerator = k1 + k2 * pow2(n1 - n2);
-            assert(k % 2 == 1);
+            assert(result.numerator % 2 == 1);
             result.denom_power = n1;
         }
         return result;
