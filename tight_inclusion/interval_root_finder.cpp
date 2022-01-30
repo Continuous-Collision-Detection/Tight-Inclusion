@@ -235,8 +235,8 @@ namespace ticcd {
         };
 
         //build interval set [0,1]x[0,1]x[0,1]
-        Interval3 iset =
-            Interval3::Constant(Interval(NumCCD(0, 0), NumCCD(1, 0)));
+        const Interval zero_to_one = Interval(NumCCD(0, 0), NumCCD(1, 0));
+        Interval3 iset = {{zero_to_one, zero_to_one, zero_to_one}};
 
         // Stack of intervals and the last split dimension
         // std::stack<std::pair<Interval3,int>> istack;
@@ -570,8 +570,8 @@ namespace ticcd {
         Scalar &output_tolerance)
     {
         //build interval set [0,1]x[0,1]x[0,1]
-        Interval3 iset =
-            Interval3::Constant(Interval(NumCCD(0, 0), NumCCD(1, 0)));
+        const Interval zero_to_one = Interval(NumCCD(0, 0), NumCCD(1, 0));
+        Interval3 iset = {{zero_to_one, zero_to_one, zero_to_one}};
 
         return interval_root_finder_horizontal_tree<check_vf>(
             a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, iset, tol,
