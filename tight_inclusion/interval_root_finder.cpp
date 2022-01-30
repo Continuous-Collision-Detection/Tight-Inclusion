@@ -293,7 +293,7 @@ namespace ticcd {
                 widths = width(current);
             }
 
-            if ((widths.array() <= tol.array()).all() || box_in) {
+            if (box_in || (widths <= tol).all()) {
                 TOI = current[0].lower;
                 collision = true;
                 rnbr++;
@@ -453,8 +453,7 @@ namespace ticcd {
                 widths = width(current);
             }
 
-            bool tol_condition =
-                (true_tol.array() <= co_domain_tolerance).all();
+            bool tol_condition = (true_tol <= co_domain_tolerance).all();
 
             // Condition 1, stopping condition on t, u and v is satisfied. this is useless now since we have condition 2
             bool condition1 = (widths <= tol).all();
@@ -623,7 +622,7 @@ namespace ticcd {
         }
         Vector3 delta = max.cwiseMin(1);
         Scalar filter = check_vf ? vffilter : eefilter;
-        return filter * delta.cwiseProduct(delta).cwiseProduct(delta);
+        return filter * delta.array().pow(3);
     }
 
     //////////////////////////////////////////////////////////////////////////

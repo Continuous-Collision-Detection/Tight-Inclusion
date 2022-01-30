@@ -86,7 +86,7 @@ namespace ticcd {
         Scalar edge1_length =
             3 * max_linf_4(p000, p100, p110, p010, p001, p101, p111, p011);
 
-        return Vector3(
+        return Array3(
             std::min(distance_tolerance / dl, CCD_MAX_TIME_TOL),
             std::min(distance_tolerance / edge0_length, CCD_MAX_COORD_TOL),
             std::min(distance_tolerance / edge1_length, CCD_MAX_COORD_TOL));
@@ -306,8 +306,8 @@ namespace ticcd {
                 assert(t_max >= 0 && t_max <= 1);
                 tmp_is_impacting =
                     vertex_face_interval_root_finder_horizontal_tree(
-                    vertex_start, face_vertex0_start, face_vertex1_start,
-                    face_vertex2_start, vertex_end, face_vertex0_end,
+                        vertex_start, face_vertex0_start, face_vertex1_start,
+                        face_vertex2_start, vertex_end, face_vertex0_end,
                         face_vertex1_end, face_vertex2_end, tol, tolerance, err,
                         ms, t_max, max_itr, toi, output_tolerance);
             }
