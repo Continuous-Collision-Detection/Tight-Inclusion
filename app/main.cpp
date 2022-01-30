@@ -193,7 +193,7 @@ void run_rational_data_single_method(
 #endif
 
                 new_timing += timer.getElapsedTimeInMicroSec();
-                std::cout << total_number << "\r" << std::flush;
+                std::cerr << total_number << "\r" << std::flush;
 
                 if (expected_result) {
                     total_positives++;

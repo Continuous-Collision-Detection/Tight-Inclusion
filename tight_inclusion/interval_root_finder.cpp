@@ -303,7 +303,7 @@ namespace ticcd {
             }
 
             // find the next dimension to split
-            int split_i = find_next_split(widths.array(), tol.array());
+            int split_i = find_next_split(widths, tol);
 
             bool overflowed = split_and_push(
                 current, split_i,
@@ -529,7 +529,7 @@ namespace ticcd {
             }
 
             // find the next dimension to split
-            int split_i = find_next_split(widths.array(), tol.array());
+            int split_i = find_next_split(widths, tol);
 
             bool overflow = split_and_push(
                 current, split_i,
@@ -629,25 +629,92 @@ namespace ticcd {
     //////////////////////////////////////////////////////////////////////////
     // Template instantiation
     //////////////////////////////////////////////////////////////////////////
-    // clang-format off
-    template bool interval_root_finder_normalCCD<false>(
-        const Vector3&, const Vector3&, const Vector3&, const Vector3&,
-        const Vector3&, const Vector3&, const Vector3&, const Vector3&,
-        const Array3&, const Array3&, const Scalar, Scalar&);
-    template bool interval_root_finder_normalCCD<true>(
-        const Vector3&, const Vector3&, const Vector3&, const Vector3&,
-        const Vector3&, const Vector3&, const Vector3&, const Vector3&,
-        const Array3&, const Array3&, const Scalar, Scalar&);
-    template bool interval_root_finder_horizontal_tree<false>(
-        const Vector3&, const Vector3&, const Vector3&, const Vector3&,
-        const Vector3&, const Vector3&, const Vector3&, const Vector3&,
-        const Array3&, const Scalar, const Array3&, const Scalar, const Scalar,
-        const int, Scalar&, Scalar&);
-    template bool interval_root_finder_horizontal_tree<true>(
-        const Vector3&, const Vector3&, const Vector3&, const Vector3&,
-        const Vector3&, const Vector3&, const Vector3&, const Vector3&,
-        const Array3&, const Scalar, const Array3&, const Scalar, const Scalar,
-        const int, Scalar&, Scalar&);
-    // clang-format on
+    bool edge_edge_interval_root_finder_normalCCD(
+        const Vector3 &a0s,
+        const Vector3 &a1s,
+        const Vector3 &b0s,
+        const Vector3 &b1s,
+        const Vector3 &a0e,
+        const Vector3 &a1e,
+        const Vector3 &b0e,
+        const Vector3 &b1e,
+        const Array3 &tol,
+        const Array3 &err,
+        const Scalar ms,
+        Scalar &toi)
+    {
+        return interval_root_finder_normalCCD<false>(
+            a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, tol, err, ms, toi);
+    }
+
+    bool vertex_face_interval_root_finder_normalCCD(
+        const Vector3 &vertex_start,
+        const Vector3 &face_vertex0_start,
+        const Vector3 &face_vertex1_start,
+        const Vector3 &face_vertex2_start,
+        const Vector3 &vertex_end,
+        const Vector3 &face_vertex0_end,
+        const Vector3 &face_vertex1_end,
+        const Vector3 &face_vertex2_end,
+        const Array3 &tol,
+        const Array3 &err,
+        const Scalar ms,
+        Scalar &toi)
+    {
+        return interval_root_finder_normalCCD<true>(
+            vertex_start, face_vertex0_start, face_vertex1_start,
+            face_vertex2_start, vertex_end, face_vertex0_end, face_vertex1_end,
+            face_vertex2_end, tol, err, ms, toi);
+    }
+
+    bool edge_edge_interval_root_finder_horizontal_tree(
+        const Vector3 &a0s,
+        const Vector3 &a1s,
+        const Vector3 &b0s,
+        const Vector3 &b1s,
+        const Vector3 &a0e,
+        const Vector3 &a1e,
+        const Vector3 &b0e,
+        const Vector3 &b1e,
+        const Array3 &tol,
+        const Scalar co_domain_tolerance,
+        // this is the maximum error on each axis when calculating the vertices, err, aka, filter
+        const Array3 &err,
+        const Scalar ms,
+        const Scalar max_time,
+        const int max_itr,
+        Scalar &toi,
+        Scalar &output_tolerance)
+    {
+        return interval_root_finder_horizontal_tree<false>(
+            a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, tol, co_domain_tolerance,
+            err, ms, max_time, max_itr, toi, output_tolerance);
+    }
+
+    bool vertex_face_interval_root_finder_horizontal_tree(
+        const Vector3 &vertex_start,
+        const Vector3 &face_vertex0_start,
+        const Vector3 &face_vertex1_start,
+        const Vector3 &face_vertex2_start,
+        const Vector3 &vertex_end,
+        const Vector3 &face_vertex0_end,
+        const Vector3 &face_vertex1_end,
+        const Vector3 &face_vertex2_end,
+        const Array3 &tol,
+        const Scalar co_domain_tolerance,
+        // this is the maximum error on each axis when calculating the vertices, err, aka, filter
+        const Array3 &err,
+        const Scalar ms,
+        const Scalar max_time,
+        const int max_itr,
+        Scalar &toi,
+        Scalar &output_tolerance)
+    {
+        return interval_root_finder_horizontal_tree<true>(
+            vertex_start, face_vertex0_start, face_vertex1_start,
+            face_vertex2_start, vertex_end, face_vertex0_end, face_vertex1_end,
+            face_vertex2_end, tol, co_domain_tolerance, err, ms, max_time,
+            max_itr, toi, output_tolerance);
+    }
 
 } // namespace ticcd

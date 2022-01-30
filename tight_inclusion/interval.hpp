@@ -9,15 +9,15 @@ namespace ticcd {
     uint64_t power(const uint64_t a, const uint8_t b);
 
     // calculate 2^exponent
-    uint64_t pow2(const uint8_t exponent);
+    inline uint64_t pow2(const uint8_t exponent) { return power(1l, exponent); }
 
     // return power t. n=result*2^t
     long reduction(const long n, long &result);
 
     //<k,n> pair present a number k/pow(2,n)
     struct NumCCD {
-        uint64_t numerator = 0;
-        uint8_t denom_power = 0;
+        uint64_t numerator;
+        uint8_t denom_power;
 
         NumCCD() {}
 
@@ -74,21 +74,9 @@ namespace ticcd {
         std::pair<Interval, Interval> bisect() const;
 
         bool overlaps(const Scalar r1, const Scalar r2) const;
-
-        const NumCCD &operator[](int i) const
-        {
-            switch (i) {
-            case 0:
-                return lower;
-            case 1:
-                return upper;
-            default:
-                throw std::out_of_range("");
-            }
-        }
     };
 
-    typedef Eigen::Array<Interval, 3, 1> Interval3;
+    typedef std::array<Interval, 3> Interval3;
     Array3 width(const Interval3 &x);
 
 } // namespace ticcd

@@ -90,7 +90,7 @@ namespace ticcd {
         const Vector3 &f2e,
         const Scalar distance_tolerance = DEFAULT_CCD_DISTANCE_TOL);
 
-    Vector3 compute_edge_edge_tolerances(
+    Array3 compute_edge_edge_tolerances(
         const Vector3 &edge0_vertex0_start,
         const Vector3 &edge0_vertex1_start,
         const Vector3 &edge1_vertex0_start,

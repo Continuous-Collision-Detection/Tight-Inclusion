@@ -45,7 +45,7 @@ namespace ticcd::rational {
 
         std::array<RationalInterval, 3> toi_interval;
 
-        bool is_impacting = interval_edge_edge_root_finder(
+        bool is_impacting = edge_edge_interval_root_finder(
             a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, tol, auto_err, ms,
             toi_interval);
 
@@ -96,7 +96,7 @@ namespace ticcd::rational {
 
         std::array<RationalInterval, 3> toi_interval;
 
-        bool is_impacting = interval_vertex_face_root_finder(
+        bool is_impacting = vertex_face_interval_root_finder(
             vertex_start, face_vertex0_start, face_vertex1_start,
             face_vertex2_start, vertex_end, face_vertex0_end, face_vertex1_end,
             face_vertex2_end, tol, auto_err, ms, toi_interval);

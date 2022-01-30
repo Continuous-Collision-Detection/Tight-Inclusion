@@ -92,7 +92,7 @@ namespace ticcd {
             std::min(distance_tolerance / edge1_length, CCD_MAX_COORD_TOL));
     }
 
-    Vector3 compute_edge_edge_tolerances(
+    Array3 compute_edge_edge_tolerances(
         const Vector3 &edge0_vertex0_start,
         const Vector3 &edge0_vertex1_start,
         const Vector3 &edge1_vertex0_start,
@@ -120,7 +120,7 @@ namespace ticcd {
         Scalar edge1_length =
             3 * max_linf_4(p000, p100, p110, p010, p001, p101, p111, p011);
 
-        return Vector3(
+        return Array3(
             std::min(distance_tolerance / dl, CCD_MAX_TIME_TOL),
             std::min(distance_tolerance / edge0_length, CCD_MAX_COORD_TOL),
             std::min(distance_tolerance / edge1_length, CCD_MAX_COORD_TOL));
@@ -156,7 +156,7 @@ namespace ticcd {
         Scalar tolerance = tolerance_in;
         Scalar ms = ms_in;
 
-        Vector3 tol = compute_edge_edge_tolerances(
+        Array3 tol = compute_edge_edge_tolerances(
             a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, tolerance_in);
 
         //////////////////////////////////////////////////////////
@@ -186,14 +186,15 @@ namespace ticcd {
             // 1 is ccd with input time interval upper bound, using real tolerance, max_itr and horizontal tree.
             if (CCD_TYPE == 0) {
                 // no handling for zero toi
-                return interval_root_finder_normalCCD<false>(
+                return edge_edge_interval_root_finder_normalCCD(
                     a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, tol, err, ms, toi);
             } else {
                 assert(CCD_TYPE == 1);
                 assert(t_max >= 0 && t_max <= 1);
-                tmp_is_impacting = interval_root_finder_horizontal_tree<false>(
-                    a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, tol, tolerance, err,
-                    ms, t_max, max_itr, toi, output_tolerance);
+                tmp_is_impacting =
+                    edge_edge_interval_root_finder_horizontal_tree(
+                        a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, tol, tolerance,
+                        err, ms, t_max, max_itr, toi, output_tolerance);
             }
             assert(!tmp_is_impacting || toi >= 0);
 
@@ -264,7 +265,7 @@ namespace ticcd {
         Scalar tolerance = tolerance_in;
         Scalar ms = ms_in;
 
-        Vector3 tol = compute_face_vertex_tolerances(
+        Array3 tol = compute_face_vertex_tolerances(
             vertex_start, face_vertex0_start, face_vertex1_start,
             face_vertex2_start, vertex_end, face_vertex0_end, face_vertex1_end,
             face_vertex2_end, tolerance);
@@ -296,18 +297,19 @@ namespace ticcd {
             // 1 is ccd with input time interval upper bound, using real tolerance, max_itr and horizontal tree.
             if (CCD_TYPE == 0) {
                 // no handling for zero toi
-                return interval_root_finder_normalCCD<true>(
+                return vertex_face_interval_root_finder_normalCCD(
                     vertex_start, face_vertex0_start, face_vertex1_start,
                     face_vertex2_start, vertex_end, face_vertex0_end,
                     face_vertex1_end, face_vertex2_end, tol, err, ms, toi);
             } else {
                 assert(CCD_TYPE == 1);
                 assert(t_max >= 0 && t_max <= 1);
-                tmp_is_impacting = interval_root_finder_horizontal_tree<true>(
+                tmp_is_impacting =
+                    vertex_face_interval_root_finder_horizontal_tree(
                     vertex_start, face_vertex0_start, face_vertex1_start,
                     face_vertex2_start, vertex_end, face_vertex0_end,
-                    face_vertex1_end, face_vertex2_end, tol, tolerance, err, ms,
-                    t_max, max_itr, toi, output_tolerance);
+                        face_vertex1_end, face_vertex2_end, tol, tolerance, err,
+                        ms, t_max, max_itr, toi, output_tolerance);
             }
             assert(!tmp_is_impacting || toi >= 0);
 

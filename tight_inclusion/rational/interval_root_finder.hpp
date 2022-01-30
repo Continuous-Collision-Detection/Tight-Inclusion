@@ -12,7 +12,7 @@ namespace ticcd::rational {
 
     typedef std::array<Rational, 2> RationalInterval;
 
-    bool interval_edge_edge_root_finder(
+    bool edge_edge_interval_root_finder(
         const Vector3 &a0s,
         const Vector3 &a1s,
         const Vector3 &b0s,
@@ -26,7 +26,7 @@ namespace ticcd::rational {
         const Scalar ms,
         std::array<RationalInterval, 3> &root);
 
-    bool interval_vertex_face_root_finder(
+    bool vertex_face_interval_root_finder(
         const Vector3 &vertex_start,
         const Vector3 &face_vertex0_start,
         const Vector3 &face_vertex1_start,

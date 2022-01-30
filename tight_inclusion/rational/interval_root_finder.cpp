@@ -314,7 +314,7 @@ namespace ticcd::rational {
         return false;
     }
 
-    bool interval_edge_edge_root_finder(
+    bool edge_edge_interval_root_finder(
         const Vector3 &a0s,
         const Vector3 &a1s,
         const Vector3 &b0s,
@@ -332,7 +332,7 @@ namespace ticcd::rational {
             a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, tol, err, ms, root);
     }
 
-    bool interval_vertex_face_root_finder(
+    bool vertex_face_interval_root_finder(
         const Vector3 &vertex_start,
         const Vector3 &face_vertex0_start,
         const Vector3 &face_vertex1_start,
