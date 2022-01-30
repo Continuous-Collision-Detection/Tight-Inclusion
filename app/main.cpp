@@ -1,16 +1,26 @@
 #include <iostream>
 
 #include <vector>
-
 #include <array>
-#include <tight_inclusion/inclusion_ccd.hpp>
-#include <tight_inclusion/Rational.hpp>
 #include <fstream>
-#include <tight_inclusion/Timer.hpp>
 #include <stdexcept>
 #include <cstdlib>
 
-using namespace inclusion_ccd;
+#include <tight_inclusion/ccd.hpp>
+#include <tight_inclusion/timer.hpp>
+
+#include <filesystem>
+namespace fs = std::filesystem;
+
+#ifdef TIGHT_INCLUSION_RUN_EXAMPLES
+#include <tight_inclusion/rational/ccd.hpp>
+#include "read_rational_csv.hpp"
+#endif
+
+// #define TIDBG
+
+using namespace ticcd;
+
 void case_check()
 {
 #ifdef TIGHT_INCLUSION_DOUBLE
@@ -18,57 +28,61 @@ void case_check()
 #else
     std::cout << "using single precision values as inputs" << std::endl;
 #endif
-    const Vector3d a0s(0.1, 0.1, 0.1);
-    const Vector3d a1s(0, 0, 1);
-    const Vector3d a0e(1, 0, 1);
-    const Vector3d a1e(0, 1, 1);
-    const Vector3d b0s(0.1, 0.1, 0.1);
-    const Vector3d b1s(0, 0, 0);
-    const Vector3d b0e(0, 1, 0);
-    const Vector3d b1e(1, 0, 0);
+
+    const Vector3 a0s(0.1, 0.1, 0.1);
+    const Vector3 a1s(0, 0, 1);
+    const Vector3 a0e(1, 0, 1);
+    const Vector3 a1e(0, 1, 1);
+    const Vector3 b0s(0.1, 0.1, 0.1);
+    const Vector3 b1s(0, 0, 0);
+    const Vector3 b0e(0, 1, 0);
+    const Vector3 b1e(1, 0, 0);
 
     bool res;
-    std::array<Scalar, 3> err = {{-1, -1, -1}};
+    Array3 err(-1, -1, -1);
     Scalar ms = 1e-8;
     Scalar toi;
     const Scalar tolerance = 1e-6;
     const Scalar t_max = 1;
     const int max_itr = 1e6;
     Scalar output_tolerance;
-    const int CCD_TYPE = 1;
-	res = inclusion_ccd::edgeEdgeCCD_double(a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, err, ms, toi, tolerance, t_max, max_itr, output_tolerance);
-    /*res = inclusion_ccd::edgeEdgeCCD_double(
+    res = edgeEdgeCCD(
+        a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, err, ms, toi, tolerance, t_max,
+        max_itr, output_tolerance);
+    /*res = edgeEdgeCCD(
         a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, err, ms, toi, tolerance, t_max,
         max_itr, output_tolerance);*/
-    if (!using_rational_method())
-    {
-        std::cout << "the double ccd result is " << res << std::endl;
-    }
-    else
-    {
-        std::cout << "the ccd using rational core result is " << res
-                  << std::endl;
-    }
+    std::cout << "the double ccd result is " << res << std::endl;
 #ifdef CHECK_QUEUE_SIZE
     //std::cout << "queue size max " << return_queue_size() << std::endl;
 #endif
 }
 
-//# define TIDBG
-
-
 #ifdef TIGHT_INCLUSION_RUN_EXAMPLES
 
-#include "read_rational_csv.hpp"
-std::string root_path(TICCD_EXAMPLE_QUERIES_DIR);
-std::vector<std::string> simulation_folders = {
-    {"chain", "cow-heads", "golf-ball", "mat-twist"}};
-std::vector<std::string> handcrafted_folders = {
-    {"erleben-sliding-spike", "erleben-spike-wedge", "erleben-sliding-wedge",
-     "erleben-wedge-crack", "erleben-spike-crack", "erleben-wedges",
-     "erleben-cube-cliff-edges", "erleben-spike-hole",
-     "erleben-cube-internal-edges", "erleben-spikes", "unit-tests"}};
-std::vector<std::string> fnames = {{"data_0_0.csv"}, {"data_0_1.csv"}};
+static const std::string root_path(TIGHT_INCLUSION_SAMPLE_QUERIES_DIR);
+
+static const std::vector<std::string> simulation_folders = {{
+    "chain",
+    "cow-heads",
+    "golf-ball",
+    "mat-twist",
+}};
+
+static const std::vector<std::string> handcrafted_folders = {{
+    "erleben-sliding-spike",
+    "erleben-spike-wedge",
+    "erleben-sliding-wedge",
+    "erleben-wedge-crack",
+    "erleben-spike-crack",
+    "erleben-wedges",
+    "erleben-cube-cliff-edges",
+    "erleben-spike-hole",
+    "erleben-cube-internal-edges",
+    "erleben-spikes",
+    "unit-tests",
+}};
+
 void run_rational_data_single_method(
     const bool is_edge_edge,
     const bool is_simulation_data,
@@ -95,32 +109,26 @@ void run_rational_data_single_method(
                                       : handcrafted_folders.size();
     const auto folders =
         is_simulation_data ? simulation_folders : handcrafted_folders;
-    sub_folder = is_edge_edge ? "/edge-edge/" : "/vertex-face/";
-    for (int fnbr = 0; fnbr < max_fnbr; fnbr++)
-    {
-        for (int ff = 0; ff < 2; ff++)
-        {
-			if (folders[fnbr] == "erleben-spike-hole"&&ff == 1)
-			{
-				continue;
-			}
-			all_V = read_rational_csv(
+    sub_folder = is_edge_edge ? "edge-edge" : "vertex-face";
+    for (int fnbr = 0; fnbr < max_fnbr; fnbr++) {
+        fs::path dir = fs::path(root_path) / folders[fnbr] / sub_folder;
+        for (const auto &csv_file : fs::directory_iterator(dir)) {
+
+            all_V = rational::read_rational_csv(
 #ifdef TIDBG
-				"D:\\vs\\collision\\interval\\Tight-Inclusion\\build\\edge-edge-0474.csv",
+                root_path + "/golf-ball/vertex-face/data_0_0.csv",
 #else
-				root_path + folders[fnbr] + sub_folder + fnames[ff],
+                csv_file.path().string(),
 #endif
-                
-				results);
+                results);
+
             //assert(all_V.rows() % 8 == 0 && all_V.cols() == 3);
-            if (all_V.rows() % 8 != 0 || all_V.cols() != 3)
-            {
+            if (all_V.rows() % 8 != 0 || all_V.cols() != 3) {
                 std::cout << "wrong data happens" << std::endl;
                 continue;
             }
             int v_size = all_V.rows() / 8;
-            for (int i = 0; i < v_size; i++)
-            {
+            for (int i = 0; i < v_size; i++) {
                 total_number += 1;
                 Eigen::Matrix<double, 8, 3> V = all_V.middleRows<8>(8 * i);
                 bool expected_result =
@@ -128,72 +136,76 @@ void run_rational_data_single_method(
 
                 bool new_result;
 
-                const std::array<double, 3> err = {{-1, -1, -1}};
+                const Array3 err(-1, -1, -1);
 
                 double toi;
                 const double t_max = 1;
 
                 double output_tolerance = tolerance;
 
-                int CCD_TYPE = 1;
+                const bool no_zero_toi = false;
+                const CCDRootFindingMethod ccd_method =
+                    CCDRootFindingMethod::BREADTH_FIRST_SEARCH;
                 timer.start();
 #ifdef TIDBG
-				if (i != 6382) {
-					continue;
-				}
-				new_result = edgeEdgeCCD_double(
-					V.row(0), V.row(1), V.row(2), V.row(3), V.row(4),
-					V.row(5), V.row(6), V.row(7), err, minimum_seperation,
-					toi, tolerance, t_max, max_itr, output_tolerance,
-					CCD_TYPE);
-				if (i == 6382) {
-					for (int row = 0; row < 8; row++) {
-						std::cout << V(row, 0) << "," << V(row, 1) << "," << V(row, 2) << "," << toi << std::endl;
-					}
-				}
+                if (i != 6130) {
+                    continue;
+                }
+                new_result = vertexFaceCCD(
+                    V.row(0), V.row(1), V.row(2), V.row(3), V.row(4), V.row(5),
+                    V.row(6), V.row(7), err, minimum_seperation, toi, tolerance,
+                    t_max, max_itr, output_tolerance, no_zero_toi, no_zero_toi,
+                    ccd_method);
+                // new_result = rational::vertexFaceCCD(
+                //     V.row(0), V.row(1), V.row(2), V.row(3), V.row(4), V.row(5),
+                //     V.row(6), V.row(7), err, minimum_seperation, toi);
+                if (i == 6130) {
+                    for (int row = 0; row < 8; row++) {
+                        std::cout << V(row, 0) << "," << V(row, 1) << ","
+                                  << V(row, 2) << "," << toi << std::endl;
+                    }
+                }
 #else
-				if (is_edge_edge)
-				{
-					new_result = edgeEdgeCCD_double(
-						V.row(0), V.row(1), V.row(2), V.row(3), V.row(4),
-						V.row(5), V.row(6), V.row(7), err, minimum_seperation,
-						toi, tolerance, t_max, max_itr, output_tolerance,
-						CCD_TYPE);
-				}
-				else
-				{
-					new_result = vertexFaceCCD_double(
-						V.row(0), V.row(1), V.row(2), V.row(3), V.row(4),
-						V.row(5), V.row(6), V.row(7), err, minimum_seperation,
-						toi, tolerance, t_max, max_itr, output_tolerance,
-						CCD_TYPE);
-				}
+                if (is_edge_edge) {
+                    new_result = edgeEdgeCCD(
+                        V.row(0), V.row(1), V.row(2), V.row(3), V.row(4),
+                        V.row(5), V.row(6), V.row(7), err, minimum_seperation,
+                        toi, tolerance, t_max, max_itr, output_tolerance,
+                        no_zero_toi, ccd_method);
+                    // new_result = rational::edgeEdgeCCD(
+                    //     V.row(0), V.row(1), V.row(2), V.row(3), V.row(4),
+                    //     V.row(5), V.row(6), V.row(7), err, minimum_seperation,
+                    //     toi);
+                } else {
+                    new_result = vertexFaceCCD(
+                        V.row(0), V.row(1), V.row(2), V.row(3), V.row(4),
+                        V.row(5), V.row(6), V.row(7), err, minimum_seperation,
+                        toi, tolerance, t_max, max_itr, output_tolerance,
+                        no_zero_toi, ccd_method);
+                    // new_result = rational::vertexFaceCCD(
+                    //     V.row(0), V.row(1), V.row(2), V.row(3), V.row(4),
+                    //     V.row(5), V.row(6), V.row(7), err, minimum_seperation,
+                    //     toi);
+                }
 #endif
-               
 
                 new_timing += timer.getElapsedTimeInMicroSec();
-                std::cout << total_number << "\r" << std::flush;
+#ifndef TIGHT_INCLUSION_SUPPRESS_PROGRESS_OUTPUT
+                std::cerr << total_number << "\r" << std::flush;
+#endif
 
-                if (expected_result)
-                {
+                if (expected_result) {
                     total_positives++;
                 }
-                if (new_result != expected_result)
-                {
-                    if (new_result)
-                    {
+                if (new_result != expected_result) {
+                    if (new_result) {
                         new_false_positives++;
-                    }
-                    else
-                    {
+                    } else {
                         new_false_negatives++;
 
-                        std::cout << "false negative, "
-                                  << root_path + folders[fnbr] + sub_folder
-                                         + fnames[ff]
+                        std::cout << "false negative, " << csv_file.path()
                                   << ", " << i << std::endl;
-                        for (int j = 0; j < 8; j++)
-                        {
+                        for (int j = 0; j < 8; j++) {
                             std::cout << "v" << j << " " << V(j, 0) << ", "
                                       << V(j, 1) << ", " << V(j, 2)
                                       << std::endl;
@@ -209,10 +221,11 @@ void run_rational_data_single_method(
                 }
             }
 #ifdef TIDBG
-			std::cout << "fps " << new_false_positives << " fns " << new_false_negatives << " total queries " << total_number + 1
-				<<" total positives "<< total_positives << std::endl;
-
-			exit(0);
+            std::cout << "fps " << new_false_positives << " fns "
+                      << new_false_negatives << " total queries "
+                      << total_number + 1 << " total positives "
+                      << total_positives << std::endl;
+            exit(0);
 #endif
         }
     }
@@ -234,14 +247,14 @@ void run_code()
     double ms = 0.0;
     double tolerance = 1e-6;
 
-	std::cout << "\nRunning simulation Vertex-Face data" << std::endl;
-	run_rational_data_single_method(
-		/*is_edge_edge*/ false, /*is_simulation*/ true, ms, tolerance);
-	std::cout << "finish simulation Vertex-Face data" << std::endl;
-	std::cout << "\nRunning simulation Edge-Edge data" << std::endl;
-	run_rational_data_single_method(
-		/*is_edge_edge*/ true, /*is_simulation*/ true, ms, tolerance);
-	std::cout << "finish simulation Edge-Edge data" << std::endl;
+    std::cout << "\nRunning simulation Vertex-Face data" << std::endl;
+    run_rational_data_single_method(
+        /*is_edge_edge*/ false, /*is_simulation*/ true, ms, tolerance);
+    std::cout << "finish simulation Vertex-Face data" << std::endl;
+    std::cout << "\nRunning simulation Edge-Edge data" << std::endl;
+    run_rational_data_single_method(
+        /*is_edge_edge*/ true, /*is_simulation*/ true, ms, tolerance);
+    std::cout << "finish simulation Edge-Edge data" << std::endl;
 
     std::cout << "\nRunning handcrafted Vertex-Face data" << std::endl;
     run_rational_data_single_method(
@@ -251,8 +264,6 @@ void run_code()
     run_rational_data_single_method(
         /*is_edge_edge*/ true, /*is_simulation*/ false, ms, tolerance);
     std::cout << "finish handcrafted Edge-Edge data" << std::endl;
-
-
 }
 #endif
 
@@ -284,12 +295,10 @@ void run_code()
 //
 //		double output_tolerance = tolerance;
 //
-//		int CCD_TYPE = 1;
-//		bool new_result = edgeEdgeCCD_double(
+//		bool new_result = edgeEdgeCCD(
 //			V.row(0), V.row(1), V.row(2), V.row(3), V.row(4),
 //			V.row(5), V.row(6), V.row(7), err, minimum_seperation,
-//			toi, tolerance, t_max, max_itr, output_tolerance,
-//			CCD_TYPE);
+//			toi, tolerance, t_max, max_itr, output_tolerance);
 //		if (new_result) {
 //			total_positives += 1;
 //		}
@@ -304,7 +313,7 @@ void run_code()
 
 int main(int argc, char *argv[])
 {
-	//run_dbg();
+    // run_dbg();
 #ifdef TIGHT_INCLUSION_RUN_EXAMPLES
     run_code();
 #else

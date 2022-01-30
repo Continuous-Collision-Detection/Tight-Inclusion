@@ -1,8 +1,8 @@
 #pragma once
+
 #include <tight_inclusion/interval.hpp>
 
-namespace inclusion_ccd
-{
+namespace ticcd {
     void convert_tuv_to_array(
         const Interval3 &itv,
         std::array<Scalar, 8> &t_up,
@@ -43,6 +43,4 @@ namespace inclusion_ccd
         const std::array<Scalar, 8> &u_dw,
         const std::array<Scalar, 8> &v_up,
         const std::array<Scalar, 8> &v_dw);
-
-    long power(const long a, const int b);
-} // namespace inclusion_ccd
+} // namespace ticcd

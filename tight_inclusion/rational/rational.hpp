@@ -1,19 +1,11 @@
 #pragma once
-#ifdef TIGHT_INCLUSION_RUN_EXAMPLES
-#define TIGHT_INCLUSION_ENABLE_GMP
-#endif
-#ifdef TIGHT_INCLUSION_USE_GMP
-#define TIGHT_INCLUSION_ENABLE_GMP
-#endif
 
-#ifdef TIGHT_INCLUSION_ENABLE_GMP
 #include <gmp.h>
 #include <iostream>
-#include <tight_inclusion/Types.hpp>
-namespace inclusion_ccd
-{
-    class Rational
-    {
+#include <tight_inclusion/types.hpp>
+
+namespace ticcd {
+    class Rational {
     public:
         mpq_t value;
 
@@ -111,6 +103,7 @@ namespace inclusion_ccd
 
         Rational(double d)
         {
+            assert(std::isfinite(d));
             mpq_init(value);
             mpq_set_d(value, d);
             canonicalize();
@@ -118,6 +111,7 @@ namespace inclusion_ccd
 
         Rational(float d)
         {
+            assert(std::isfinite(d));
             mpq_init(value);
             double ddouble = d; // convert (float)d to double
             mpq_set_d(value, ddouble);
@@ -225,37 +219,39 @@ namespace inclusion_ccd
             return *this;
         }
 
-        friend bool operator<(const Rational &r, const Rational &r1)
+        template <typename T> bool operator<(const T &r1)
         {
-            return mpq_cmp(r.value, r1.value) < 0;
+            return *this < Rational(r1);
         }
 
-        friend bool operator>(const Rational &r, const Rational &r1)
+        template <typename T> bool operator>(const T &r1)
         {
-            return mpq_cmp(r.value, r1.value) > 0;
+            return *this > Rational(r1);
         }
 
-        friend bool operator<=(const Rational &r, const Rational &r1)
+        template <typename T> bool operator<=(const T &r1)
         {
-            return mpq_cmp(r.value, r1.value) <= 0;
+            return *this <= Rational(r1);
         }
 
-        friend bool operator>=(const Rational &r, const Rational &r1)
+        template <typename T> bool operator>=(const T &r1)
         {
-            return mpq_cmp(r.value, r1.value) >= 0;
+            return *this >= Rational(r1);
         }
 
-        friend bool operator==(const Rational &r, const Rational &r1)
+        template <typename T> bool operator==(const T &r1)
         {
-            return mpq_equal(r.value, r1.value);
+            return *this == Rational(r1);
         }
 
-        friend bool operator!=(const Rational &r, const Rational &r1)
+        template <typename T> bool operator!=(const T &r1)
         {
-            return !mpq_equal(r.value, r1.value);
+            return *this != Rational(r1);
         }
 
-        double to_double() { return mpq_get_d(value); }
+        double to_double() const { return mpq_get_d(value); }
+
+        operator double() const { return to_double(); }
 
         friend std::ostream &operator<<(std::ostream &os, const Rational &r)
         {
@@ -263,6 +259,10 @@ namespace inclusion_ccd
             return os;
         }
     };
-} // namespace inclusion_ccd
 
-#endif
+    typedef Eigen::Matrix<Rational, 3, 1, Eigen::ColMajor | Eigen::DontAlign>
+        Vector3r;
+    typedef Eigen::Array<Rational, 3, 1, Eigen::ColMajor | Eigen::DontAlign>
+        Array3r;
+
+} // namespace ticcd

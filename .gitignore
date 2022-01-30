@@ -227,6 +227,7 @@ docs
 
 ## External dependancies
 external
+sample-queries
 
 *.nosync
 ###############################################################################

@@ -1,4 +1,4 @@
-# Tight-Inclusion Continuous Collision Detection 
+# Tight-Inclusion Continuous Collision Detection
 ![](./fig/line-search.jpg)
 [![Build](https://github.com/Continuous-Collision-Detection/Tight-Inclusion/actions/workflows/continuous.yml/badge.svg)](https://github.com/Continuous-Collision-Detection/Tight-Inclusion/actions/workflows/continuous.yml)
 
@@ -16,9 +16,9 @@ You can read more about this work in our ACM Transactions on Graphics paper:
     journal = {ACM Transactions on Graphics}
 }
 ```
-## Compiling Instruction 
+## Compiling Instruction
 
-To compile the code, first make sure CMake is installed. 
+To compile the code, first make sure CMake is installed.
 
 To build the library on Linux or macOS:
 ```sh
@@ -29,7 +29,7 @@ make
 ```
 Then you can run a CCD example:
 ```bash
-./Tight_Inclusion_bin 
+./Tight_Inclusion_bin
 ```
 We also provide you an example to run the [Sample Queries](https://github.com/Continuous-Collision-Detection/Sample-Queries) using our CCD method. You may need to install `gmp` before compiling the code. Then set the CMake option `TIGHT_INCLUSION_WITH_TESTS` as `ON` when compiling:
 ```sh
@@ -38,15 +38,15 @@ make
 ```
 Then you can run `./Tight_Inclusion_bin` to test the `handcrafted queries` in the Sample Queries.
 ## Usage
-Include `#include <tight_inclusion/inclusion_ccd.hpp>`
+Include `#include <tight_inclusion/ccd.hpp>`
 
-To check edge-edge ccd, use `bool inclusion_ccd::edgeEdgeCCD_double()`;
+To check edge-edge ccd, use `bool ticcd::edgeEdgeCCD_double()`;
 
-To check vertex-face ccd, use `bool inclusion_ccd::vertexFaceCCD_double()`;
+To check vertex-face ccd, use `bool ticcd::vertexFaceCCD_double()`;
 
 💡 If collision is detected, the ccd function will return `true`, otherwise, the ccd function will return `false`. Since our method is CONSERVATIVE, if the returned result is `false`, we guarantee that there is no collision happens. If the result is `true`, it is possible that there is no collision but we falsely report a collision, but we can guarantee that this happens only if the minimal distance between the two primitives in this time step is no larger than `tolerance + ms + err`. We wil explain these parameters below.  
 
-For both edge-edge ccd and vertex-face ccd, the input CCD query is presented by 8 vertices which are in the format of `Eigen::Vector3d`. Please read our code in `tight_inclusion/inclusion_ccd.hpp` for the correct input order of the vertices. 
+For both edge-edge ccd and vertex-face ccd, the input CCD query is presented by 8 vertices which are in the format of `Eigen::Vector3d`. Please read our code in `tight_inclusion/ccd.hpp` for the correct input order of the vertices.
 
 Beside the input vertices, there are some input and output parameters for users to tune the performace or to get more CCD information. Here is a list of the explanations of the parameters:
 
@@ -57,8 +57,8 @@ input:
     tolerance           User-specific solving precision. It is the target maximal x, y, and z length of the inclusion function. We suggest the user to set it as 1e-6.
     t_max               The time range [0, t_max] where we detect collisions. Since the input query implies the motion in time range [0, 1], t_max should no larger than 1.
     max_itr             The parameter to enable early termination of the algorithm. If you set max_itr < 0, early termination will be disabled, but this may cause longer runtime. We suggest to set max_itr = 1e6.
-    CCD_TYPE            The parameter to choose collision detection algorithms. By default CCD_TYPE = 1. If set CCD_TYPE = 0, the code will switch to a naive conservative CCD algorithm, but lack of our advanced features. 
-    
+    CCD_TYPE            The parameter to choose collision detection algorithms. By default CCD_TYPE = 1. If set CCD_TYPE = 0, the code will switch to a naive conservative CCD algorithm, but lack of our advanced features.
+
 output:
     toi                 Time of impact. If multiple collisions happen in this time step, it will return the earlist collision time. If there is no collision, the returned toi value will be std::numeric_limits<double>::infinity().
     output_tolerance    The real solving precision. If early termination is enabled, the solving precision may not reach the target precision. This parameter will return the real solving precision when the code is terminated.
@@ -67,10 +67,10 @@ output:
 💡 The input parameter `err` is crucial to guarantee our algorithm to be a conservative method not affected by floating point rounding errors. To run a single query, you can set `err = {{-1, -1, -1}}` to enable a sub-function to calculate the real numerical filters when solving CCD. If you are integrating our CCD in simulators, you need to:
 
 - Include the headler: `#include <tight_inclusion/interval_root_finder.hpp>`.
-- Call `std::array<double, 3> err_vf = inclusion_ccd::get_numerical_error()` and `std::array<double, 3> err_ee = inclusion_ccd::get_numerical_error()`
-- Use the parameter `err_ee` each time you call `bool inclusion_ccd::edgeEdgeCCD_double()` and `err_vf` when you call `bool inclusion_ccd::vertexFaceCCD_double()`.
+- Call `std::array<double, 3> err_vf = ticcd::get_numerical_error()` and `std::array<double, 3> err_ee = ticcd::get_numerical_error()`
+- Use the parameter `err_ee` each time you call `bool ticcd::edgeEdgeCCD_double()` and `err_vf` when you call `bool ticcd::vertexFaceCCD_double()`.
 
-The parameters for function `inclusion_ccd::get_numerical_error()` is explained below:
+The parameters for function `ticcd::get_numerical_error()` is explained below:
 ```
 input:
     vertices            Vertices of the Axies-Aligned-Bounding-Box of the simulation scene. Before you run the simulation, you need to conservatively estimate the Axies-Aligned-Bounding-Box in which the meshes will located during the whole simulation process, and the vertices should be the corners of the AABB.
