@@ -60,7 +60,7 @@ jobs:
           ccache --max-size=1.0G
           ccache -V && ccache --show-stats && ccache --zero-stats
 
-      - name: Configure
+      - name: Configure (Debug)
         if: matrix.config == 'Debug'
         run: |
           mkdir -p build
@@ -70,7 +70,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=${{ matrix.config }} \
             -DTIGHT_INCLUSION_SUPPRESS_PROGRESS_OUTPUT=ON
 
-      - name: Configure
+      - name: Configure (Release)
         if: matrix.config == 'Release'
         run: |
           mkdir -p build
