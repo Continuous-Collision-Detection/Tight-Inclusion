@@ -61,7 +61,7 @@ jobs:
           ccache -V && ccache --show-stats && ccache --zero-stats
 
       - name: Configure
-        if: runner.config == Debug
+        if: runner.config == 'Debug'
         run: |
           mkdir -p build
           cd build
@@ -71,7 +71,7 @@ jobs:
             -DTIGHT_INCLUSION_SUPPRESS_PROGRESS_OUTPUT=ON
 
       - name: Configure
-        if: runner.config == Release
+        if: runner.config == 'Release'
         run: |
           mkdir -p build
           cd build
