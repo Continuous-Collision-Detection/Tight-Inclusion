@@ -9,14 +9,15 @@
 #include <tight_inclusion/ccd.hpp>
 #include <tight_inclusion/timer.hpp>
 
+#include <tight_inclusion/rational/ccd.hpp>
+
 #ifdef TIGHT_INCLUSION_RUN_EXAMPLES
 #include "read_rational_csv.hpp"
 #endif
 
-//# define TIDBG
+#define TIDBG
 
 using namespace ticcd;
-using namespace ticcd::rational;
 
 void case_check()
 {
@@ -119,9 +120,9 @@ void run_rational_data_single_method(
                 continue;
             }
 
-            all_V = read_rational_csv(
+            all_V = rational::read_rational_csv(
 #ifdef TIDBG
-                "D:\\vs\\collision\\interval\\Tight-Inclusion\\build\\edge-edge-0474.csv",
+                root_path + "/golf-ball/vertex-face/data_0_0.csv",
 #else
                 root_path + folders[fnbr] + sub_folder + fnames[ff],
 #endif
@@ -151,14 +152,17 @@ void run_rational_data_single_method(
                 int CCD_TYPE = 1;
                 timer.start();
 #ifdef TIDBG
-                if (i != 6382) {
+                if (i != 6130) {
                     continue;
                 }
-                new_result = edgeEdgeCCD(
+                new_result = vertexFaceCCD(
                     V.row(0), V.row(1), V.row(2), V.row(3), V.row(4), V.row(5),
                     V.row(6), V.row(7), err, minimum_seperation, toi, tolerance,
                     t_max, max_itr, output_tolerance, CCD_TYPE);
-                if (i == 6382) {
+                // new_result = rational::vertexFaceCCD(
+                //     V.row(0), V.row(1), V.row(2), V.row(3), V.row(4), V.row(5),
+                //     V.row(6), V.row(7), err, minimum_seperation, toi);
+                if (i == 6130) {
                     for (int row = 0; row < 8; row++) {
                         std::cout << V(row, 0) << "," << V(row, 1) << ","
                                   << V(row, 2) << "," << toi << std::endl;
@@ -171,12 +175,20 @@ void run_rational_data_single_method(
                         V.row(5), V.row(6), V.row(7), err, minimum_seperation,
                         toi, tolerance, t_max, max_itr, output_tolerance,
                         CCD_TYPE);
+                    // new_result = rational::edgeEdgeCCD(
+                    //     V.row(0), V.row(1), V.row(2), V.row(3), V.row(4),
+                    //     V.row(5), V.row(6), V.row(7), err, minimum_seperation,
+                    //     toi);
                 } else {
                     new_result = vertexFaceCCD(
                         V.row(0), V.row(1), V.row(2), V.row(3), V.row(4),
                         V.row(5), V.row(6), V.row(7), err, minimum_seperation,
                         toi, tolerance, t_max, max_itr, output_tolerance,
                         CCD_TYPE);
+                    // new_result = rational::vertexFaceCCD(
+                    //     V.row(0), V.row(1), V.row(2), V.row(3), V.row(4),
+                    //     V.row(5), V.row(6), V.row(7), err, minimum_seperation,
+                    //     toi);
                 }
 #endif
 

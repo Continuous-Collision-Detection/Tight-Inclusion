@@ -187,13 +187,13 @@ namespace ticcd {
             if (CCD_TYPE == 0) {
                 // no handling for zero toi
                 return interval_root_finder_normalCCD<false>(
-                    tol, toi, err, ms, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e);
+                    a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, tol, err, ms, toi);
             } else {
                 assert(CCD_TYPE == 1);
                 assert(t_max >= 0 && t_max <= 1);
                 tmp_is_impacting = interval_root_finder_horizontal_tree<false>(
-                    tol, tolerance, toi, err, ms, a0s, a1s, b0s, b1s, a0e, a1e,
-                    b0e, b1e, t_max, max_itr, output_tolerance);
+                    a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, tol, tolerance, err,
+                    ms, t_max, max_itr, toi, output_tolerance);
             }
             assert(!tmp_is_impacting || toi >= 0);
 
@@ -272,8 +272,8 @@ namespace ticcd {
         //////////////////////////////////////////////////////////
         // this is the error of the whole mesh
         Array3 err;
-        if (err_in[0]
-            < 0) { // if error[0]<0, means we need to calculate error here
+        // if error[0]<0, means we need to calculate error here
+        if (err_in[0] < 0) {
             std::vector<Vector3> vlist;
             vlist.emplace_back(vertex_start);
             vlist.emplace_back(face_vertex0_start);
@@ -297,17 +297,17 @@ namespace ticcd {
             if (CCD_TYPE == 0) {
                 // no handling for zero toi
                 return interval_root_finder_normalCCD<true>(
-                    tol, toi, err, ms, vertex_start, face_vertex0_start,
-                    face_vertex1_start, face_vertex2_start, vertex_end,
-                    face_vertex0_end, face_vertex1_end, face_vertex2_end);
+                    vertex_start, face_vertex0_start, face_vertex1_start,
+                    face_vertex2_start, vertex_end, face_vertex0_end,
+                    face_vertex1_end, face_vertex2_end, tol, err, ms, toi);
             } else {
                 assert(CCD_TYPE == 1);
                 assert(t_max >= 0 && t_max <= 1);
                 tmp_is_impacting = interval_root_finder_horizontal_tree<true>(
-                    tol, tolerance, toi, err, ms, vertex_start,
-                    face_vertex0_start, face_vertex1_start, face_vertex2_start,
-                    vertex_end, face_vertex0_end, face_vertex1_end,
-                    face_vertex2_end, t_max, max_itr, output_tolerance);
+                    vertex_start, face_vertex0_start, face_vertex1_start,
+                    face_vertex2_start, vertex_end, face_vertex0_end,
+                    face_vertex1_end, face_vertex2_end, tol, tolerance, err, ms,
+                    t_max, max_itr, toi, output_tolerance);
             }
             assert(!tmp_is_impacting || toi >= 0);
 

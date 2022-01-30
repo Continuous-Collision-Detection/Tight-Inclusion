@@ -2,8 +2,6 @@
 #include <iomanip>
 #include <vector>
 
-#include <tight_inclusion/rational/rational.hpp>
-
 #include <tight_inclusion/ccd.hpp>
 #include <tight_inclusion/rational/ccd.hpp>
 #include <tight_inclusion/interval_root_finder.hpp>
@@ -25,7 +23,7 @@ namespace ticcd::rational {
         Scalar &toi)
     {
 
-        Vector3 tol = compute_edge_edge_tolerances(
+        Array3 tol = compute_edge_edge_tolerances(
             a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, DEFAULT_CCD_DISTANCE_TOL);
 
         //////////////////////////////////////////////////////////
@@ -45,15 +43,15 @@ namespace ticcd::rational {
         Array3 auto_err = get_numerical_error(vlist, false, use_ms);
         //////////////////////////////////////////////////////////
 
-        std::array<std::pair<Rational, Rational>, 3> toi_interval;
+        std::array<RationalInterval, 3> toi_interval;
 
-        bool is_impacting = interval_root_finder(
-            tol, toi_interval, false, auto_err, ms, a0s, a1s, b0s, b1s, a0e,
-            a1e, b0e, b1e);
+        bool is_impacting = interval_edge_edge_root_finder(
+            a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, tol, auto_err, ms,
+            toi_interval);
 
         // Return a conservative time-of-impact
         if (is_impacting) {
-            toi = toi_interval[0].first.to_double();
+            toi = toi_interval[0][0].to_double();
         }
         // This time of impact is very dangerous for convergence
         // assert(!is_impacting || toi > 0);
@@ -73,7 +71,7 @@ namespace ticcd::rational {
         const Scalar ms,
         Scalar &toi)
     {
-        Vector3 tol = compute_face_vertex_tolerances(
+        Array3 tol = compute_face_vertex_tolerances(
             vertex_start, face_vertex0_start, face_vertex1_start,
             face_vertex2_start, vertex_end, face_vertex0_end, face_vertex1_end,
             face_vertex2_end, DEFAULT_CCD_DISTANCE_TOL);
@@ -96,17 +94,17 @@ namespace ticcd::rational {
         // std::cout<<"get error successfully"<<std::endl;
         //////////////////////////////////////////////////////////
 
-        std::array<std::pair<Rational, Rational>, 3> toi_interval;
+        std::array<RationalInterval, 3> toi_interval;
 
-        bool is_impacting = interval_root_finder(
-            tol, toi_interval, true, auto_err, ms, vertex_start,
-            face_vertex0_start, face_vertex1_start, face_vertex2_start,
-            vertex_end, face_vertex0_end, face_vertex1_end, face_vertex2_end);
+        bool is_impacting = interval_vertex_face_root_finder(
+            vertex_start, face_vertex0_start, face_vertex1_start,
+            face_vertex2_start, vertex_end, face_vertex0_end, face_vertex1_end,
+            face_vertex2_end, tol, auto_err, ms, toi_interval);
 
         // std::cout<<"get result successfully"<<std::endl;
         // Return a conservative time-of-impact
         if (is_impacting) {
-            toi = toi_interval[0].first.to_double();
+            toi = toi_interval[0][0].to_double();
         }
         // std::cout<<"get time successfully"<<std::endl;
         // This time of impact is very dangerous for convergence
