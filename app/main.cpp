@@ -46,7 +46,6 @@ void case_check()
     const Scalar t_max = 1;
     const int max_itr = 1e6;
     Scalar output_tolerance;
-    const int CCD_TYPE = 1;
     res = edgeEdgeCCD(
         a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, err, ms, toi, tolerance, t_max,
         max_itr, output_tolerance);
@@ -144,7 +143,9 @@ void run_rational_data_single_method(
 
                 double output_tolerance = tolerance;
 
-                int CCD_TYPE = 1;
+                const bool no_zero_toi = false;
+                const CCDRootFindingMethod ccd_method =
+                    CCDRootFindingMethod::BREADTH_FIRST_SEARCH;
                 timer.start();
 #ifdef TIDBG
                 if (i != 6130) {
@@ -153,7 +154,8 @@ void run_rational_data_single_method(
                 new_result = vertexFaceCCD(
                     V.row(0), V.row(1), V.row(2), V.row(3), V.row(4), V.row(5),
                     V.row(6), V.row(7), err, minimum_seperation, toi, tolerance,
-                    t_max, max_itr, output_tolerance, CCD_TYPE);
+                    t_max, max_itr, output_tolerance, no_zero_toi, no_zero_toi,
+                    ccd_method);
                 // new_result = rational::vertexFaceCCD(
                 //     V.row(0), V.row(1), V.row(2), V.row(3), V.row(4), V.row(5),
                 //     V.row(6), V.row(7), err, minimum_seperation, toi);
@@ -169,7 +171,7 @@ void run_rational_data_single_method(
                         V.row(0), V.row(1), V.row(2), V.row(3), V.row(4),
                         V.row(5), V.row(6), V.row(7), err, minimum_seperation,
                         toi, tolerance, t_max, max_itr, output_tolerance,
-                        CCD_TYPE);
+                        no_zero_toi, ccd_method);
                     // new_result = rational::edgeEdgeCCD(
                     //     V.row(0), V.row(1), V.row(2), V.row(3), V.row(4),
                     //     V.row(5), V.row(6), V.row(7), err, minimum_seperation,
@@ -179,7 +181,7 @@ void run_rational_data_single_method(
                         V.row(0), V.row(1), V.row(2), V.row(3), V.row(4),
                         V.row(5), V.row(6), V.row(7), err, minimum_seperation,
                         toi, tolerance, t_max, max_itr, output_tolerance,
-                        CCD_TYPE);
+                        no_zero_toi, ccd_method);
                     // new_result = rational::vertexFaceCCD(
                     //     V.row(0), V.row(1), V.row(2), V.row(3), V.row(4),
                     //     V.row(5), V.row(6), V.row(7), err, minimum_seperation,
@@ -293,12 +295,10 @@ void run_code()
 //
 //		double output_tolerance = tolerance;
 //
-//		int CCD_TYPE = 1;
 //		bool new_result = edgeEdgeCCD(
 //			V.row(0), V.row(1), V.row(2), V.row(3), V.row(4),
 //			V.row(5), V.row(6), V.row(7), err, minimum_seperation,
-//			toi, tolerance, t_max, max_itr, output_tolerance,
-//			CCD_TYPE);
+//			toi, tolerance, t_max, max_itr, output_tolerance);
 //		if (new_result) {
 //			total_positives += 1;
 //		}

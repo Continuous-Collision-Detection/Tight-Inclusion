@@ -367,8 +367,8 @@ namespace ticcd {
         const double t_max,
         const int max_itr,
         double &output_tolerance,
-        const int CCD_TYPE,
-        bool no_zero_toi)
+        bool no_zero_toi,
+        const CCDRootFindingMethod ccd_method)
     {
         Vector3 fa0_start = a0_start.cast<Scalar>();
         Vector3 fa1_start = a1_start.cast<Scalar>();
@@ -394,7 +394,7 @@ namespace ticcd {
         bool result = edgeEdgeCCD(
             fa0_start, fa1_start, fb0_start, fb1_start, fa0_end, fa1_end,
             fb0_end, fb1_end, ferr, fms, ftoi, ftolerance, ft_max, max_itr,
-            fouttol, CCD_TYPE, no_zero_toi);
+            fouttol, no_zero_toi, ccd_method);
 
         toi = ftoi;
         output_tolerance = fouttol;
@@ -418,8 +418,8 @@ namespace ticcd {
         const double t_max,
         const int max_itr,
         double &output_tolerance,
-        const int CCD_TYPE,
-        bool no_zero_toi)
+        bool no_zero_toi,
+        const CCDRootFindingMethod ccd_method)
     {
         Vector3 fvertex_start = vertex_start.cast<Scalar>();
         Vector3 fface_vertex0_start = face_vertex0_start.cast<Scalar>();
@@ -446,7 +446,7 @@ namespace ticcd {
             fvertex_start, fface_vertex0_start, fface_vertex1_start,
             fface_vertex2_start, fvertex_end, fface_vertex0_end,
             fface_vertex1_end, fface_vertex2_end, ferr, fms, ftoi, ftolerance,
-            ft_max, max_itr, fouttol, CCD_TYPE, no_zero_toi);
+            ft_max, max_itr, fouttol, no_zero_toi, ccd_method);
 
         toi = ftoi;
         output_tolerance = fouttol;
