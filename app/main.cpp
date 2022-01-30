@@ -188,7 +188,9 @@ void run_rational_data_single_method(
 #endif
 
                 new_timing += timer.getElapsedTimeInMicroSec();
+#ifndef TIGHT_INCLUSION_SUPPRESS_PROGRESS_OUTPUT
                 std::cerr << total_number << "\r" << std::flush;
+#endif
 
                 if (expected_result) {
                     total_positives++;

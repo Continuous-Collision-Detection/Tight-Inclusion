@@ -61,6 +61,17 @@ jobs:
           ccache -V && ccache --show-stats && ccache --zero-stats
 
       - name: Configure
+        if: runner.config == Debug
+        run: |
+          mkdir -p build
+          cd build
+          cmake .. \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_BUILD_TYPE=${{ matrix.config }} \
+            -DTIGHT_INCLUSION_SUPPRESS_PROGRESS_OUTPUT=ON
+
+      - name: Configure
+        if: runner.config == Release
         run: |
           mkdir -p build
           cd build
@@ -69,7 +80,8 @@ jobs:
             -DCMAKE_BUILD_TYPE=${{ matrix.config }} \
             -DTIGHT_INCLUSION_WITH_GMP=ON \
             -DTIGHT_INCLUSION_WITH_TESTS=ON \
-            -DTIGHT_INCLUSION_WITH_TIMER=OFF
+            -DTIGHT_INCLUSION_SUPPRESS_PROGRESS_OUTPUT=ON
+        else:
 
       - name: Build
         run: cd build; make -j2; ccache --show-stats
@@ -124,6 +136,7 @@ jobs:
           cmake -G Ninja ^
             -DCMAKE_CXX_COMPILER_LAUNCHER=sccache ^
             -DCMAKE_BUILD_TYPE=${{ matrix.config }} ^
+            -DTIGHT_INCLUSION_SUPPRESS_PROGRESS_OUTPUT=ON ^
             -B build ^
             -S .
           cd build

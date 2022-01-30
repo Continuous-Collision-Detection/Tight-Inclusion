@@ -36,6 +36,10 @@ OPTION(TIGHT_INCLUSION_WITH_TIMER             "Enable profiling timers, for debu
 OPTION(TIGHT_INCLUSION_WITH_DOUBLE_PRECISION  "Enable double precision floating point numbers as input"  ON)
 OPTION(TIGHT_INCLUSION_LIMIT_QUEUE_SIZE       "Enable limitation of maximal queue size"                 OFF)
 
+# Option to supress progress output when on GH actions.
+OPTION(TIGHT_INCLUSION_SUPPRESS_PROGRESS_OUTPUT "Enable limitation of maximal queue size"               OFF)
+mark_as_advanced(TIGHT_INCLUSION_SUPPRESS_PROGRESS_OUTPUT)
+
 include(CMakeDependentOption)
 cmake_dependent_option(TIGHT_INCLUSION_FLOAT_WITH_DOUBLE_INPUT "Enable converting double queries to float" OFF "TIGHT_INCLUSION_WITH_DOUBLE_PRECISION" OFF)
 
@@ -143,6 +147,10 @@ if(TIGHT_INCLUSION_TOPLEVEL_PROJECT)
 
     set(TIGHT_INCLUSION_SAMPLE_QUERIES_DIR "${PROJECT_SOURCE_DIR}/sample-queries")
     include(sample_queries)
+
+    if(TIGHT_INCLUSION_SUPPRESS_PROGRESS_OUTPUT)
+        target_compile_definitions(Tight_Inclusion_bin PUBLIC TIGHT_INCLUSION_SUPPRESS_PROGRESS_OUTPUT)
+    endif()
 
     if (TIGHT_INCLUSION_WITH_TESTS)
         target_sources(Tight_Inclusion_bin PUBLIC "app/read_rational_csv.cpp")
