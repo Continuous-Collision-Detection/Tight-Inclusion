@@ -6,7 +6,7 @@
 #include <array>
 
 namespace ticcd {
-    static const bool DEFAULT_NO_ZERO_TOI = false;
+    static constexpr bool DEFAULT_NO_ZERO_TOI = false;
     static constexpr Scalar DEFAULT_CCD_DISTANCE_TOL = 1e-6;
 
     /// @brief This function can give you the answer of continous collision detection with minimum

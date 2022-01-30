@@ -2,6 +2,8 @@
 
 #include <tight_inclusion/interval.hpp>
 
+#include <iostream>
+
 namespace ticcd {
 
     // calculate a*(2^b)
@@ -20,11 +22,37 @@ namespace ticcd {
     {
         int t = 0;
         result = n;
-        while ((result & 1) == 0) {
+        while (result != 0 && (result & 1) == 0) {
             result >>= 1;
             t++;
         }
         return t;
+    }
+
+    NumCCD::NumCCD(float p_x)
+    {
+        union {
+            double val;
+            struct {
+                uint64_t mantisa : 23;
+                uint16_t exponent : 8;
+                uint8_t sign : 1;
+            } parts;
+        } x;
+        x.val = p_x;
+
+        denom_power = abs(x.parts.exponent - 127) + 23;
+        numerator = x.parts.mantisa | (1l << 23);
+        for (int i = 0; i < 23; i++) {
+            if ((numerator & 1) == 0) {
+                numerator >>= 1;
+                denom_power--;
+            } else {
+                break;
+            }
+        }
+
+        assert(value() == p_x);
     }
 
     NumCCD::NumCCD(double p_x)
@@ -92,23 +120,8 @@ namespace ticcd {
 
     bool NumCCD::is_sum_leq_1(const NumCCD &num1, const NumCCD &num2)
     {
-        const uint64_t &k1 = num1.numerator, &k2 = num2.numerator;
-        const uint8_t &n1 = num1.denom_power, &n2 = num2.denom_power;
-
-        uint64_t k;
-        uint8_t n;
-        if (n1 == n2) {
-            k = k1 + k2;
-            n = n1;
-        } else if (n1 < n2) {
-            k = pow2(n2 - n1) * k1 + k2;
-            n = n2;
-        } else { // n1 > n2
-            k = k1 + pow2(n1 - n2) * k2;
-            n = n1;
-        }
-        assert((num1.value() + num2.value() <= 1) == (k <= pow2(n)));
-        return k <= pow2(n);
+        NumCCD tmp = num1 + num2;
+        return tmp.numerator <= tmp.denominator();
     }
 
     std::pair<Interval, Interval> Interval::bisect() const

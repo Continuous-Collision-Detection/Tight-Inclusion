@@ -15,7 +15,7 @@
 #include "read_rational_csv.hpp"
 #endif
 
-#define TIDBG
+// #define TIDBG
 
 using namespace ticcd;
 

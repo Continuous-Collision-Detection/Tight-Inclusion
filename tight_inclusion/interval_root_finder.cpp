@@ -149,8 +149,6 @@ namespace ticcd {
                     widths / tols, -std::numeric_limits<Scalar>::infinity());
         int max_index;
         tmp.maxCoeff(&max_index);
-        std::cout << (widths / tols).transpose() << std::endl;
-        std::cout << "split " << max_index << std::endl;
         return max_index;
     }
 
@@ -177,8 +175,7 @@ namespace ticcd {
                 tmp[split_i] = halves.second;
                 push(tmp);
             }
-            if (t_upper_bound == 1
-                || halves.second.overlaps(0, t_upper_bound)) {
+            if (t_upper_bound == 1 || halves.first.overlaps(0, t_upper_bound)) {
                 tmp[split_i] = halves.first;
                 push(tmp);
             }
@@ -191,7 +188,7 @@ namespace ticcd {
             assert(check_vf && split_i != 0);
             // u + v ≤ 1
             if (split_i == 1) {
-                const Interval &v = tuv[1];
+                const Interval &v = tuv[2];
                 if (NumCCD::is_sum_leq_1(halves.second.lower, v.lower)) {
                     tmp[split_i] = halves.second;
                     push(tmp);
@@ -201,7 +198,7 @@ namespace ticcd {
                     push(tmp);
                 }
             } else if (split_i == 2) {
-                const Interval &u = tuv[2];
+                const Interval &u = tuv[1];
                 if (NumCCD::is_sum_leq_1(u.lower, halves.second.lower)) {
                     tmp[split_i] = halves.second;
                     push(tmp);
@@ -444,13 +441,6 @@ namespace ticcd {
                 zero_in = origin_in_function_bounding_box_vector<check_vf>(
                     current, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, err,
                     box_in, ms, &true_tol);
-                std::cout << "t: [" << current[0].lower.value() << ", "
-                          << current[0].upper.value() << "], u: ["
-                          << current[1].lower.value() << ", "
-                          << current[1].upper.value() << "], v: ["
-                          << current[2].lower.value() << ", "
-                          << current[2].upper.value() << "]" << std::endl;
-                std::cout << zero_in << std::endl;
                 // #endif
             }
 

@@ -26,6 +26,7 @@ namespace ticcd {
         {
         }
 
+        NumCCD(float x);
         NumCCD(double x);
 
         ~NumCCD() {}
