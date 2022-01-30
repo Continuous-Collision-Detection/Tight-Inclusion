@@ -103,7 +103,7 @@ namespace ticcd {
 
         Rational(double d)
         {
-            assert(isfinite(d));
+            assert(std::isfinite(d));
             mpq_init(value);
             mpq_set_d(value, d);
             canonicalize();
@@ -111,7 +111,7 @@ namespace ticcd {
 
         Rational(float d)
         {
-            assert(isfinite(d));
+            assert(std::isfinite(d));
             mpq_init(value);
             double ddouble = d; // convert (float)d to double
             mpq_set_d(value, ddouble);
@@ -247,39 +247,6 @@ namespace ticcd {
         template <typename T> bool operator!=(const T &r1)
         {
             return *this != Rational(r1);
-        }
-
-        template <>
-        // clang-format off
-        bool operator< <Rational>( const Rational &r1)
-        // clang-format on
-        {
-            return mpq_cmp(value, r1.value) < 0;
-        }
-
-        template <> bool operator><Rational>(const Rational &r1)
-        {
-            return mpq_cmp(value, r1.value) > 0;
-        }
-
-        template <> bool operator<=<Rational>(const Rational &r1)
-        {
-            return mpq_cmp(value, r1.value) <= 0;
-        }
-
-        template <> bool operator>=<Rational>(const Rational &r1)
-        {
-            return mpq_cmp(value, r1.value) >= 0;
-        }
-
-        template <> bool operator==<Rational>(const Rational &r1)
-        {
-            return mpq_equal(value, r1.value);
-        }
-
-        template <> bool operator!=<Rational>(const Rational &r1)
-        {
-            return !mpq_equal(value, r1.value);
         }
 
         double to_double() const { return mpq_get_d(value); }

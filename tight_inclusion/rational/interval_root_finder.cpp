@@ -241,9 +241,9 @@ namespace ticcd::rational {
 
         Rational max_rational = Rational(std::numeric_limits<Scalar>::max());
         const Eigen::Array<Rational, 3, 1> tolR(
-            isfinite(tol[0]) ? Rational(tol[0]) : max_rational,
-            isfinite(tol[1]) ? Rational(tol[1]) : max_rational,
-            isfinite(tol[2]) ? Rational(tol[2]) : max_rational);
+            std::isfinite(tol[0]) ? Rational(tol[0]) : max_rational,
+            std::isfinite(tol[1]) ? Rational(tol[1]) : max_rational,
+            std::isfinite(tol[2]) ? Rational(tol[2]) : max_rational);
 
         while (!istack.empty()) {
             current = istack.top().first;

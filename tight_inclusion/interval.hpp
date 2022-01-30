@@ -21,8 +21,8 @@ namespace ticcd {
 
         NumCCD() {}
 
-        NumCCD(uint64_t numerator, uint8_t denom_power)
-            : numerator(numerator), denom_power(denom_power)
+        NumCCD(uint64_t p_numerator, uint8_t p_denom_power)
+            : numerator(p_numerator), denom_power(p_denom_power)
         {
         }
 
@@ -64,8 +64,8 @@ namespace ticcd {
 
         Interval() {}
 
-        Interval(const NumCCD &lower, const NumCCD &upper)
-            : lower(lower), upper(upper)
+        Interval(const NumCCD &p_lower, const NumCCD &p_upper)
+            : lower(p_lower), upper(p_upper)
         {
         }
 

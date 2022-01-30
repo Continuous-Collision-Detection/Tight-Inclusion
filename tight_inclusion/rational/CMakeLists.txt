@@ -3,6 +3,7 @@ set(SOURCES
     ccd.hpp
     interval_root_finder.cpp
     interval_root_finder.hpp
+    rational.cpp
     rational.hpp
 )
 
