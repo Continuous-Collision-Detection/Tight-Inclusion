@@ -81,7 +81,6 @@ jobs:
             -DTIGHT_INCLUSION_WITH_GMP=ON \
             -DTIGHT_INCLUSION_WITH_TESTS=ON \
             -DTIGHT_INCLUSION_SUPPRESS_PROGRESS_OUTPUT=ON
-        else:
 
       - name: Build
         run: cd build; make -j2; ccache --show-stats
