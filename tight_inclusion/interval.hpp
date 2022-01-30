@@ -1,7 +1,10 @@
 // An interval object.
 #pragma once
 
+#include <array>
+
 #include <Eigen/Core>
+
 #include <tight_inclusion/types.hpp>
 
 namespace ticcd {

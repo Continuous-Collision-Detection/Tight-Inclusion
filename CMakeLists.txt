@@ -30,7 +30,7 @@ project(TightInclusion
         DESCRIPTION "Tight Inclusion CCD"
         LANGUAGES CXX)
 
-OPTION(TIGHT_INCLUSION_WITH_TESTS             "Enable test functions"   ${TIGHT_INCLUSION_TOPLEVEL_PROJECT})
+OPTION(TIGHT_INCLUSION_WITH_TESTS             "Enable test functions"                                   OFF)
 OPTION(TIGHT_INCLUSION_WITH_GMP               "Enable rational based predicates, for debug"             OFF)
 OPTION(TIGHT_INCLUSION_WITH_TIMER             "Enable profiling timers, for debug"                      OFF)
 OPTION(TIGHT_INCLUSION_WITH_DOUBLE_PRECISION  "Enable double precision floating point numbers as input"  ON)
@@ -90,7 +90,6 @@ target_link_libraries(tight_inclusion PUBLIC Eigen3::Eigen)
 
 # GMP (optional)
 if(TIGHT_INCLUSION_WITH_GMP OR TIGHT_INCLUSION_WITH_TESTS)
-    message(STATUS "TIGHT_INCLUSION_WITH_GMP is defined, now using rational root finder")
     find_package(GMP REQUIRED)
     target_link_libraries(tight_inclusion PUBLIC gmp::gmp)
     target_compile_definitions(tight_inclusion PUBLIC TIGHT_INCLUSION_USE_GMP)

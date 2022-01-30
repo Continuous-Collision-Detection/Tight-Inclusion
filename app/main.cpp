@@ -85,11 +85,6 @@ static const std::vector<std::string> handcrafted_folders = {{
     "unit-tests",
 }};
 
-static const std::vector<std::string> fnames = {
-    {"data_0_0.csv"},
-    {"data_0_1.csv"},
-};
-
 void run_rational_data_single_method(
     const bool is_edge_edge,
     const bool is_simulation_data,
