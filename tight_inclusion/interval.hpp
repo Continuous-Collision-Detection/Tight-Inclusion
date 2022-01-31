@@ -29,8 +29,7 @@ namespace ticcd {
         {
         }
 
-        NumCCD(float x);
-        NumCCD(double x);
+        NumCCD(Scalar x);
 
         ~NumCCD() {}
 
@@ -38,6 +37,8 @@ namespace ticcd {
 
         // convert NumCCD to double number
         Scalar value() const { return Scalar(numerator) / denominator(); }
+
+        operator double() const { return value(); }
 
         NumCCD operator+(const NumCCD &other) const;
 
@@ -56,6 +57,8 @@ namespace ticcd {
         bool operator>(const NumCCD &other) const { return !(*this <= other); }
 
         bool operator<(const Scalar other) const { return value() < other; }
+        bool operator>(const Scalar other) const { return value() > other; }
+        bool operator==(const Scalar other) const { return value() == other; }
 
         static bool is_sum_leq_1(const NumCCD &num1, const NumCCD &num2);
     };

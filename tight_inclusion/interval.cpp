@@ -6,12 +6,14 @@
 
 namespace ticcd {
 
+    static constexpr uint8_t MAX_DENOM_POWER = 8 * sizeof(uint64_t) - 1;
+
     // calculate a*(2^b)
     uint64_t power(const uint64_t a, const uint8_t b)
     {
         // The fast bit shifting power trick only works if b is not too larger.
-        assert(b < 8 * sizeof(uint64_t) - 1);
-        // WARNING: Technically this can still fail with `b < 8 * sizeof(uint64_t) - 1` if `a > 1`.
+        assert(b < MAX_DENOM_POWER);
+        // WARNING: Technically this can still fail with `b < MAX_DENOM_POWER` if `a > 1`.
         return a << b;
     }
 
@@ -27,56 +29,39 @@ namespace ticcd {
         return t;
     }
 
-    NumCCD::NumCCD(float p_x)
+    NumCCD::NumCCD(Scalar x)
     {
-        union {
-            double val;
-            struct {
-                uint64_t mantisa : 23;
-                uint16_t exponent : 8;
-                uint8_t sign : 1;
-            } parts;
-        } x;
-        x.val = p_x;
+        // Use bisection to find an upper bound of x.
+        assert(x >= 0 && x <= 1);
+        NumCCD low(0, 0), high(1, 0), mid;
 
-        denom_power = abs(x.parts.exponent - 127) + 23;
-        numerator = x.parts.mantisa | (uint32_t(1) << 23);
-        for (int i = 0; i < 23; i++) {
-            if ((numerator & 1) == 0) {
-                numerator >>= 1;
-                denom_power--;
+        // Hard code these cases for better accuracy.
+        if (x == 0) {
+            *this = low;
+            return;
+        } else if (x == 1) {
+            *this = high;
+            return;
+        }
+
+        do {
+            mid = low + high;
+            mid.denom_power++;
+
+            if (mid.denom_power >= MAX_DENOM_POWER) {
+                break;
+            }
+
+            if (x > mid) {
+                low = mid;
+            } else if (x < mid) {
+                high = mid;
             } else {
                 break;
             }
-        }
-
-        assert(value() == p_x);
-    }
-
-    NumCCD::NumCCD(double p_x)
-    {
-        union {
-            double val;
-            struct {
-                uint64_t mantisa : 52;
-                uint16_t exponent : 11;
-                uint8_t sign : 1;
-            } parts;
-        } x;
-        x.val = p_x;
-
-        denom_power = abs(x.parts.exponent - 1023) + 52;
-        numerator = x.parts.mantisa | (uint64_t(1) << 52);
-        for (int i = 0; i < 52; i++) {
-            if ((numerator & 1) == 0) {
-                numerator >>= 1;
-                denom_power--;
-            } else {
-                break;
-            }
-        }
-
-        assert(value() == p_x);
+        } while (mid.denom_power < MAX_DENOM_POWER);
+        *this = high;
+        assert(x <= value());
     }
 
     NumCCD NumCCD::operator+(const NumCCD &other) const
