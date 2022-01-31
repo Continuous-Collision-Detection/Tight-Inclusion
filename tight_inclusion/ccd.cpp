@@ -164,16 +164,8 @@ namespace ticcd {
         Array3 err;
         // if error[0]<0, means we need to calculate error here
         if (err_in[0] < 0) {
-            std::vector<Vector3> vlist;
-            vlist.emplace_back(a0s);
-            vlist.emplace_back(a1s);
-            vlist.emplace_back(b0s);
-            vlist.emplace_back(b1s);
-
-            vlist.emplace_back(a0e);
-            vlist.emplace_back(a1e);
-            vlist.emplace_back(b0e);
-            vlist.emplace_back(b1e);
+            std::vector<Vector3> vlist = {
+                {a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e}};
             bool use_ms = ms > 0;
             err = get_numerical_error(vlist, false, use_ms);
         } else {
@@ -273,16 +265,10 @@ namespace ticcd {
         Array3 err;
         // if error[0]<0, means we need to calculate error here
         if (err_in[0] < 0) {
-            std::vector<Vector3> vlist;
-            vlist.emplace_back(vertex_start);
-            vlist.emplace_back(face_vertex0_start);
-            vlist.emplace_back(face_vertex1_start);
-            vlist.emplace_back(face_vertex2_start);
-
-            vlist.emplace_back(vertex_end);
-            vlist.emplace_back(face_vertex0_end);
-            vlist.emplace_back(face_vertex1_end);
-            vlist.emplace_back(face_vertex2_end);
+            std::vector<Vector3> vlist = {
+                {vertex_start, face_vertex0_start, face_vertex1_start,
+                 face_vertex2_start, vertex_end, face_vertex0_end,
+                 face_vertex1_end, face_vertex2_end}};
             bool use_ms = ms > 0;
             err = get_numerical_error(vlist, true, use_ms);
         } else {
