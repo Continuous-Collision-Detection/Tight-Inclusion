@@ -40,9 +40,9 @@ Then you can run `./Tight_Inclusion_bin` to test the `handcrafted queries` in th
 ## Usage
 Include `#include <tight_inclusion/ccd.hpp>`
 
-To check edge-edge ccd, use `bool ticcd::edgeEdgeCCD_double()`;
+To check edge-edge ccd, use `bool ticcd::edgeEdgeCCD()`;
 
-To check vertex-face ccd, use `bool ticcd::vertexFaceCCD_double()`;
+To check vertex-face ccd, use `bool ticcd::vertexFaceCCD()`;
 
 💡 If collision is detected, the ccd function will return `true`, otherwise, the ccd function will return `false`. Since our method is CONSERVATIVE, if the returned result is `false`, we guarantee that there is no collision happens. If the result is `true`, it is possible that there is no collision but we falsely report a collision, but we can guarantee that this happens only if the minimal distance between the two primitives in this time step is no larger than `tolerance + ms + err`. We wil explain these parameters below.  
 
@@ -64,11 +64,11 @@ output:
     output_tolerance    The real solving precision. If early termination is enabled, the solving precision may not reach the target precision. This parameter will return the real solving precision when the code is terminated.
 ```
 ## Tips
-💡 The input parameter `err` is crucial to guarantee our algorithm to be a conservative method not affected by floating point rounding errors. To run a single query, you can set `err = {{-1, -1, -1}}` to enable a sub-function to calculate the real numerical filters when solving CCD. If you are integrating our CCD in simulators, you need to:
+💡 The input parameter `err` is crucial to guarantee our algorithm to be a conservative method not affected by floating point rounding errors. To run a single query, you can set `err = Eigen::Array3d(-1, -1, -1)` to enable a sub-function to calculate the real numerical filters when solving CCD. If you are integrating our CCD in simulators, you need to:
 
 - Include the headler: `#include <tight_inclusion/interval_root_finder.hpp>`.
 - Call `std::array<double, 3> err_vf = ticcd::get_numerical_error()` and `std::array<double, 3> err_ee = ticcd::get_numerical_error()`
-- Use the parameter `err_ee` each time you call `bool ticcd::edgeEdgeCCD_double()` and `err_vf` when you call `bool ticcd::vertexFaceCCD_double()`.
+- Use the parameter `err_ee` each time you call `bool ticcd::edgeEdgeCCD()` and `err_vf` when you call `bool ticcd::vertexFaceCCD()`.
 
 The parameters for function `ticcd::get_numerical_error()` is explained below:
 ```
