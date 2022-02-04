@@ -2,7 +2,7 @@
 ![](./fig/line-search.jpg)
 [![Build](https://github.com/Continuous-Collision-Detection/Tight-Inclusion/actions/workflows/continuous.yml/badge.svg)](https://github.com/Continuous-Collision-Detection/Tight-Inclusion/actions/workflows/continuous.yml)
 
-A conservative Continuous Collision Detection (CCD) method with support for minimum separation.
+A conservative continuous collision detection (CCD) method with support for minimum separation.
 
 
 You can read more about this work in our ACM Transactions on Graphics paper:
