@@ -8,12 +8,17 @@ A conservative Continuous Collision Detection (CCD) method with support for mini
 You can read more about this work in our ACM Transactions on Graphics paper:
 
 ["A Large Scale Benchmark and an Inclusion-Based Algorithm forContinuous Collision Detection"](https://continuous-collision-detection.github.io/)
-```bash
+```bibtex
 @article{Wang:2021:Benchmark,
-    title   = {A Large Scale Benchmark and an Inclusion-Based Algorithm for Continuous Collision Detection},
-    author  = {Bolun Wang and Zachary Ferguson and Teseo Schneider and Xin Jiang and Marco Attene and Daniele Panozzo},
-    year    = 2021,
-    journal = {ACM Transactions on Graphics}
+    title        = {A Large Scale Benchmark and an Inclusion-Based Algorithm for Continuous Collision Detection},
+    author       = {Bolun Wang and Zachary Ferguson and Teseo Schneider and Xin Jiang and Marco Attene and Daniele Panozzo},
+    year         = 2021,
+    month        = oct,
+    journal      = {ACM Transactions on Graphics},
+    volume       = 40,
+    number       = 5,
+    articleno    = 188,
+    numpages     = 16
 }
 ```
 ## Compiling Instruction
