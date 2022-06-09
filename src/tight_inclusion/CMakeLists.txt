@@ -12,7 +12,6 @@ set(SOURCES
 )
 
 tight_inclusion_prepend_current_path(SOURCES)
-tight_inclusion_copy_headers(${SOURCES})
 tight_inclusion_set_source_group(${SOURCES})
 target_sources(tight_inclusion PRIVATE ${SOURCES})
 

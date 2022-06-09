@@ -51,8 +51,6 @@ if(TIGHT_INCLUSION_TOPLEVEL_PROJECT)
 endif()
 
 ### Configuration
-set(TIGHT_INCLUSION_SOURCE_DIR "${PROJECT_SOURCE_DIR}/src")
-
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/tight_inclusion/")
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/recipes/")
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/find/")
@@ -68,10 +66,10 @@ include(tight_inclusion_utils)
 add_library(tight_inclusion)
 add_library(tight_inclusion::tight_inclusion ALIAS tight_inclusion)
 
-add_subdirectory(tight_inclusion)
+add_subdirectory(src/tight_inclusion)
 
 # Public include directory for Tight Inclusion
-target_include_directories(tight_inclusion PUBLIC ${PROJECT_BINARY_DIR}/include)
+target_include_directories(tight_inclusion PUBLIC src)
 
 ################################################################################
 # Optional Definitions

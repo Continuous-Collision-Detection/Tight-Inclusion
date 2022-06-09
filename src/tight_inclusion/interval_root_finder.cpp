@@ -376,9 +376,7 @@ namespace ticcd {
         // current intervals
         Interval3 current;
         int refine = 0;
-        Scalar impact_ratio;
-
-        impact_ratio = 1;
+        Scalar impact_ratio = 1;
 
         toi = std::numeric_limits<Scalar>::infinity(); //set toi as infinate
         // temp_toi is to catch the toi of each level
@@ -429,10 +427,7 @@ namespace ticcd {
             {
                 TIGHT_INCLUSION_SCOPED_TIMER(time_predicates);
                 // #ifdef TIGHT_INCLUSION_USE_GMP // this is defined in the begining of this file
-                // Array3 ms_3d;
-                // ms_3d[0] = ms;
-                // ms_3d[1] = ms;
-                // ms_3d[2] = ms;
+                // Array3 ms_3d = Array3::Constant(ms);
                 // zero_in = origin_in_function_bounding_box_rational_return_tolerance<
                 //     check_vf>(
                 //     current, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, ms_3d, box_in,
@@ -568,9 +563,14 @@ namespace ticcd {
         Scalar &toi,
         Scalar &output_tolerance)
     {
-        //build interval set [0,1]x[0,1]x[0,1]
+        // build interval set [0,t_max]x[0,1]x[0,1]
         const Interval zero_to_one = Interval(NumCCD(0, 0), NumCCD(1, 0));
-        Interval3 iset = {{zero_to_one, zero_to_one, zero_to_one}};
+        Interval3 iset = {{
+            // Interval(NumCCD(0, 0), NumCCD(max_time)),
+            zero_to_one,
+            zero_to_one,
+            zero_to_one,
+        }};
 
         return interval_root_finder_BFS<check_vf>(
             a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, iset, tol,

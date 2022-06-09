@@ -1,13 +1,3 @@
-# Copy header files into the build directory
-function(tight_inclusion_copy_headers)
-  foreach(filepath IN ITEMS ${ARGN})
-    file(RELATIVE_PATH filename "${TIGHT_INCLUSION_SOURCE_DIR}" "${filepath}")
-    if(${filename} MATCHES ".*\.(hpp|h|ipp|tpp)$")
-      configure_file(${filepath} ${PROJECT_BINARY_DIR}/include/tight_inclusion/${filename})
-    endif()
-  endforeach()
-endfunction()
-
 function(tight_inclusion_prepend_current_path SOURCE_FILES)
   # Use recursive substitution to expand SOURCE_FILES
   unset(MODIFIED)
