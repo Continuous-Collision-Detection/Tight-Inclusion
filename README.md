@@ -1,5 +1,6 @@
 # Tight-Inclusion Continuous Collision Detection
-![](./fig/line-search.jpg)
+<!-- ![](./fig/line-search.jpg) -->
+![](./fig/tight-inclusion-teaser.png)
 [![Build](https://github.com/Continuous-Collision-Detection/Tight-Inclusion/actions/workflows/continuous.yml/badge.svg)](https://github.com/Continuous-Collision-Detection/Tight-Inclusion/actions/workflows/continuous.yml)
 
 A conservative continuous collision detection (CCD) method with support for minimum separation.
