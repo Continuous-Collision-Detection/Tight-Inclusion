@@ -4,23 +4,9 @@
 
 A conservative continuous collision detection (CCD) method with support for minimum separation.
 
+You can read more about this work in our ACM Transactions on Graphics paper:<br>
+["A Large Scale Benchmark and an Inclusion-Based Algorithm forContinuous Collision Detection"](https://continuous-collision-detection.github.io/tight_inclusion/)
 
-You can read more about this work in our ACM Transactions on Graphics paper:
-
-["A Large Scale Benchmark and an Inclusion-Based Algorithm forContinuous Collision Detection"](https://continuous-collision-detection.github.io/)
-```bibtex
-@article{Wang:2021:Benchmark,
-    title        = {A Large Scale Benchmark and an Inclusion-Based Algorithm for Continuous Collision Detection},
-    author       = {Bolun Wang and Zachary Ferguson and Teseo Schneider and Xin Jiang and Marco Attene and Daniele Panozzo},
-    year         = 2021,
-    month        = oct,
-    journal      = {ACM Transactions on Graphics},
-    volume       = 40,
-    number       = 5,
-    articleno    = 188,
-    numpages     = 16
-}
-```
 ## Compiling Instruction
 
 To compile the code, first make sure CMake is installed.
@@ -86,3 +72,21 @@ input:
 💡 For some simulators which use non-zero minimum separation distance (`ms` > 0) to make sure intersection-free for each time-step, we have a CMake option `TIGHT_INCLUSION_WITH_NO_ZERO_TOI` to avoid the returned collision time `toi` is 0. You need to set `TIGHT_INCLUSION_WITH_NO_ZERO_TOI` as `ON` when compiling by: `cmake ../ -DCMAKE_BUILD_TYPE=Release -DTIGHT_INCLUSION_WITH_NO_ZERO_TOI=ON`. Then when you use the CCD functions, the code will continue the refinement in higher precision if the output `toi` is 0 under the given `tolerance`. So, the eventually `toi` will not be 0.
 
 To have a better understand, or to get more details of our Tight-Inclusion CCD algorithm, please refer to our paper.
+
+## Citation
+
+If you use this work in your project, please consider citing the original paper:
+
+```bibtex
+@article{Wang:2021:Benchmark,
+    title        = {A Large Scale Benchmark and an Inclusion-Based Algorithm for Continuous Collision Detection},
+    author       = {Bolun Wang and Zachary Ferguson and Teseo Schneider and Xin Jiang and Marco Attene and Daniele Panozzo},
+    year         = 2021,
+    month        = oct,
+    journal      = {ACM Transactions on Graphics},
+    volume       = 40,
+    number       = 5,
+    articleno    = 188,
+    numpages     = 16
+}
+```
