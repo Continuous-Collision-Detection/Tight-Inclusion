@@ -22,12 +22,15 @@ Then you can run a CCD example:
 ```bash
 ./Tight_Inclusion_bin
 ```
+
+### Optional
+
 We also provide you an example to run the [Sample Queries](https://github.com/Continuous-Collision-Detection/Sample-Queries) using our CCD method. You may need to install `gmp` before compiling the code. Then set the CMake option `TIGHT_INCLUSION_WITH_TESTS` as `ON` when compiling:
 ```sh
 cmake ../ -DCMAKE_BUILD_TYPE=Release -DTIGHT_INCLUSION_WITH_TESTS=ON
 make
 ```
-Then you can run `./Tight_Inclusion_bin` to test the `handcrafted queries` in the Sample Queries.
+Then you can run `./Tight_Inclusion_bin` to test the handcrafted queries in the Sample Queries.
 ## Usage
 Include `#include <tight_inclusion/ccd.hpp>`
 
