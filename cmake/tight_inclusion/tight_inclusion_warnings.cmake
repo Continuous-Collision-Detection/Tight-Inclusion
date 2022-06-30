@@ -19,6 +19,7 @@ set(TIGHT_INCLUSION_FLAGS
 	-Wno-long-long
 	-Wpointer-arith
 	-Wformat=2
+	-Wno-maybe-uninitialized
 	-Wuninitialized
 	-Wcast-qual
 	-Wmissing-noreturn
