@@ -347,11 +347,11 @@ namespace ticcd {
 
         // this is used to catch the tolerance for each level
         Scalar temp_output_tolerance = co_domain_tolerance;
-        //return time1 >= time2
-        auto time_cmp = [](const std::pair<Interval3, int> &i1,
-                           const std::pair<Interval3, int> &i2) {
-            return i1.first[0].lower >= i2.first[0].lower;
-        };
+        // return time1 >= time2
+        // auto time_cmp = [](const std::pair<Interval3, int> &i1,
+        //                    const std::pair<Interval3, int> &i2) {
+        //     return i1.first[0].lower >= i2.first[0].lower;
+        // };
 
         // check the tree level by level instead of going deep
         // (if level 1 != level 2, return level 1 >= level 2; else, return time1 >= time2)
@@ -386,7 +386,6 @@ namespace ticcd {
         // this is to record the element that already small enough or contained in eps-box
         NumCCD TOI_SKIP = TOI;
         bool use_skip = false; // this is to record if TOI_SKIP is used.
-        bool collision = false;
         int rnbr = 0;
         int current_level = -2; // in the begining, current_level != level
         int box_in_level = -2;  // this checks if all the boxes before this
@@ -468,7 +467,6 @@ namespace ticcd {
             bool condition3 = this_level_less_tol;
             if (condition1 || condition2 || condition3) {
                 TOI = current[0].lower;
-                collision = true;
                 rnbr++;
                 // continue;
                 toi = TOI.value() * impact_ratio;

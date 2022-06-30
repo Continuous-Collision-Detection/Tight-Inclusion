@@ -221,32 +221,50 @@ namespace ticcd {
 
         template <typename T> bool operator<(const T &r1)
         {
-            return *this < Rational(r1);
+            if constexpr (std::is_same<T, Rational>::value)
+                return mpq_cmp(value, r1.value) < 0;
+            else
+                return *this < Rational(r1);
         }
 
         template <typename T> bool operator>(const T &r1)
         {
-            return *this > Rational(r1);
+            if constexpr (std::is_same<T, Rational>::value)
+                return mpq_cmp(value, r1.value) > 0;
+            else
+                return *this > Rational(r1);
         }
 
         template <typename T> bool operator<=(const T &r1)
         {
-            return *this <= Rational(r1);
+            if constexpr (std::is_same<T, Rational>::value)
+                return mpq_cmp(value, r1.value) <= 0;
+            else
+                return *this <= Rational(r1);
         }
 
         template <typename T> bool operator>=(const T &r1)
         {
-            return *this >= Rational(r1);
+            if constexpr (std::is_same<T, Rational>::value)
+                return mpq_cmp(value, r1.value) >= 0;
+            else
+                return *this >= Rational(r1);
         }
 
         template <typename T> bool operator==(const T &r1)
         {
-            return *this == Rational(r1);
+            if constexpr (std::is_same<T, Rational>::value)
+                return mpq_equal(value, r1.value);
+            else
+                return *this == Rational(r1);
         }
 
         template <typename T> bool operator!=(const T &r1)
         {
-            return *this != Rational(r1);
+            if constexpr (std::is_same<T, Rational>::value)
+                return !mpq_equal(value, r1.value);
+            else
+                return *this != Rational(r1);
         }
 
         double to_double() const { return mpq_get_d(value); }
