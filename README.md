@@ -8,7 +8,7 @@
 A conservative continuous collision detection (CCD) method with support for minimum separation.
 
 You can read more about this work in our ACM Transactions on Graphics paper:<br>
-["A Large Scale Benchmark and an Inclusion-Based Algorithm for Continuous Collision Detection"](https://continuous-collision-detection.github.io/tight_inclusion/)
+["A Large Scale Benchmark and an Inclusion-Based Algorithm for Continuous Collision Detection"](https://continuous-collision-detection.github.io/tight_inclusion/) and watch our SIGGRAPH2022 talk [video](https://www.youtube.com/watch?v=7cRg52cWL8c).
 
 ## Compiling Instruction
 
