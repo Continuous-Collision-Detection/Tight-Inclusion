@@ -232,3 +232,4 @@ sample-queries
 *.nosync
 ###############################################################################
 paper/
+fig/tight-inclusion-teaser.pdf
