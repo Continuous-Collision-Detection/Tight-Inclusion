@@ -6,14 +6,11 @@
 #include <queue>
 #include <fstream>
 
-#include <tight_inclusion/timer.hpp>
 #include <tight_inclusion/avx.hpp>
 // #define COMPARE_WITH_RATIONAL
 
 namespace ticcd {
-    Scalar time_predicates = 0, time_width = 0, time_bisect = 0,
-           time_eval_origin_1D = 0, time_eval_origin_tuv = 0,
-           time_vertex_solving = 0;
+    thread_local CCDTimes ccd_times;
 
     template <typename T, int N>
     inline void min_max_array(const std::array<T, N> &arr, T &min, T &max)
@@ -58,7 +55,7 @@ namespace ticcd {
         const Scalar ms = 0,
         Scalar *tol = nullptr)
     {
-        TIGHT_INCLUSION_SCOPED_TIMER(time_vertex_solving);
+        TIGHT_INCLUSION_SCOPED_TIMER(ccd_times.vertex_solving);
 
         std::array<Scalar, 8> vs;
         if constexpr (check_vf) {
@@ -117,13 +114,13 @@ namespace ticcd {
 
         std::array<Scalar, 8> t_up, t_dw, u_up, u_dw, v_up, v_dw;
         {
-            TIGHT_INCLUSION_SCOPED_TIMER(time_eval_origin_tuv);
+            TIGHT_INCLUSION_SCOPED_TIMER(ccd_times.eval_origin_tuv);
             convert_tuv_to_array(paras, t_up, t_dw, u_up, u_dw, v_up, v_dw);
         }
 
         bool box_in[3];
         for (int i = 0; i < 3; i++) {
-            TIGHT_INCLUSION_SCOPED_TIMER(time_eval_origin_1D);
+            TIGHT_INCLUSION_SCOPED_TIMER(ccd_times.eval_origin_1D);
             Scalar *tol = tolerance == nullptr ? nullptr : &((*tolerance)[i]);
             if (!evaluate_bbox_one_dimension_vector<check_vf>(
                     t_up, t_dw, u_up, u_dw, v_up, v_dw, a0s, a1s, b0s, b1s, a0e,
@@ -272,7 +269,7 @@ namespace ticcd {
 
             bool zero_in, box_in;
             {
-                TIGHT_INCLUSION_SCOPED_TIMER(time_predicates);
+                TIGHT_INCLUSION_SCOPED_TIMER(ccd_times.predicates);
                 zero_in = origin_in_function_bounding_box_vector<check_vf>(
                     current, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, err_and_ms,
                     box_in);
@@ -289,7 +286,7 @@ namespace ticcd {
 
             Array3 widths;
             {
-                TIGHT_INCLUSION_SCOPED_TIMER(time_width);
+                TIGHT_INCLUSION_SCOPED_TIMER(ccd_times.width);
                 widths = width(current);
             }
 
@@ -424,7 +421,7 @@ namespace ticcd {
             bool zero_in, box_in;
             Array3 true_tol;
             {
-                TIGHT_INCLUSION_SCOPED_TIMER(time_predicates);
+                TIGHT_INCLUSION_SCOPED_TIMER(ccd_times.predicates);
                 // #ifdef TIGHT_INCLUSION_USE_GMP // this is defined in the begining of this file
                 // Array3 ms_3d = Array3::Constant(ms);
                 // zero_in = origin_in_function_bounding_box_rational_return_tolerance<
@@ -443,7 +440,7 @@ namespace ticcd {
 
             Array3 widths;
             {
-                TIGHT_INCLUSION_SCOPED_TIMER(time_width);
+                TIGHT_INCLUSION_SCOPED_TIMER(ccd_times.width);
                 widths = width(current);
             }
 
@@ -574,18 +571,6 @@ namespace ticcd {
             a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, iset, tol,
             co_domain_tolerance, err, ms, max_time, max_itr, toi,
             output_tolerance);
-    }
-
-    void print_times()
-    {
-        // clang-format off
-        std::cout << "origin predicates, " << time_predicates << "\n"
-                  << "width, " << time_width << "\n"
-                  << "bisect, " << time_bisect << "\n"
-                  << "origin part1(evaluate 1 dimension), " << time_eval_origin_1D << "\n"
-                  << "origin part2(convert tuv), " << time_eval_origin_tuv << "\n"
-                  << "time of call the vertex solving function, " << time_vertex_solving << std::endl;
-        // clang-format on
     }
 
     Array3 get_numerical_error(

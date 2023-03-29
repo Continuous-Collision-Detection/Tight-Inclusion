@@ -6,6 +6,7 @@
 #include <vector>
 #include <tight_inclusion/types.hpp>
 #include <tight_inclusion/interval.hpp>
+#include <tight_inclusion/timer.hpp>
 
 namespace ticcd {
     // this version cannot give the impact time at t=1, although this collision can
@@ -117,12 +118,12 @@ namespace ticcd {
         const Vector3 &t1e,
         const Vector3 &t2e);
 
-    void print_times();
-
     // get the filter of ccd. the inputs are the vertices of the bounding box of the simulation scene
     Array3 get_numerical_error(
         const std::vector<Vector3> &vertices,
         const bool check_vf,
         const bool using_minimum_separation);
+
+    extern thread_local CCDTimes ccd_times;
 
 } // namespace ticcd

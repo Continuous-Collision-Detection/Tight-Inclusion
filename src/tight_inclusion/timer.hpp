@@ -22,6 +22,8 @@
 #endif
 #include <cstddef>
 
+#include <iostream>
+
 ////////////////////////////////////////////////////////////////////////////////
 
 #ifdef TIGHT_INCLUSION_USE_TIMER
@@ -199,6 +201,37 @@ namespace ticcd {
         std::string m_msg;
         Timer m_timer;
         double *m_total_time;
+    };
+
+    struct CCDTimes {
+        double predicates = 0;
+        double width = 0;
+        double bisect = 0;
+        double eval_origin_1D = 0;
+        double eval_origin_tuv = 0;
+        double vertex_solving = 0;
+
+        inline void reset()
+        {
+            predicates = 0;
+            width = 0;
+            bisect = 0;
+            eval_origin_1D = 0;
+            eval_origin_tuv = 0;
+            vertex_solving = 0;
+        }
+
+        inline void print() const
+        {
+            // clang-format off
+            std::cout << "origin predicates:                        " << predicates << " μs\n"
+                      << "width:                                    " << width << " μs\n"
+                      << "bisect:                                   " << bisect << " μs\n"
+                      << "origin part1(evaluate 1 dimension):       " << eval_origin_1D << " μs\n"
+                      << "origin part2(convert tuv):                " << eval_origin_tuv << " μs\n"
+                      << "time of call the vertex solving function: " << vertex_solving << " μs" << std::endl;
+            // clang-format on
+        }
     };
 
 } // namespace ticcd
