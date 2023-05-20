@@ -59,6 +59,21 @@ namespace ticcd {
              (p4e - p4).lpNorm<Eigen::Infinity>()});
     }
 
+    /// @brief Clamp a/b to [-∞, max_val]
+    /// @param a numerator
+    /// @param b denominator
+    /// @param max_val
+    /// @return a/b if b != 0, max_val if b == 0
+    inline Scalar
+    clamp_div(const Scalar a, const Scalar b, const Scalar max_val)
+    {
+        if (b == 0) {
+            return max_val;
+        } else {
+            return std::min(a / b, max_val);
+        }
+    }
+
     Array3 compute_face_vertex_tolerances(
         const Vector3 &vs,
         const Vector3 &f0s,
@@ -87,9 +102,9 @@ namespace ticcd {
             3 * max_linf_4(p000, p100, p110, p010, p001, p101, p111, p011);
 
         return Array3(
-            std::min(distance_tolerance / dl, CCD_MAX_TIME_TOL),
-            std::min(distance_tolerance / edge0_length, CCD_MAX_COORD_TOL),
-            std::min(distance_tolerance / edge1_length, CCD_MAX_COORD_TOL));
+            clamp_div(distance_tolerance, dl, CCD_MAX_TIME_TOL),
+            clamp_div(distance_tolerance, edge0_length, CCD_MAX_COORD_TOL),
+            clamp_div(distance_tolerance, edge1_length, CCD_MAX_COORD_TOL));
     }
 
     Array3 compute_edge_edge_tolerances(
@@ -121,9 +136,9 @@ namespace ticcd {
             3 * max_linf_4(p000, p100, p110, p010, p001, p101, p111, p011);
 
         return Array3(
-            std::min(distance_tolerance / dl, CCD_MAX_TIME_TOL),
-            std::min(distance_tolerance / edge0_length, CCD_MAX_COORD_TOL),
-            std::min(distance_tolerance / edge1_length, CCD_MAX_COORD_TOL));
+            clamp_div(distance_tolerance, dl, CCD_MAX_TIME_TOL),
+            clamp_div(distance_tolerance, edge0_length, CCD_MAX_COORD_TOL),
+            clamp_div(distance_tolerance, edge1_length, CCD_MAX_COORD_TOL));
     }
 
     bool edgeEdgeCCD(
