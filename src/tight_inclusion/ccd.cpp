@@ -121,10 +121,10 @@ namespace ticcd {
         const Vector3 p001 = ea0_t0 - eb1_t0;
         const Vector3 p010 = ea1_t0 - eb0_t0;
         const Vector3 p011 = ea1_t0 - eb1_t0;
-        const Vector3 p100 = ea0_t1 - eb0_t0;
-        const Vector3 p101 = ea0_t1 - eb1_t0;
-        const Vector3 p110 = ea1_t1 - eb0_t0;
-        const Vector3 p111 = ea1_t1 - eb1_t0;
+        const Vector3 p100 = ea0_t1 - eb0_t1;
+        const Vector3 p101 = ea0_t1 - eb1_t1;
+        const Vector3 p110 = ea1_t1 - eb0_t1;
+        const Vector3 p111 = ea1_t1 - eb1_t1;
 
         const Scalar dl =
             3 * max_linf_4(p000, p001, p011, p010, p100, p101, p111, p110);
