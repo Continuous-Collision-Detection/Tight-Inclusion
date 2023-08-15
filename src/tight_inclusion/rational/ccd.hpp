@@ -7,28 +7,28 @@ namespace ticcd::rational {
 
     // this version is an naive implementation of Tight-Inclusion CCD without optimizations
     bool edgeEdgeCCD(
-        const Vector3 &a0s,
-        const Vector3 &a1s,
-        const Vector3 &b0s,
-        const Vector3 &b1s,
-        const Vector3 &a0e,
-        const Vector3 &a1e,
-        const Vector3 &b0e,
-        const Vector3 &b1e,
+        const Vector3 &ea0_t0,
+        const Vector3 &ea1_t0,
+        const Vector3 &eb0_t0,
+        const Vector3 &eb1_t0,
+        const Vector3 &ea0_t1,
+        const Vector3 &ea1_t1,
+        const Vector3 &eb0_t1,
+        const Vector3 &eb1_t1,
         const Array3 &err,
         const Scalar ms,
         Scalar &toi);
 
     // this version is an naive implementation of Tight-Inclusion CCD without optimizations
     bool vertexFaceCCD(
-        const Vector3 &vertex_start,
-        const Vector3 &face_vertex0_start,
-        const Vector3 &face_vertex1_start,
-        const Vector3 &face_vertex2_start,
-        const Vector3 &vertex_end,
-        const Vector3 &face_vertex0_end,
-        const Vector3 &face_vertex1_end,
-        const Vector3 &face_vertex2_end,
+        const Vector3 &v_t0,
+        const Vector3 &f0_t0,
+        const Vector3 &f1_t0,
+        const Vector3 &f2_t0,
+        const Vector3 &v_t1,
+        const Vector3 &f0_t1,
+        const Vector3 &f1_t1,
+        const Vector3 &f2_t1,
         const Array3 &err,
         const Scalar ms,
         Scalar &toi);

@@ -1,17 +1,14 @@
 // A root finder using interval arithmetic.
-#include <tight_inclusion/interval_root_finder.hpp>
-
-#include <stack>
-#include <iostream>
-#include <queue>
-#include <fstream>
+#include "interval_root_finder.hpp"
 
 #include <tight_inclusion/timer.hpp>
 #include <tight_inclusion/avx.hpp>
-// #define COMPARE_WITH_RATIONAL
+#include <tight_inclusion/logger.hpp>
+
+#include <queue>
 
 namespace ticcd {
-    Scalar time_predicates = 0, time_width = 0, time_bisect = 0,
+    double time_predicates = 0, time_width = 0, time_bisect = 0,
            time_eval_origin_1D = 0, time_eval_origin_tuv = 0,
            time_vertex_solving = 0;
 
@@ -36,7 +33,7 @@ namespace ticcd {
     // if [-eps,eps] overlap, return true
     // bbox_in_eps tell us if the box is totally in eps box
     // ms is the minimum seperation
-    template <bool check_vf>
+    template <bool is_vertex_face>
     bool evaluate_bbox_one_dimension_vector(
         std::array<Scalar, 8> &t_up,
         std::array<Scalar, 8> &t_dw,
@@ -44,14 +41,14 @@ namespace ticcd {
         std::array<Scalar, 8> &u_dw,
         std::array<Scalar, 8> &v_up,
         std::array<Scalar, 8> &v_dw,
-        const Vector3 &a0s,
-        const Vector3 &a1s,
-        const Vector3 &b0s,
-        const Vector3 &b1s,
-        const Vector3 &a0e,
-        const Vector3 &a1e,
-        const Vector3 &b0e,
-        const Vector3 &b1e,
+        const Vector3 &a_t0,
+        const Vector3 &b_t0,
+        const Vector3 &c_t0,
+        const Vector3 &d_t0,
+        const Vector3 &a_t1,
+        const Vector3 &b_t1,
+        const Vector3 &c_t1,
+        const Vector3 &d_t1,
         const int dim,
         const Scalar eps,
         bool &bbox_in_eps,
@@ -61,14 +58,16 @@ namespace ticcd {
         TIGHT_INCLUSION_SCOPED_TIMER(time_vertex_solving);
 
         std::array<Scalar, 8> vs;
-        if constexpr (check_vf) {
+        if constexpr (is_vertex_face) {
             vs = function_vf(
-                a0s[dim], a1s[dim], b0s[dim], b1s[dim], a0e[dim], a1e[dim],
-                b0e[dim], b1e[dim], t_up, t_dw, u_up, u_dw, v_up, v_dw);
+                a_t0[dim], b_t0[dim], c_t0[dim], d_t0[dim], a_t1[dim],
+                b_t1[dim], c_t1[dim], d_t1[dim], t_up, t_dw, u_up, u_dw, v_up,
+                v_dw);
         } else {
             vs = function_ee(
-                a0s[dim], a1s[dim], b0s[dim], b1s[dim], a0e[dim], a1e[dim],
-                b0e[dim], b1e[dim], t_up, t_dw, u_up, u_dw, v_up, v_dw);
+                a_t0[dim], b_t0[dim], c_t0[dim], d_t0[dim], a_t1[dim],
+                b_t1[dim], c_t1[dim], d_t1[dim], t_up, t_dw, u_up, u_dw, v_up,
+                v_dw);
         }
 
         Scalar minv, maxv;
@@ -97,17 +96,17 @@ namespace ticcd {
     // give the result of if the hex overlaps the input eps box around origin
     // use vectorized hex-vertex-solving function for acceleration
     // box_in_eps shows if this hex is totally inside box. if so, no need to do further bisection
-    template <bool check_vf>
+    template <bool is_vertex_face>
     bool origin_in_function_bounding_box_vector(
         const Interval3 &paras,
-        const Vector3 &a0s,
-        const Vector3 &a1s,
-        const Vector3 &b0s,
-        const Vector3 &b1s,
-        const Vector3 &a0e,
-        const Vector3 &a1e,
-        const Vector3 &b0e,
-        const Vector3 &b1e,
+        const Vector3 &a_t0,
+        const Vector3 &b_t0,
+        const Vector3 &c_t0,
+        const Vector3 &d_t0,
+        const Vector3 &a_t1,
+        const Vector3 &b_t1,
+        const Vector3 &c_t1,
+        const Vector3 &d_t1,
         const Array3 &eps,
         bool &box_in_eps,
         const Scalar ms = 0,
@@ -125,9 +124,9 @@ namespace ticcd {
         for (int i = 0; i < 3; i++) {
             TIGHT_INCLUSION_SCOPED_TIMER(time_eval_origin_1D);
             Scalar *tol = tolerance == nullptr ? nullptr : &((*tolerance)[i]);
-            if (!evaluate_bbox_one_dimension_vector<check_vf>(
-                    t_up, t_dw, u_up, u_dw, v_up, v_dw, a0s, a1s, b0s, b1s, a0e,
-                    a1e, b0e, b1e, i, eps[i], box_in[i], ms, tol)) {
+            if (!evaluate_bbox_one_dimension_vector<is_vertex_face>(
+                    t_up, t_dw, u_up, u_dw, v_up, v_dw, a_t0, b_t0, c_t0, d_t0,
+                    a_t1, b_t1, c_t1, d_t1, i, eps[i], box_in[i], ms, tol)) {
                 return false;
             }
         }
@@ -156,14 +155,13 @@ namespace ticcd {
         const Interval3 &tuv,
         int split_i,
         std::function<void(const Interval3 &)> push,
-        bool check_vf,
+        bool is_vertex_face,
         Scalar t_upper_bound = 1)
     {
         std::pair<Interval, Interval> halves = tuv[split_i].bisect();
         if (halves.first.lower >= halves.first.upper
             || halves.second.lower >= halves.second.upper) {
-            std::cerr << "OVERFLOW HAPPENS WHEN SPLITTING INTERVALS"
-                      << std::endl;
+            logger().error("overflow occured when splitting intervals!");
             return true;
         }
 
@@ -179,13 +177,13 @@ namespace ticcd {
                 tmp[split_i] = halves.first;
                 push(tmp);
             }
-        } else if (!check_vf) { // edge uv
+        } else if (!is_vertex_face) { // edge uv
             tmp[split_i] = halves.second;
             push(tmp);
             tmp[split_i] = halves.first;
             push(tmp);
         } else {
-            assert(check_vf && split_i != 0);
+            assert(is_vertex_face && split_i != 0);
             // u + v ≤ 1
             if (split_i == 1) {
                 const Interval &v = tuv[2];
@@ -215,16 +213,16 @@ namespace ticcd {
     // this version cannot give the impact time at t=1, although this collision can
     // be detected at t=0 of the next time step, but still may cause problems in
     // line-search based physical simulation
-    template <bool check_vf>
+    template <bool is_vertex_face>
     bool interval_root_finder_DFS(
-        const Vector3 &a0s,
-        const Vector3 &a1s,
-        const Vector3 &b0s,
-        const Vector3 &b1s,
-        const Vector3 &a0e,
-        const Vector3 &a1e,
-        const Vector3 &b0e,
-        const Vector3 &b1e,
+        const Vector3 &a_t0,
+        const Vector3 &b_t0,
+        const Vector3 &c_t0,
+        const Vector3 &d_t0,
+        const Vector3 &a_t1,
+        const Vector3 &b_t1,
+        const Vector3 &c_t1,
+        const Vector3 &d_t1,
         const Array3 &tol,
         const Array3 &err,
         const Scalar ms,
@@ -259,8 +257,7 @@ namespace ticcd {
             istack.pop();
 
             // if(rnbr>0&&less_than( current[0].first,TOI)){
-            //     std::cout<<"not the first"<<std::endl;
-            //     // continue;
+            //     continue;
             // }
 
             //TOI should always be no larger than current
@@ -273,14 +270,15 @@ namespace ticcd {
             bool zero_in, box_in;
             {
                 TIGHT_INCLUSION_SCOPED_TIMER(time_predicates);
-                zero_in = origin_in_function_bounding_box_vector<check_vf>(
-                    current, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, err_and_ms,
-                    box_in);
+                zero_in =
+                    origin_in_function_bounding_box_vector<is_vertex_face>(
+                        current, a_t0, b_t0, c_t0, d_t0, a_t1, b_t1, c_t1, d_t1,
+                        err_and_ms, box_in);
             }
 
-            // #ifdef TIGHT_INCLUSION_USE_GMP // this is defined in the begining of this file
-            // zero_in = origin_in_function_bounding_box_rational<check_vf>(
-            //     current, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e);
+            // #ifdef TIGHT_INCLUSION_WITH_GMP // this is defined in the begining of this file
+            // zero_in = origin_in_function_bounding_box_rational<is_vertex_face>(
+            //     current, a_t0, b_t0, c_t0, d_t0, a_t1, b_t1, c_t1, d_t1);
             // #endif
 
             if (!zero_in) {
@@ -307,10 +305,9 @@ namespace ticcd {
 
             bool overflowed = split_and_push(
                 current, split_i,
-                [&](const Interval3 &i) { istack.emplace(i); }, check_vf);
+                [&](const Interval3 &i) { istack.emplace(i); }, is_vertex_face);
             if (overflowed) {
-                std::cerr << "OVERFLOW HAPPENS WHEN SPLITTING INTERVALS"
-                          << std::endl;
+                logger().error("overflow occured when splitting intervals!");
                 return true;
             }
         }
@@ -320,23 +317,23 @@ namespace ticcd {
     }
 
     // when check_t_overlap = false, check [0,1]x[0,1]x[0,1]; otherwise, check [0, t_max]x[0,1]x[0,1]
-    template <bool check_vf>
+    template <bool is_vertex_face>
     bool interval_root_finder_BFS(
-        const Vector3 &a0s,
-        const Vector3 &a1s,
-        const Vector3 &b0s,
-        const Vector3 &b1s,
-        const Vector3 &a0e,
-        const Vector3 &a1e,
-        const Vector3 &b0e,
-        const Vector3 &b1e,
+        const Vector3 &a_t0,
+        const Vector3 &b_t0,
+        const Vector3 &c_t0,
+        const Vector3 &d_t0,
+        const Vector3 &a_t1,
+        const Vector3 &b_t1,
+        const Vector3 &c_t1,
+        const Vector3 &d_t1,
         const Interval3 &iset,
         const Array3 &tol,
         const Scalar co_domain_tolerance,
         const Array3 &err,
         const Scalar ms,
         const Scalar max_time,
-        const int max_itr,
+        const long max_itr,
         Scalar &toi,
         Scalar &output_tolerance)
     {
@@ -394,7 +391,7 @@ namespace ticcd {
         bool find_level_root = false;
         Scalar t_upper_bound = max_time; // 2*tol make it more conservative
         while (!istack.empty()) {
-#ifdef CHECK_QUEUE_SIZE
+#ifdef TIGHT_INCLUSION_CHECK_QUEUE_SIZE
             if (istack.size() > queue_size) {
                 queue_size = istack.size();
             }
@@ -425,16 +422,16 @@ namespace ticcd {
             Array3 true_tol;
             {
                 TIGHT_INCLUSION_SCOPED_TIMER(time_predicates);
-                // #ifdef TIGHT_INCLUSION_USE_GMP // this is defined in the begining of this file
+                // #ifdef TIGHT_INCLUSION_WITH_GMP // this is defined in the begining of this file
                 // Array3 ms_3d = Array3::Constant(ms);
-                // zero_in = origin_in_function_bounding_box_rational_return_tolerance<
-                //     check_vf>(
-                //     current, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, ms_3d, box_in,
-                //     true_tol);
+                // zero_in = origin_in_function_bounding_box_rational_return_tolerance<is_vertex_face>(
+                //     current, a_t0, b_t0, c_t0, d_t0, a_t1, b_t1, c_t1, d_t1,
+                //     ms_3d, box_in, true_tol);
                 // #else
-                zero_in = origin_in_function_bounding_box_vector<check_vf>(
-                    current, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, err,
-                    box_in, ms, &true_tol);
+                zero_in =
+                    origin_in_function_bounding_box_vector<is_vertex_face>(
+                        current, a_t0, b_t0, c_t0, d_t0, a_t1, b_t1, c_t1, d_t1,
+                        err, box_in, ms, &true_tol);
                 // #endif
             }
 
@@ -504,7 +501,6 @@ namespace ticcd {
                     toi = temp_toi;
                     output_tolerance = temp_output_tolerance;
 
-                    // std::cout<<"return from refine"<<std::endl;
                     return true;
                 }
                 // get the time of impact down here
@@ -526,10 +522,9 @@ namespace ticcd {
             bool overflow = split_and_push(
                 current, split_i,
                 [&](const Interval3 &i) { istack.emplace(i, level + 1); },
-                check_vf, t_upper_bound);
+                is_vertex_face, t_upper_bound);
             if (overflow) {
-                std::cout << "OVERFLOW HAPPENS WHEN SPLITTING INTERVALS"
-                          << std::endl;
+                logger().error("overflow occured when splitting intervals!");
                 return true;
             }
         }
@@ -542,22 +537,22 @@ namespace ticcd {
         return false;
     }
 
-    template <bool check_vf>
+    template <bool is_vertex_face>
     bool interval_root_finder_BFS(
-        const Vector3 &a0s,
-        const Vector3 &a1s,
-        const Vector3 &b0s,
-        const Vector3 &b1s,
-        const Vector3 &a0e,
-        const Vector3 &a1e,
-        const Vector3 &b0e,
-        const Vector3 &b1e,
+        const Vector3 &a_t0,
+        const Vector3 &b_t0,
+        const Vector3 &c_t0,
+        const Vector3 &d_t0,
+        const Vector3 &a_t1,
+        const Vector3 &b_t1,
+        const Vector3 &c_t1,
+        const Vector3 &d_t1,
         const Array3 &tol,
         const Scalar co_domain_tolerance,
         const Array3 &err,
         const Scalar ms,
         const Scalar max_time,
-        const int max_itr,
+        const long max_itr,
         Scalar &toi,
         Scalar &output_tolerance)
     {
@@ -570,33 +565,36 @@ namespace ticcd {
             zero_to_one,
         }};
 
-        return interval_root_finder_BFS<check_vf>(
-            a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, iset, tol,
+        return interval_root_finder_BFS<is_vertex_face>(
+            a_t0, b_t0, c_t0, d_t0, a_t1, b_t1, c_t1, d_t1, iset, tol,
             co_domain_tolerance, err, ms, max_time, max_itr, toi,
             output_tolerance);
     }
 
     void print_times()
     {
-        // clang-format off
-        std::cout << "origin predicates, " << time_predicates << "\n"
-                  << "width, " << time_width << "\n"
-                  << "bisect, " << time_bisect << "\n"
-                  << "origin part1(evaluate 1 dimension), " << time_eval_origin_1D << "\n"
-                  << "origin part2(convert tuv), " << time_eval_origin_tuv << "\n"
-                  << "time of call the vertex solving function, " << time_vertex_solving << std::endl;
-        // clang-format on
+        logger().trace("[time] origin predicates, {}", time_predicates);
+        logger().trace("[time] width, {}", time_width);
+        logger().trace("[time] bisect, {}", time_bisect);
+        logger().trace(
+            "[time] origin part1(evaluate 1 dimension), {}",
+            time_eval_origin_1D);
+        logger().trace(
+            "[time] origin part2(convert tuv), {}", time_eval_origin_tuv);
+        logger().trace(
+            "[time] time of call the vertex solving function, {}",
+            time_vertex_solving);
     }
 
     Array3 get_numerical_error(
         const std::vector<Vector3> &vertices,
-        const bool check_vf,
+        const bool is_vertex_face,
         const bool using_minimum_separation)
     {
         Scalar eefilter;
         Scalar vffilter;
         if (!using_minimum_separation) {
-#ifdef TIGHT_INCLUSION_DOUBLE
+#ifdef TIGHT_INCLUSION_WITH_DOUBLE_PRECISION
             eefilter = 6.217248937900877e-15;
             vffilter = 6.661338147750939e-15;
 #else
@@ -605,7 +603,7 @@ namespace ticcd {
 #endif
         } else // using minimum separation
         {
-#ifdef TIGHT_INCLUSION_DOUBLE
+#ifdef TIGHT_INCLUSION_WITH_DOUBLE_PRECISION
             eefilter = 7.105427357601002e-15;
             vffilter = 7.549516567451064e-15;
 #else
@@ -619,99 +617,107 @@ namespace ticcd {
             max = max.cwiseMax(vertices[i].cwiseAbs());
         }
         Vector3 delta = max.cwiseMin(1);
-        Scalar filter = check_vf ? vffilter : eefilter;
+        Scalar filter = is_vertex_face ? vffilter : eefilter;
         return filter * delta.array().pow(3);
     }
 
-    //////////////////////////////////////////////////////////////////////////
-    // Template instantiation
-    //////////////////////////////////////////////////////////////////////////
     bool edge_edge_interval_root_finder_DFS(
-        const Vector3 &a0s,
-        const Vector3 &a1s,
-        const Vector3 &b0s,
-        const Vector3 &b1s,
-        const Vector3 &a0e,
-        const Vector3 &a1e,
-        const Vector3 &b0e,
-        const Vector3 &b1e,
+        const Vector3 &ea0_t0,
+        const Vector3 &ea1_t0,
+        const Vector3 &eb0_t0,
+        const Vector3 &eb1_t0,
+        const Vector3 &ea0_t1,
+        const Vector3 &ea1_t1,
+        const Vector3 &eb0_t1,
+        const Vector3 &eb1_t1,
         const Array3 &tol,
         const Array3 &err,
         const Scalar ms,
         Scalar &toi)
     {
         return interval_root_finder_DFS<false>(
-            a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, tol, err, ms, toi);
+            ea0_t0, ea1_t0, eb0_t0, eb1_t0, ea0_t1, ea1_t1, eb0_t1, eb1_t1, tol,
+            err, ms, toi);
     }
 
     bool vertex_face_interval_root_finder_DFS(
-        const Vector3 &vertex_start,
-        const Vector3 &face_vertex0_start,
-        const Vector3 &face_vertex1_start,
-        const Vector3 &face_vertex2_start,
-        const Vector3 &vertex_end,
-        const Vector3 &face_vertex0_end,
-        const Vector3 &face_vertex1_end,
-        const Vector3 &face_vertex2_end,
+        const Vector3 &v_t0,
+        const Vector3 &f0_t0,
+        const Vector3 &f1_t0,
+        const Vector3 &f2_t0,
+        const Vector3 &v_t1,
+        const Vector3 &f0_t1,
+        const Vector3 &f1_t1,
+        const Vector3 &f2_t1,
         const Array3 &tol,
         const Array3 &err,
         const Scalar ms,
         Scalar &toi)
     {
         return interval_root_finder_DFS<true>(
-            vertex_start, face_vertex0_start, face_vertex1_start,
-            face_vertex2_start, vertex_end, face_vertex0_end, face_vertex1_end,
-            face_vertex2_end, tol, err, ms, toi);
+            v_t0, f0_t0, f1_t0, f2_t0, v_t1, f0_t1, f1_t1, f2_t1, tol, err, ms,
+            toi);
     }
 
     bool edge_edge_interval_root_finder_BFS(
-        const Vector3 &a0s,
-        const Vector3 &a1s,
-        const Vector3 &b0s,
-        const Vector3 &b1s,
-        const Vector3 &a0e,
-        const Vector3 &a1e,
-        const Vector3 &b0e,
-        const Vector3 &b1e,
+        const Vector3 &ea0_t0,
+        const Vector3 &ea1_t0,
+        const Vector3 &eb0_t0,
+        const Vector3 &eb1_t0,
+        const Vector3 &ea0_t1,
+        const Vector3 &ea1_t1,
+        const Vector3 &eb0_t1,
+        const Vector3 &eb1_t1,
         const Array3 &tol,
         const Scalar co_domain_tolerance,
         // this is the maximum error on each axis when calculating the vertices, err, aka, filter
         const Array3 &err,
         const Scalar ms,
         const Scalar max_time,
-        const int max_itr,
+        const long max_itr,
         Scalar &toi,
         Scalar &output_tolerance)
     {
         return interval_root_finder_BFS<false>(
-            a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, tol, co_domain_tolerance,
-            err, ms, max_time, max_itr, toi, output_tolerance);
+            ea0_t0, ea1_t0, eb0_t0, eb1_t0, ea0_t1, ea1_t1, eb0_t1, eb1_t1, tol,
+            co_domain_tolerance, err, ms, max_time, max_itr, toi,
+            output_tolerance);
     }
 
     bool vertex_face_interval_root_finder_BFS(
-        const Vector3 &vertex_start,
-        const Vector3 &face_vertex0_start,
-        const Vector3 &face_vertex1_start,
-        const Vector3 &face_vertex2_start,
-        const Vector3 &vertex_end,
-        const Vector3 &face_vertex0_end,
-        const Vector3 &face_vertex1_end,
-        const Vector3 &face_vertex2_end,
+        const Vector3 &v_t0,
+        const Vector3 &f0_t0,
+        const Vector3 &f1_t0,
+        const Vector3 &f2_t0,
+        const Vector3 &v_t1,
+        const Vector3 &f0_t1,
+        const Vector3 &f1_t1,
+        const Vector3 &f2_t1,
         const Array3 &tol,
         const Scalar co_domain_tolerance,
         // this is the maximum error on each axis when calculating the vertices, err, aka, filter
         const Array3 &err,
         const Scalar ms,
         const Scalar max_time,
-        const int max_itr,
+        const long max_itr,
         Scalar &toi,
         Scalar &output_tolerance)
     {
         return interval_root_finder_BFS<true>(
-            vertex_start, face_vertex0_start, face_vertex1_start,
-            face_vertex2_start, vertex_end, face_vertex0_end, face_vertex1_end,
-            face_vertex2_end, tol, co_domain_tolerance, err, ms, max_time,
-            max_itr, toi, output_tolerance);
+            v_t0, f0_t0, f1_t0, f2_t0, v_t1, f0_t1, f1_t1, f2_t1, tol,
+            co_domain_tolerance, err, ms, max_time, max_itr, toi,
+            output_tolerance);
     }
+
+    // ------------------------------------------------------------------------
+    // Template instantiation
+    // ------------------------------------------------------------------------
+
+    // clang-format off
+    template bool interval_root_finder_DFS<false>(const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Array3 &,const Array3 &,const Scalar,Scalar &);
+    template bool interval_root_finder_DFS<true>(const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Array3 &,const Array3 &,const Scalar,Scalar &);
+    template bool interval_root_finder_BFS<false>(const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Array3 &,const Scalar,const Array3 &,const Scalar,const Scalar,const long,Scalar &,Scalar &);
+    template bool interval_root_finder_BFS<true>(const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Array3 &,const Scalar,const Array3 &,const Scalar,const Scalar,const long,Scalar &,Scalar &);
+    // clang-format on
 
 } // namespace ticcd

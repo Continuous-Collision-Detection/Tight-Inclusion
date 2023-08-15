@@ -230,6 +230,10 @@ external
 sample-queries
 
 *.nosync
+
 ###############################################################################
+
 paper/
-fig/*.pdf
+TightInclusionOptions.cmake
+src/tight_inclusion/config.hpp
+app/config.hpp

@@ -2,6 +2,8 @@
 
 #include <tight_inclusion/interval.hpp>
 
+#include <array>
+
 namespace ticcd {
     void convert_tuv_to_array(
         const Interval3 &itv,
@@ -13,14 +15,14 @@ namespace ticcd {
         std::array<Scalar, 8> &v_dw);
 
     std::array<Scalar, 8> function_vf(
-        const Scalar &vs,
-        const Scalar &t0s,
-        const Scalar &t1s,
-        const Scalar &t2s,
-        const Scalar &ve,
-        const Scalar &t0e,
-        const Scalar &t1e,
-        const Scalar &t2e,
+        const Scalar &v_t0,
+        const Scalar &f0_t0,
+        const Scalar &f1_t0,
+        const Scalar &f2_t0,
+        const Scalar &v_t1,
+        const Scalar &f0_t1,
+        const Scalar &f1_t1,
+        const Scalar &f2_t1,
         const std::array<Scalar, 8> &t_up,
         const std::array<Scalar, 8> &t_dw,
         const std::array<Scalar, 8> &u_up,
@@ -29,14 +31,14 @@ namespace ticcd {
         const std::array<Scalar, 8> &v_dw);
 
     std::array<Scalar, 8> function_ee(
-        const Scalar &a0s,
-        const Scalar &a1s,
-        const Scalar &b0s,
-        const Scalar &b1s,
-        const Scalar &a0e,
-        const Scalar &a1e,
-        const Scalar &b0e,
-        const Scalar &b1e,
+        const Scalar &ea0_t0,
+        const Scalar &ea1_t0,
+        const Scalar &eb0_t0,
+        const Scalar &eb1_t0,
+        const Scalar &ea0_t1,
+        const Scalar &ea1_t1,
+        const Scalar &eb0_t1,
+        const Scalar &eb1_t1,
         const std::array<Scalar, 8> &t_up,
         const std::array<Scalar, 8> &t_dw,
         const std::array<Scalar, 8> &u_up,

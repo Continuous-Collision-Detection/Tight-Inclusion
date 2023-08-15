@@ -1,8 +1,5 @@
 // An interval object.
-
-#include <tight_inclusion/interval.hpp>
-
-#include <iostream>
+#include "interval.hpp"
 
 namespace ticcd {
 

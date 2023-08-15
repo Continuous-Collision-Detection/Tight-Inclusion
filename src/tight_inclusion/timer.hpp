@@ -13,6 +13,8 @@
 
 #pragma once
 
+#include <tight_inclusion/config.hpp>
+
 #ifdef WIN32 // Windows system specific
 #include <windows.h>
 #elif __APPLE__             // Unix based system specific
@@ -24,7 +26,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifdef TIGHT_INCLUSION_USE_TIMER
+#ifdef TIGHT_INCLUSION_WITH_TIMER
 #define TIGHT_INCLUSION_SCOPED_TIMER(total_time)                               \
     ticcd::ScopedTimer __tight_inclusion_timer(total_time)
 #else

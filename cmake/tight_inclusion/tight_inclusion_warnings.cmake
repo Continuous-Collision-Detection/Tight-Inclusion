@@ -7,7 +7,7 @@ if(TARGET tight_inclusion::warnings)
 	return()
 endif()
 
-set(TIGHT_INCLUSION_FLAGS
+set(TIGHT_INCLUSION_WARNING_FLAGS
 	-Wall
 	-Wextra
 	-pedantic
@@ -41,7 +41,7 @@ set(TIGHT_INCLUSION_FLAGS
 	-Werror=pointer-to-int-cast
 
 	-Wno-unused-variable
-	-Wunused-but-set-variable
+	-Wno-unused-but-set-variable
 	-Wno-unused-parameter
 
 	#-Weffc++
@@ -146,20 +146,12 @@ set(TIGHT_INCLUSION_FLAGS
 
 # Flags above don't make sense for MSVC
 if(MSVC)
-	set(TIGHT_INCLUSION_FLAGS)
+	set(TIGHT_INCLUSION_WARNING_FLAGS)
 endif()
-
-include(CheckCXXCompilerFlag)
 
 add_library(tight_inclusion_warnings INTERFACE)
 add_library(tight_inclusion::warnings ALIAS tight_inclusion_warnings)
 
-foreach(FLAG IN ITEMS ${TIGHT_INCLUSION_FLAGS})
-	string(REPLACE "=" "-" FLAG_VAR "${FLAG}")
-	if(NOT DEFINED IS_SUPPORTED_${FLAG_VAR})
-		check_cxx_compiler_flag("${FLAG}" IS_SUPPORTED_${FLAG_VAR})
-	endif()
-	if(IS_SUPPORTED_${FLAG_VAR})
-		target_compile_options(tight_inclusion_warnings INTERFACE ${FLAG})
-	endif()
-endforeach()
+include(tight_inclusion_filter_flags)
+tight_inclusion_filter_flags(TIGHT_INCLUSION_WARNING_FLAGS)
+target_compile_options(tight_inclusion_warnings INTERFACE ${TIGHT_INCLUSION_WARNING_FLAGS})
