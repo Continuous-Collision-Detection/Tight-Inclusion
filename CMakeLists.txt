@@ -7,7 +7,7 @@ else()
 endif()
 
 # Check required CMake version
-set(REQUIRED_CMAKE_VERSION "3.14.0")
+set(REQUIRED_CMAKE_VERSION "3.18.0")
 if(TIGHT_INCLUSION_TOPLEVEL_PROJECT)
     cmake_minimum_required(VERSION ${REQUIRED_CMAKE_VERSION})
 else()
@@ -24,24 +24,50 @@ if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/TightInclusionOptions.cmake)
     include(${CMAKE_CURRENT_SOURCE_DIR}/TightInclusionOptions.cmake)
 endif()
 
+# Enable ccache if available
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+    option(TIGHT_INCLUSION_WITH_CCACHE "Enable ccache when building Tight Inclusion" ${TIGHT_INCLUSION_TOPLEVEL_PROJECT})
+else()
+    option(TIGHT_INCLUSION_WITH_CCACHE "Enable ccache when building Tight Inclusion" OFF)
+endif()
+if(TIGHT_INCLUSION_WITH_CCACHE AND CCACHE_PROGRAM)
+    message(STATUS "Enabling Ccache support")
+    set(ccacheEnv
+        CCACHE_BASEDIR=${CMAKE_BINARY_DIR}
+        CCACHE_SLOPPINESS=clang_index_store,include_file_ctime,include_file_mtime,locale,pch_defines,time_macros
+    )
+    foreach(lang IN ITEMS C CXX)
+        set(CMAKE_${lang}_COMPILER_LAUNCHER
+            ${CMAKE_COMMAND} -E env ${ccacheEnv} ${CCACHE_PROGRAM}
+        )
+    endforeach()
+endif()
+
+################################################################################
+# CMake Policies
+################################################################################
+
+cmake_policy(SET CMP0054 NEW) # Only interpret if() arguments as variables or keywords when unquoted.
+cmake_policy(SET CMP0076 NEW) # target_sources() command converts relative paths to absolute.
+if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.24")
+    cmake_policy(SET CMP0135 NEW) # Set the timestamps of all extracted contents to the time of the extraction.
+endif()
+
 ################################################################################
 
 project(TightInclusion
         DESCRIPTION "Tight Inclusion CCD"
-        LANGUAGES CXX)
+        LANGUAGES CXX
+        VERSION "1.0.4")
 
-OPTION(TIGHT_INCLUSION_WITH_TESTS             "Enable test functions"                                   OFF)
-OPTION(TIGHT_INCLUSION_WITH_GMP               "Enable rational based predicates, for debug"             OFF)
-OPTION(TIGHT_INCLUSION_WITH_TIMER             "Enable profiling timers, for debug"                      OFF)
-OPTION(TIGHT_INCLUSION_WITH_DOUBLE_PRECISION  "Enable double precision floating point numbers as input"  ON)
-OPTION(TIGHT_INCLUSION_LIMIT_QUEUE_SIZE       "Enable limitation of maximal queue size"                 OFF)
-
-# Option to supress progress output when on GH actions.
-OPTION(TIGHT_INCLUSION_SUPPRESS_PROGRESS_OUTPUT "Enable limitation of maximal queue size"               OFF)
-mark_as_advanced(TIGHT_INCLUSION_SUPPRESS_PROGRESS_OUTPUT)
+option(TIGHT_INCLUSION_WITH_GMP               "Enable rational based predicates (for debugging)"        OFF)
+option(TIGHT_INCLUSION_WITH_TIMER             "Enable profiling timers (for debugging)"                 OFF)
+option(TIGHT_INCLUSION_WITH_DOUBLE_PRECISION  "Enable double precision floating point numbers as input"  ON)
+option(TIGHT_INCLUSION_LIMIT_QUEUE_SIZE       "Enable limitation of maximal queue size"                 OFF)
 
 include(CMakeDependentOption)
-cmake_dependent_option(TIGHT_INCLUSION_FLOAT_WITH_DOUBLE_INPUT "Enable converting double queries to float" OFF "TIGHT_INCLUSION_WITH_DOUBLE_PRECISION" OFF)
+cmake_dependent_option(TIGHT_INCLUSION_FLOAT_WITH_DOUBLE_INPUT "Enable converting double queries to float" OFF "TIGHT_INCLUSION_WITH_DOUBLE_PRECISION" ON)
 
 # Set default minimum C++ standard
 if(TIGHT_INCLUSION_TOPLEVEL_PROJECT)
@@ -51,12 +77,19 @@ if(TIGHT_INCLUSION_TOPLEVEL_PROJECT)
 endif()
 
 ### Configuration
+set(TIGHT_INCLUSION_SOURCE_DIR "${PROJECT_SOURCE_DIR}/src/tight_inclusion")
+set(TIGHT_INCLUSION_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/src")
+
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/tight_inclusion/")
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/recipes/")
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/find/")
 
-# Tight Inclusion utils
-include(tight_inclusion_utils)
+# General CMake utils
+include(tight_inclusion_cpm_cache)
+include(tight_inclusion_use_colors)
+
+# Generate position-independent code by default
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 ################################################################################
 # Tight Inclusion Library
@@ -66,10 +99,16 @@ include(tight_inclusion_utils)
 add_library(tight_inclusion)
 add_library(tight_inclusion::tight_inclusion ALIAS tight_inclusion)
 
-add_subdirectory(src/tight_inclusion)
+# Fill in configuration options
+configure_file(
+  "${TIGHT_INCLUSION_SOURCE_DIR}/config.hpp.in"
+  "${TIGHT_INCLUSION_SOURCE_DIR}/config.hpp")
+
+# Add source and header files to tight_inclusion
+add_subdirectory("${TIGHT_INCLUSION_SOURCE_DIR}")
 
 # Public include directory for Tight Inclusion
-target_include_directories(tight_inclusion PUBLIC src)
+target_include_directories(tight_inclusion PUBLIC "${TIGHT_INCLUSION_INCLUDE_DIR}")
 
 ################################################################################
 # Optional Definitions
@@ -82,45 +121,23 @@ target_compile_definitions(tight_inclusion PUBLIC NOMINMAX)
 # Dependencies
 ################################################################################
 
-# Extra warnings
-include(tight_inclusion_warnings)
-target_link_libraries(tight_inclusion PRIVATE tight_inclusion::warnings)
-
-# libigl
+# Eigen
 include(eigen)
 target_link_libraries(tight_inclusion PUBLIC Eigen3::Eigen)
 
+# Logger
+include(spdlog)
+target_link_libraries(tight_inclusion PUBLIC spdlog::spdlog)
+
 # GMP (optional)
-if(TIGHT_INCLUSION_WITH_GMP OR TIGHT_INCLUSION_WITH_TESTS)
+if(TIGHT_INCLUSION_WITH_GMP)
     find_package(GMP REQUIRED)
     target_link_libraries(tight_inclusion PUBLIC gmp::gmp)
-    target_compile_definitions(tight_inclusion PUBLIC TIGHT_INCLUSION_USE_GMP)
 endif()
 
-################################################################################
-# Definitions
-################################################################################
-
-if(TIGHT_INCLUSION_WITH_TIMER)
-    target_compile_definitions(tight_inclusion PRIVATE TIGHT_INCLUSION_USE_TIMER)
-endif()
-
-if (TIGHT_INCLUSION_WITH_DOUBLE_PRECISION)
-    message(STATUS "Tight Inclusion: Using Double Precision Floating Points")
-    target_compile_definitions(tight_inclusion PUBLIC TIGHT_INCLUSION_DOUBLE)
-else()
-    message(STATUS "Tight Inclusion: Using Single Precision Floating Points")
-endif()
-
-if(TIGHT_INCLUSION_LIMIT_QUEUE_SIZE)
-    message(STATUS "Tight Inclusion: Limiting maximal queue size")
-    target_compile_definitions(tight_inclusion PUBLIC TIGHT_INCLUSION_LIMIT_QUEUE_SIZE)
-endif()
-
-if(TIGHT_INCLUSION_FLOAT_WITH_DOUBLE_INPUT)
-    message(STATUS "Tight Inclusion: Converting double inputs to float for tests")
-    target_compile_definitions(tight_inclusion PUBLIC TIGHT_INCLUSION_FWDI)
-endif()
+# Extra warnings (link last for highest priority)
+include(tight_inclusion_warnings)
+target_link_libraries(tight_inclusion PRIVATE tight_inclusion::warnings)
 
 ################################################################################
 # Compiler options
@@ -140,20 +157,5 @@ target_compile_features(tight_inclusion PUBLIC cxx_std_17)
 ################################################################################
 
 if(TIGHT_INCLUSION_TOPLEVEL_PROJECT)
-    add_executable(Tight_Inclusion_bin "app/main.cpp")
-    target_link_libraries(Tight_Inclusion_bin PUBLIC tight_inclusion)
-
-    set(TIGHT_INCLUSION_SAMPLE_QUERIES_DIR "${PROJECT_SOURCE_DIR}/sample-queries")
-    include(sample_queries)
-
-    if(TIGHT_INCLUSION_SUPPRESS_PROGRESS_OUTPUT)
-        target_compile_definitions(Tight_Inclusion_bin PUBLIC TIGHT_INCLUSION_SUPPRESS_PROGRESS_OUTPUT)
-    endif()
-
-    if (TIGHT_INCLUSION_WITH_TESTS)
-        target_sources(Tight_Inclusion_bin PUBLIC "app/read_rational_csv.cpp")
-        target_compile_definitions(Tight_Inclusion_bin PUBLIC TIGHT_INCLUSION_RUN_EXAMPLES)
-        target_compile_definitions(Tight_Inclusion_bin PUBLIC
-            TIGHT_INCLUSION_SAMPLE_QUERIES_DIR="${TIGHT_INCLUSION_SAMPLE_QUERIES_DIR}/")
-    endif()
+    add_subdirectory(app)
 endif()

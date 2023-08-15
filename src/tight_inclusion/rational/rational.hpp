@@ -1,7 +1,6 @@
 #pragma once
 
 #include <gmp.h>
-#include <iostream>
 #include <tight_inclusion/types.hpp>
 
 namespace ticcd {
@@ -17,12 +16,9 @@ namespace ticcd {
         {
             mpz_t numerator;
             mpz_init(numerator);
-            // std::cout<<"++++++++++++"<<std::endl;
             mpq_get_num(numerator, value);
-            // std::cout<<"*************"<<std::endl;
             mpz_out_str(NULL, 10, numerator);
             // long v=mpz_get_si(numerator);
-            // std::cout<<v;
             mpz_clear(numerator);
         }
 
@@ -34,7 +30,6 @@ namespace ticcd {
 
             mpz_out_str(NULL, 10, denominator);
             // long v=mpz_get_si(denominator);
-            // std::cout<<v;
             mpz_clear(denominator);
         }
 

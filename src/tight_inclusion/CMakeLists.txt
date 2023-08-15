@@ -7,12 +7,13 @@ set(SOURCES
     interval_root_finder.hpp
     interval.cpp
     interval.hpp
+    logger.cpp
+    logger.hpp
     timer.hpp
     types.hpp
 )
 
-tight_inclusion_prepend_current_path(SOURCES)
-tight_inclusion_set_source_group(${SOURCES})
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" PREFIX "Source Files" FILES ${SOURCES})
 target_sources(tight_inclusion PRIVATE ${SOURCES})
 
 ################################################################################

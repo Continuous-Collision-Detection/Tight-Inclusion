@@ -2,7 +2,6 @@
 #include <tight_inclusion/rational/interval_root_finder.hpp>
 
 #include <stack>
-#include <iostream>
 
 // #define COMPARE_WITH_RATIONAL
 
@@ -20,146 +19,127 @@ namespace ticcd::rational {
     }
 
     Vector3r function_f_ee_rational(
-        const NumCCD &tpara,
-        const NumCCD &upara,
-        const NumCCD &vpara,
-        const Vector3 &a0sd,
-        const Vector3 &a1sd,
-        const Vector3 &b0sd,
-        const Vector3 &b1sd,
-        const Vector3 &a0ed,
-        const Vector3 &a1ed,
-        const Vector3 &b0ed,
-        const Vector3 &b1ed)
+        const Rational &t,
+        const Rational &u,
+        const Rational &v,
+        const Vector3 &ea0_t0d,
+        const Vector3 &ea1_t0d,
+        const Vector3 &eb0_t0d,
+        const Vector3 &eb1_t0d,
+        const Vector3 &ea0_t1d,
+        const Vector3 &ea1_t1d,
+        const Vector3 &eb0_t1d,
+        const Vector3 &eb1_t1d)
     {
-        Rational t = Rational(double(tpara.numerator))
-                     / Rational(double(tpara.denominator()));
-        Rational u = Rational(double(upara.numerator))
-                     / Rational(double(upara.denominator()));
-        Rational v = Rational(double(vpara.numerator))
-                     / Rational(double(vpara.denominator()));
+        const Vector3r ea0_t0 = ea0_t0d.cast<Rational>();
+        const Vector3r ea1_t0 = ea1_t0d.cast<Rational>();
+        const Vector3r eb0_t0 = eb0_t0d.cast<Rational>();
+        const Vector3r eb1_t0 = eb1_t0d.cast<Rational>();
+        const Vector3r ea0_t1 = ea0_t1d.cast<Rational>();
+        const Vector3r ea1_t1 = ea1_t1d.cast<Rational>();
+        const Vector3r eb0_t1 = eb0_t1d.cast<Rational>();
+        const Vector3r eb1_t1 = eb1_t1d.cast<Rational>();
 
-        Vector3r a0s = a0sd.cast<Rational>(), a1s = a1sd.cast<Rational>(),
-                 b0s = b0sd.cast<Rational>(), b1s = b1sd.cast<Rational>(),
-                 a0e = a0ed.cast<Rational>(), a1e = a1ed.cast<Rational>(),
-                 b0e = b0ed.cast<Rational>(), b1e = b1ed.cast<Rational>();
+        const Vector3r ea0 = (ea0_t1 - ea0_t0) * t + ea0_t0;
+        const Vector3r ea1 = (ea1_t1 - ea1_t0) * t + ea1_t0;
+        const Vector3r va = (ea1 - ea0) * u + ea0;
 
-        Vector3r edge0_vertex0 = (a0e - a0s) * t + a0s;
-        Vector3r edge0_vertex1 = (a1e - a1s) * t + a1s;
-        Vector3r edge0_vertex =
-            (edge0_vertex1 - edge0_vertex0) * u + edge0_vertex0;
+        const Vector3r eb0 = (eb0_t1 - eb0_t0) * t + eb0_t0;
+        const Vector3r eb1 = (eb1_t1 - eb1_t0) * t + eb1_t0;
+        const Vector3r vb = (eb1 - eb0) * v + eb0;
 
-        Vector3r edge1_vertex0 = (b0e - b0s) * t + b0s;
-        Vector3r edge1_vertex1 = (b1e - b1s) * t + b1s;
-        Vector3r edge1_vertex =
-            (edge1_vertex1 - edge1_vertex0) * v + edge1_vertex0;
-
-        return edge1_vertex - edge0_vertex;
+        return vb - va;
     }
 
     Vector3r function_f_ee_rational(
-        const Rational &tpara,
-        const Rational &upara,
-        const Rational &vpara,
-        const Vector3 &a0sd,
-        const Vector3 &a1sd,
-        const Vector3 &b0sd,
-        const Vector3 &b1sd,
-        const Vector3 &a0ed,
-        const Vector3 &a1ed,
-        const Vector3 &b0ed,
-        const Vector3 &b1ed)
+        const NumCCD &tpara,
+        const NumCCD &upara,
+        const NumCCD &vpara,
+        const Vector3 &ea0_t0d,
+        const Vector3 &ea1_t0d,
+        const Vector3 &eb0_t0d,
+        const Vector3 &eb1_t0d,
+        const Vector3 &ea0_t1d,
+        const Vector3 &ea1_t1d,
+        const Vector3 &eb0_t1d,
+        const Vector3 &eb1_t1d)
     {
-        Vector3r a0s = a0sd.cast<Rational>(), a1s = a1sd.cast<Rational>(),
-                 b0s = b0sd.cast<Rational>(), b1s = b1sd.cast<Rational>(),
-                 a0e = a0ed.cast<Rational>(), a1e = a1ed.cast<Rational>(),
-                 b0e = b0ed.cast<Rational>(), b1e = b1ed.cast<Rational>();
+        return function_f_ee_rational(
+            Rational(double(tpara.numerator))
+                / Rational(double(tpara.denominator())),
+            Rational(double(upara.numerator))
+                / Rational(double(upara.denominator())),
+            Rational(double(vpara.numerator))
+                / Rational(double(vpara.denominator())),
+            ea0_t0d, ea1_t0d, eb0_t0d, eb1_t0d, ea0_t1d, ea1_t1d, eb0_t1d,
+            eb1_t1d);
+    }
 
-        Vector3r edge0_vertex0 = (a0e - a0s) * tpara + a0s;
-        Vector3r edge0_vertex1 = (a1e - a1s) * tpara + a1s;
-        Vector3r edge0_vertex =
-            (edge0_vertex1 - edge0_vertex0) * upara + edge0_vertex0;
+    Vector3r function_f_vf_rational(
+        const Rational &t,
+        const Rational &u,
+        const Rational &v,
+        const Vector3 &v_t0d,
+        const Vector3 &f0_t0d,
+        const Vector3 &f1_t0d,
+        const Vector3 &f2_t0d,
+        const Vector3 &v_t1d,
+        const Vector3 &f0_t1d,
+        const Vector3 &f1_t1d,
+        const Vector3 &f2_t1d)
+    {
+        const Vector3r v_t0 = v_t0d.cast<Rational>();
+        const Vector3r f0_t0 = f0_t0d.cast<Rational>();
+        const Vector3r f1_t0 = f1_t0d.cast<Rational>();
+        const Vector3r f2_t0 = f2_t0d.cast<Rational>();
+        const Vector3r v_t1 = v_t1d.cast<Rational>();
+        const Vector3r f0_t1 = f0_t1d.cast<Rational>();
+        const Vector3r f1_t1 = f1_t1d.cast<Rational>();
+        const Vector3r f2_t1 = f2_t1d.cast<Rational>();
 
-        Vector3r edge1_vertex0 = (b0e - b0s) * tpara + b0s;
-        Vector3r edge1_vertex1 = (b1e - b1s) * tpara + b1s;
-        Vector3r edge1_vertex =
-            (edge1_vertex1 - edge1_vertex0) * vpara + edge1_vertex0;
+        const Vector3r va = (v_t1 - v_t0) * t + v_t0;
 
-        return edge1_vertex - edge0_vertex;
+        const Vector3r f0 = (f0_t1 - f0_t0) * t + f0_t0;
+        const Vector3r f1 = (f1_t1 - f1_t0) * t + f1_t0;
+        const Vector3r f2 = (f2_t1 - f2_t0) * t + f2_t0;
+        const Vector3r vb = (f1 - f0) * u + (f2 - f0) * v + f0;
+        return va - vb;
     }
 
     Vector3r function_f_vf_rational(
         const NumCCD &tpara,
         const NumCCD &upara,
         const NumCCD &vpara,
-        const Vector3 &a0sd,
-        const Vector3 &a1sd,
-        const Vector3 &b0sd,
-        const Vector3 &b1sd,
-        const Vector3 &a0ed,
-        const Vector3 &a1ed,
-        const Vector3 &b0ed,
-        const Vector3 &b1ed)
+        const Vector3 &v_t0,
+        const Vector3 &f0_t0,
+        const Vector3 &f1_t0,
+        const Vector3 &f2_t0,
+        const Vector3 &v_t1,
+        const Vector3 &f0_t1,
+        const Vector3 &f1_t1,
+        const Vector3 &f2_t1)
     {
-        Rational t = Rational(double(tpara.numerator))
-                     / Rational(double(tpara.denominator()));
-        Rational u = Rational(double(upara.numerator))
-                     / Rational(double(upara.denominator()));
-        Rational v = Rational(double(vpara.numerator))
-                     / Rational(double(vpara.denominator()));
-
-        Vector3r vs = a0sd.cast<Rational>(), t0s = a1sd.cast<Rational>(),
-                 t1s = b0sd.cast<Rational>(), t2s = b1sd.cast<Rational>(),
-                 ve = a0ed.cast<Rational>(), t0e = a1ed.cast<Rational>(),
-                 t1e = b0ed.cast<Rational>(), t2e = b1ed.cast<Rational>();
-
-        Vector3r vert = (ve - vs) * t + vs;
-
-        Vector3r t0 = (t0e - t0s) * t + t0s;
-        Vector3r t1 = (t1e - t1s) * t + t1s;
-        Vector3r t2 = (t2e - t2s) * t + t2s;
-        Vector3r p = (t1 - t0) * u + (t2 - t0) * v + t0;
-        return vert - p;
+        return function_f_ee_rational(
+            Rational(double(tpara.numerator))
+                / Rational(double(tpara.denominator())),
+            Rational(double(upara.numerator))
+                / Rational(double(upara.denominator())),
+            Rational(double(vpara.numerator))
+                / Rational(double(vpara.denominator())),
+            v_t0, f0_t0, f1_t0, f2_t0, v_t1, f0_t1, f1_t1, f2_t1);
     }
 
-    Vector3r function_f_vf_rational(
-        const Rational &tpara,
-        const Rational &upara,
-        const Rational &vpara,
-        const Vector3 &a0sd,
-        const Vector3 &a1sd,
-        const Vector3 &b0sd,
-        const Vector3 &b1sd,
-        const Vector3 &a0ed,
-        const Vector3 &a1ed,
-        const Vector3 &b0ed,
-        const Vector3 &b1ed)
-    {
-        Vector3r vs = a0sd.cast<Rational>(), t0s = a1sd.cast<Rational>(),
-                 t1s = b0sd.cast<Rational>(), t2s = b1sd.cast<Rational>(),
-                 ve = a0ed.cast<Rational>(), t0e = a1ed.cast<Rational>(),
-                 t1e = b0ed.cast<Rational>(), t2e = b1ed.cast<Rational>();
-
-        Vector3r v = (ve - vs) * tpara + vs;
-
-        Vector3r t0 = (t0e - t0s) * tpara + t0s;
-        Vector3r t1 = (t1e - t1s) * tpara + t1s;
-        Vector3r t2 = (t2e - t2s) * tpara + t2s;
-        Vector3r p = (t1 - t0) * upara + (t2 - t0) * vpara + t0;
-        return v - p;
-    }
-
-    template <typename T, bool check_vf>
+    template <typename T, bool is_vertex_face>
     bool origin_in_function_bounding_box_rational(
         const std::array<std::array<T, 2>, 3> &paras,
-        const Vector3 &a0s,
-        const Vector3 &a1s,
-        const Vector3 &b0s,
-        const Vector3 &b1s,
-        const Vector3 &a0e,
-        const Vector3 &a1e,
-        const Vector3 &b0e,
-        const Vector3 &b1e,
+        const Vector3 &a_t0,
+        const Vector3 &b_t0,
+        const Vector3 &c_t0,
+        const Vector3 &d_t0,
+        const Vector3 &a_t1,
+        const Vector3 &b_t1,
+        const Vector3 &c_t1,
+        const Vector3 &d_t1,
         const Array3 &box,
         bool &box_in_eps,
         Array3 *tolerance = nullptr)
@@ -174,14 +154,14 @@ namespace ticcd::rational {
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 2; j++) {
                 for (int k = 0; k < 2; k++) {
-                    if constexpr (!check_vf) {
+                    if constexpr (!is_vertex_face) {
                         pts.row(c) = function_f_ee_rational(
-                            t[i], u[j], v[k], a0s, a1s, b0s, b1s, a0e, a1e, b0e,
-                            b1e);
+                            t[i], u[j], v[k], a_t0, b_t0, c_t0, d_t0, a_t1,
+                            b_t1, c_t1, d_t1);
                     } else {
                         pts.row(c) = function_f_vf_rational(
-                            t[i], u[j], v[k], a0s, a1s, b0s, b1s, a0e, a1e, b0e,
-                            b1e);
+                            t[i], u[j], v[k], a_t0, b_t0, c_t0, d_t0, a_t1,
+                            b_t1, c_t1, d_t1);
                     }
                     c++;
                 }
@@ -207,16 +187,16 @@ namespace ticcd::rational {
             {{inter[0], mid}}, {{mid, inter[1]}});
     }
 
-    template <bool check_vf>
+    template <bool is_vertex_face>
     bool interval_root_finder(
-        const Vector3 &a0s,
-        const Vector3 &a1s,
-        const Vector3 &b0s,
-        const Vector3 &b1s,
-        const Vector3 &a0e,
-        const Vector3 &a1e,
-        const Vector3 &b0e,
-        const Vector3 &b1e,
+        const Vector3 &a_t0,
+        const Vector3 &b_t0,
+        const Vector3 &c_t0,
+        const Vector3 &d_t0,
+        const Vector3 &a_t1,
+        const Vector3 &b_t1,
+        const Vector3 &c_t1,
+        const Vector3 &d_t1,
         const Array3 &tol,
         const Array3 &err,
         const Scalar ms,
@@ -251,10 +231,10 @@ namespace ticcd::rational {
             istack.pop();
 
             bool box_in_eps;
-            bool zero_in =
-                origin_in_function_bounding_box_rational<Rational, check_vf>(
-                    current, a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e,
-                    /*box=*/Array3::Zero(), box_in_eps);
+            bool zero_in = origin_in_function_bounding_box_rational<
+                Rational, is_vertex_face>(
+                current, a_t0, b_t0, c_t0, d_t0, a_t1, b_t1, c_t1, d_t1,
+                /*box=*/Array3::Zero(), box_in_eps);
 
             if (!zero_in)
                 continue;
@@ -275,7 +255,7 @@ namespace ticcd::rational {
             std::pair<RationalInterval, RationalInterval> halves =
                 bisect(current[split_i]);
 
-            if (check_vf) {
+            if (is_vertex_face) {
                 if (split_i == 1) {
                     if (halves.first[0] + current[2][0] <= 1) {
                         current[split_i] = halves.first;
@@ -315,40 +295,40 @@ namespace ticcd::rational {
     }
 
     bool edge_edge_interval_root_finder(
-        const Vector3 &a0s,
-        const Vector3 &a1s,
-        const Vector3 &b0s,
-        const Vector3 &b1s,
-        const Vector3 &a0e,
-        const Vector3 &a1e,
-        const Vector3 &b0e,
-        const Vector3 &b1e,
+        const Vector3 &ea0_t0,
+        const Vector3 &ea1_t0,
+        const Vector3 &eb0_t0,
+        const Vector3 &eb1_t0,
+        const Vector3 &ea0_t1,
+        const Vector3 &ea1_t1,
+        const Vector3 &eb0_t1,
+        const Vector3 &eb1_t1,
         const Array3 &tol,
         const Array3 &err,
         const Scalar ms,
         std::array<RationalInterval, 3> &root)
     {
         return interval_root_finder<false>(
-            a0s, a1s, b0s, b1s, a0e, a1e, b0e, b1e, tol, err, ms, root);
+            ea0_t0, ea1_t0, eb0_t0, eb1_t0, ea0_t1, ea1_t1, eb0_t1, eb1_t1, tol,
+            err, ms, root);
     }
 
     bool vertex_face_interval_root_finder(
-        const Vector3 &vertex_start,
-        const Vector3 &face_vertex0_start,
-        const Vector3 &face_vertex1_start,
-        const Vector3 &face_vertex2_start,
-        const Vector3 &vertex_end,
-        const Vector3 &face_vertex0_end,
-        const Vector3 &face_vertex1_end,
-        const Vector3 &face_vertex2_end,
+        const Vector3 &v_t0,
+        const Vector3 &f0_t0,
+        const Vector3 &f1_t0,
+        const Vector3 &f2_t0,
+        const Vector3 &v_t1,
+        const Vector3 &f0_t1,
+        const Vector3 &f1_t1,
+        const Vector3 &f2_t1,
         const Array3 &tol,
         const Array3 &err,
         const Scalar ms,
         std::array<RationalInterval, 3> &root)
     {
         return interval_root_finder<true>(
-            vertex_start, face_vertex0_start, face_vertex1_start,
-            face_vertex2_start, vertex_end, face_vertex0_end, face_vertex1_end,
-            face_vertex2_end, tol, err, ms, root);
+            v_t0, f0_t0, f1_t0, f2_t0, v_t1, f0_t1, f1_t1, f2_t1, tol, err, ms,
+            root);
     }
 } // namespace ticcd::rational

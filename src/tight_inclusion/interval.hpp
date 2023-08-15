@@ -6,8 +6,10 @@
 #include <Eigen/Core>
 
 #include <tight_inclusion/types.hpp>
+#include <tight_inclusion/config.hpp>
 
 namespace ticcd {
+
     // calculate a*(2^b)
     uint64_t power(const uint64_t a, const uint8_t b);
 

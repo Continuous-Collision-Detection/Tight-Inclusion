@@ -2,10 +2,10 @@
 
 #include <array>
 #include <fstream>
-#include <iostream>
 #include <string>
 
 #include <tight_inclusion/rational/rational.hpp>
+#include <tight_inclusion/logger.hpp>
 
 namespace ticcd::rational {
 
@@ -22,9 +22,8 @@ namespace ticcd::rational {
         infile.open(inputFileName);
         std::array<double, 3> v;
         if (!infile.is_open()) {
-            std::cout << "Path Wrong!!!!" << std::endl;
-            std::cout << "path, " << inputFileName << std::endl;
-            return Eigen::MatrixXd(1, 1);
+            logger().error("Unable to open file {}!", inputFileName);
+            throw std::runtime_error("Unable to open file!");
         }
 
         int l = 0;
@@ -50,9 +49,9 @@ namespace ticcd::rational {
                         c++;
 
                     } catch (const std::invalid_argument e) {
-                        std::cout << "NaN found in file " << inputFileName
-                                  << " line " << l << std::endl;
-                        e.what();
+                        logger().error(
+                            "NaN found in file {} line {}!", inputFileName, l);
+                        throw std::runtime_error("NaN found in file!");
                     }
                 }
 
@@ -64,11 +63,6 @@ namespace ticcd::rational {
                 v[1] = y;
                 v[2] = z;
                 vs.push_back(v);
-                // if (record[6] != "1" && record[6] != "0") {
-                //     std::cout
-                //         << "ERROR:result position should be 1 or 0, but it is "
-                //         << record[6] << std::endl;
-                // }
 
                 results.push_back(std::stod(record[4]));
             }
@@ -81,7 +75,8 @@ namespace ticcd::rational {
             all_v(i, 2) = vs[i][2];
         }
         if (!infile.eof()) {
-            std::cerr << "Could not read file " << inputFileName << "\n";
+            logger().error("Could not read file {}!", inputFileName);
+            throw std::runtime_error("Could not read file!");
         }
 
         return all_v;
@@ -99,10 +94,8 @@ namespace ticcd::rational {
         infile.open(inputFileName);
         std::array<double, 3> v;
         if (!infile.is_open()) {
-            std::cout << "Path Wrong!!!!" << std::endl;
-            std::cout << "path, " << inputFileName << std::endl;
-            Eigen::MatrixXd rst = Eigen::MatrixXd::Zero(1, 1);
-            return rst;
+            logger().error("Unable to open file {}!", inputFileName);
+            throw std::runtime_error("Unable to open file!");
         }
 
         int l = 0;
@@ -126,9 +119,9 @@ namespace ticcd::rational {
                         record[c] = line;
                         c++;
                     } catch (const std::invalid_argument e) {
-                        std::cout << "NaN found in file " << inputFileName
-                                  << " line " << l << std::endl;
-                        e.what();
+                        logger().error(
+                            "NaN found in file {} line {}!", inputFileName, l);
+                        throw std::runtime_error("NaN found in file!");
                     }
                 }
                 Rational rt;
@@ -139,11 +132,7 @@ namespace ticcd::rational {
                 v[1] = y;
                 v[2] = z;
                 vs.push_back(v);
-                // if (record[6] != "1" && record[6] != "0") {
-                //     std::cout
-                //         << "ERROR:result position should be 1 or 0, but it is "
-                //         << record[6] << std::endl;
-                // }
+
                 results.push_back(bool(std::stoi(record[6])));
             }
         }
@@ -154,7 +143,8 @@ namespace ticcd::rational {
             all_v(i, 2) = vs[i][2];
         }
         if (!infile.eof()) {
-            std::cerr << "Could not read file " << inputFileName << "\n";
+            logger().error("Could not read file {}!", inputFileName);
+            throw std::runtime_error("Could not read file!");
         }
 
         return all_v;

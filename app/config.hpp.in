@@ -1,0 +1,5 @@
+#pragma once
+
+// WARNING: Do not modify config.hpp directly. Instead, modify config.hpp.in.
+
+#cmakedefine TIGHT_INCLUSION_WITH_SAMPLE_QUERIES
