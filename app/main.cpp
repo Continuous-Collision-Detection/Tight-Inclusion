@@ -79,7 +79,7 @@ void check_sample_queries(
                 std::vector<bool> _;
                 const Eigen::MatrixXd all_V =
                     rational::read_rational_csv(csv.path().string(), _);
-                assert(V.rows() % 8 == 0);
+                assert(all_V.rows() % 8 == 0);
                 total_number_of_queries += all_V.rows() / 8;
             }
         }
@@ -138,7 +138,7 @@ void check_sample_queries(
                     //     V.row(5), V.row(6), V.row(7), err, minimum_seperation,
                     //     toi);
                 }
-
+                timer.stop();
                 total_time_in_micro_sec += timer.getElapsedTimeInMicroSec();
 
                 if (result != expected_result) {
