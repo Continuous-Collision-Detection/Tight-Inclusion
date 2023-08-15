@@ -82,7 +82,7 @@ jobs:
         run: cd build; make -j2; ccache --show-stats
 
       - name: Tests
-        run: cd build; ./apps/Tight_Inclusion_bin --no-pbar
+        run: cd build; ./app/Tight_Inclusion_bin --no-pbar
 
   ####################
   # Windows
@@ -137,4 +137,4 @@ jobs:
       - name: Tests
         run: |
           cd build
-          ./apps/Tight_Inclusion_bin --no-pbar
+          ./app/Tight_Inclusion_bin --no-pbar
