@@ -59,7 +59,7 @@ endif()
 project(TightInclusion
         DESCRIPTION "Tight Inclusion CCD"
         LANGUAGES CXX
-        VERSION "1.0.3")
+        VERSION "1.0.4")
 
 option(TIGHT_INCLUSION_WITH_GMP               "Enable rational based predicates (for debugging)"        OFF)
 option(TIGHT_INCLUSION_WITH_TIMER             "Enable profiling timers (for debugging)"                 OFF)
