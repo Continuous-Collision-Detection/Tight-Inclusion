@@ -6,11 +6,17 @@
 #include <vector>
 #include <tight_inclusion/types.hpp>
 #include <tight_inclusion/interval.hpp>
-#include <tight_inclusion/rational/rational.hpp>
+
+#include <rational/rational.hpp>
 
 namespace ticcd::rational {
+    using namespace ::rational;
 
     typedef std::array<Rational, 2> RationalInterval;
+    typedef Eigen::Matrix<Rational, 3, 1, Eigen::ColMajor | Eigen::DontAlign>
+        Vector3r;
+    typedef Eigen::Array<Rational, 3, 1, Eigen::ColMajor | Eigen::DontAlign>
+        Array3r;
 
     bool edge_edge_interval_root_finder(
         const Vector3 &ea0_t0,

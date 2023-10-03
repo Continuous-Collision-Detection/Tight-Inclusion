@@ -28,7 +28,7 @@
 # IPC Toolkit Options
 ################################################################################
 
-# option(TIGHT_INCLUSION_WITH_GMP               "Enable rational based predicates (for debugging)"        OFF)
+# option(TIGHT_INCLUSION_WITH_RATIONAL          "Enable rational based predicates (for debugging)"        OFF)
 # option(TIGHT_INCLUSION_WITH_TIMER             "Enable profiling timers (for debugging)"                 OFF)
 # option(TIGHT_INCLUSION_WITH_DOUBLE_PRECISION  "Enable double precision floating point numbers as input"  ON)
 # option(TIGHT_INCLUSION_LIMIT_QUEUE_SIZE       "Enable limitation of maximal queue size"                 OFF)

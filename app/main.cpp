@@ -6,8 +6,7 @@
 #include <tight_inclusion/config.hpp>
 
 #ifdef TIGHT_INCLUSION_WITH_SAMPLE_QUERIES
-#include <tight_inclusion/rational/ccd.hpp>
-#include "read_rational_csv.hpp"
+#include <ccd_io/read_ccd_queries.hpp>
 #endif
 
 #include <pbar.hpp>
@@ -21,7 +20,7 @@ using namespace ticcd;
 
 #ifdef TIGHT_INCLUSION_WITH_SAMPLE_QUERIES
 
-static const std::string root_path(TIGHT_INCLUSION_SAMPLE_QUERIES_DIR);
+static const std::string root_path(CCD_IO_SAMPLE_QUERIES_DIR);
 
 static const std::vector<std::string> simulation_folders = {{
     "chain",
@@ -52,6 +51,8 @@ void check_sample_queries(
     const long max_itr,
     const bool print_progress = true)
 {
+    using Matrix8x3 = Eigen::Matrix<double, 8, 3, Eigen::RowMajor>;
+
     const Eigen::Array3d err(-1, -1, -1);
     constexpr double t_max = 1;
     constexpr bool no_zero_toi = false;
@@ -76,11 +77,12 @@ void check_sample_queries(
         for (const std::string &folder : folders) {
             fs::path dir = fs::path(root_path) / folder / sub_folder;
             for (const auto &csv : fs::directory_iterator(dir)) {
-                std::vector<bool> _;
-                const Eigen::MatrixXd all_V =
-                    rational::read_rational_csv(csv.path().string(), _);
-                assert(all_V.rows() % 8 == 0);
-                total_number_of_queries += all_V.rows() / 8;
+                std::ifstream in_stream(csv.path().string());
+                unsigned int line_count = std::count_if(
+                    std::istreambuf_iterator<char>{in_stream}, {},
+                    [](char c) { return c == '\n'; });
+                assert(line_count % 8 == 0);
+                total_number_of_queries += line_count / 8;
             }
         }
         logger().trace("Total number of queries: {}", total_number_of_queries);
@@ -94,21 +96,12 @@ void check_sample_queries(
         fs::path dir = fs::path(root_path) / folder / sub_folder;
         for (const auto &csv : fs::directory_iterator(dir)) {
 
-            std::vector<bool> results;
-            const Eigen::MatrixXd all_V =
-                rational::read_rational_csv(csv.path().string(), results);
+            const std::vector<ccd_io::CCDQuery> queries =
+                ccd_io::read_ccd_queries(csv.path().string());
 
-            if (all_V.rows() % 8 != 0 || all_V.cols() != 3) {
-                logger().error(
-                    "Incorrectly formatted data in file \"{}\": vertices should be of shape (8n)×3 where n is the number of queries! Got {}×{} instead.",
-                    csv.path().string(), all_V.rows(), all_V.cols());
-                assert(false);
-                continue;
-            }
-
-            for (int i = 0; i < all_V.rows(); i += 8) {
-                const Eigen::Matrix<double, 8, 3> V = all_V.middleRows<8>(i);
-                const bool expected_result = results[i];
+            for (int i = 0; i < queries.size(); i++) {
+                Eigen::Map<const Matrix8x3> V(&queries[i].vertices[0][0]);
+                const bool expected_result = queries[i].ground_truth;
                 total_positives += expected_result;
 
                 // Output of CCD
@@ -149,7 +142,7 @@ void check_sample_queries(
 
                         logger().error(
                             "False negative encountered in file \"{}\" (query #{})!",
-                            csv.path().string(), i / 8);
+                            csv.path().string(), i);
                         for (int j = 0; j < 8; j++) {
                             logger().debug(
                                 "V{}: {:.17f} {:.17f} {:.17f}", //

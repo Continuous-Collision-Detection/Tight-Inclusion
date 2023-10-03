@@ -61,7 +61,7 @@ project(TightInclusion
         LANGUAGES CXX
         VERSION "1.0.4")
 
-option(TIGHT_INCLUSION_WITH_GMP               "Enable rational based predicates (for debugging)"        OFF)
+option(TIGHT_INCLUSION_WITH_RATIONAL          "Enable rational based predicates (for debugging)"        OFF)
 option(TIGHT_INCLUSION_WITH_TIMER             "Enable profiling timers (for debugging)"                 OFF)
 option(TIGHT_INCLUSION_WITH_DOUBLE_PRECISION  "Enable double precision floating point numbers as input"  ON)
 option(TIGHT_INCLUSION_LIMIT_QUEUE_SIZE       "Enable limitation of maximal queue size"                 OFF)
@@ -129,10 +129,10 @@ target_link_libraries(tight_inclusion PUBLIC Eigen3::Eigen)
 include(spdlog)
 target_link_libraries(tight_inclusion PUBLIC spdlog::spdlog)
 
-# GMP (optional)
-if(TIGHT_INCLUSION_WITH_GMP)
-    find_package(GMP REQUIRED)
-    target_link_libraries(tight_inclusion PUBLIC gmp::gmp)
+# rational-cpp (optional)
+if(TIGHT_INCLUSION_WITH_RATIONAL)
+    include(rational_cpp)
+    target_link_libraries(tight_inclusion PUBLIC rational::rational)
 endif()
 
 # Extra warnings (link last for highest priority)

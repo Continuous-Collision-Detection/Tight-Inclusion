@@ -20,6 +20,6 @@ target_sources(tight_inclusion PRIVATE ${SOURCES})
 # Subfolders
 ################################################################################
 
-if(TIGHT_INCLUSION_WITH_GMP OR TIGHT_INCLUSION_WITH_TESTS)
+if(TIGHT_INCLUSION_WITH_RATIONAL)
     add_subdirectory(rational)
 endif()

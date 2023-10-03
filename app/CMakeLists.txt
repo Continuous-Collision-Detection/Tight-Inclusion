@@ -12,14 +12,8 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/config.hpp.in" "${CMAKE_CURRENT_SOUR
 
 # Link to the required libraries
 if(TIGHT_INCLUSION_WITH_SAMPLE_QUERIES)
-    if(NOT TIGHT_INCLUSION_WITH_GMP)
-        find_package(GMP REQUIRED)
-        target_link_libraries(Tight_Inclusion_bin PUBLIC gmp::gmp)
-    endif()
-    target_sources(Tight_Inclusion_bin PUBLIC "read_rational_csv.cpp")
-
-    include(sample_queries)
-    target_link_libraries(Tight_Inclusion_bin PUBLIC tight_inclusion::sample_queries)
+    include(ccd_query_io)
+    target_link_libraries(Tight_Inclusion_bin PUBLIC ccd_io::ccd_io)
 endif()
 
 include(pbar)

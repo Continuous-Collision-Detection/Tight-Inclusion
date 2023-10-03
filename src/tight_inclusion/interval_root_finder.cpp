@@ -276,7 +276,7 @@ namespace ticcd {
                         err_and_ms, box_in);
             }
 
-            // #ifdef TIGHT_INCLUSION_WITH_GMP // this is defined in the begining of this file
+            // #ifdef TIGHT_INCLUSION_WITH_RATIONAL // this is defined in the begining of this file
             // zero_in = origin_in_function_bounding_box_rational<is_vertex_face>(
             //     current, a_t0, b_t0, c_t0, d_t0, a_t1, b_t1, c_t1, d_t1);
             // #endif
@@ -422,7 +422,7 @@ namespace ticcd {
             Array3 true_tol;
             {
                 TIGHT_INCLUSION_SCOPED_TIMER(time_predicates);
-                // #ifdef TIGHT_INCLUSION_WITH_GMP // this is defined in the begining of this file
+                // #ifdef TIGHT_INCLUSION_WITH_RATIONAL // this is defined in the begining of this file
                 // Array3 ms_3d = Array3::Constant(ms);
                 // zero_in = origin_in_function_bounding_box_rational_return_tolerance<is_vertex_face>(
                 //     current, a_t0, b_t0, c_t0, d_t0, a_t1, b_t1, c_t1, d_t1,

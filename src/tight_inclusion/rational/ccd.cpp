@@ -43,7 +43,7 @@ namespace ticcd::rational {
 
         // Return a conservative time-of-impact
         if (is_impacting) {
-            toi = toi_interval[0][0].to_double();
+            toi = toi_interval[0][0];
         }
         // This time of impact is very dangerous for convergence
         // assert(!is_impacting || toi > 0);
@@ -84,7 +84,7 @@ namespace ticcd::rational {
 
         // Return a conservative time-of-impact
         if (is_impacting) {
-            toi = toi_interval[0][0].to_double();
+            toi = toi_interval[0][0];
         }
 
         // This time of impact is very dangerous for convergence
