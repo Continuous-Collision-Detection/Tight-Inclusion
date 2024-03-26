@@ -14,8 +14,8 @@ namespace ticcd {
         BREADTH_FIRST_SEARCH,
     };
 
-    /// @brief This function can give you the answer of continous collision detection with minimum
-    /// seperation, and the earlist collision time if collision happens.
+    /// @brief This function can give you the answer of continuous collision detection with minimum
+    /// separation, and the earliest collision time if collision happens.
     ///
     /// @param[in] ea0_t0 The start position of the first vertex of the first edge.
     /// @param[in] ea1_t0 The start position of the second vertex of the first edge.
@@ -27,8 +27,8 @@ namespace ticcd {
     /// @param[in] eb1_t1 The end position of the second vertex of the second edge.
     /// @param[in] err The filters calculated using the bounding box of the simulation scene.
     ///                If you are checking a single query without a scene, please set it as {-1,-1,-1}.
-    /// @param[in] ms The minimum seperation. should set: ms < max(abs(x),1), ms < max(abs(y),1), ms < max(abs(z),1) of the QUERY (NOT THE SCENE!).
-    /// @param[out] toi The earlist time of collision if collision happens. If there is no collision, toi will be infinate.
+    /// @param[in] ms The minimum separation. should set: ms < max(abs(x),1), ms < max(abs(y),1), ms < max(abs(z),1) of the QUERY (NOT THE SCENE!).
+    /// @param[out] toi The earliest time of collision if collision happens. If there is no collision, toi will be infinite.
     /// @param[in] tolerance A user - input solving precision. We suggest to use 1e-6.
     /// @param[in] t_max The upper bound of the time interval [0,t_max] to be checked. 0<=t_max<=1
     /// @param[in] max_itr A user-defined value to terminate the algorithm earlier, and return a result under current
@@ -57,8 +57,8 @@ namespace ticcd {
         const CCDRootFindingMethod ccd_method =
             CCDRootFindingMethod::BREADTH_FIRST_SEARCH);
 
-    /// This function can give you the answer of continous collision detection with minimum
-    /// seperation, and the earlist collision time if collision happens.
+    /// This function can give you the answer of continuous collision detection with minimum
+    /// separation, and the earliest collision time if collision happens.
     ///
     /// @param[in] v_t0  The start position of the vertex.
     /// @param[in] f0_t0 The start position of the first vertex of the face.
@@ -70,8 +70,8 @@ namespace ticcd {
     /// @param[in] f2_t1 The end position of the third vertex of the face.
     /// @param[in] err The filters calculated using the bounding box of the simulation scene.
     ///                If you are checking a single query without a scene, please set it as {-1,-1,-1}.
-    /// @param[in] ms The minimum seperation. should set: ms < max(abs(x),1), ms < max(abs(y),1), ms < max(abs(z),1) of the QUERY (NOT THE SCENE!).
-    /// @param[out] toi The earlist time of collision if collision happens. If there is no collision, toi will be infinate.
+    /// @param[in] ms The minimum separation. should set: ms < max(abs(x),1), ms < max(abs(y),1), ms < max(abs(z),1) of the QUERY (NOT THE SCENE!).
+    /// @param[out] toi The earliest time of collision if collision happens. If there is no collision, toi will be infinite.
     /// @param[in] tolerance A user - input solving precision. We suggest to use 1e-6.
     /// @param[in] t_max The upper bound of the time interval [0,t_max] to be checked. 0<=t_max<=1
     /// @param[in] max_itr A user-defined value to terminate the algorithm earlier, and return a result under current
@@ -124,7 +124,7 @@ namespace ticcd {
 
     long return_queue_size();
 
-    // these function are designed to test the performance of floating point vertion but with double inputs
+    // these function are designed to test the performance of floating point version but with double inputs
 #ifdef TIGHT_INCLUSION_FLOAT_WITH_DOUBLE_INPUT
     bool edgeEdgeCCD(
         const Eigen::Vector3d &ea0_t0,

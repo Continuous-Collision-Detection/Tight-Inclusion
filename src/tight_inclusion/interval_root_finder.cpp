@@ -601,8 +601,7 @@ namespace ticcd {
             eefilter = 3.337861e-06;
             vffilter = 3.576279e-06;
 #endif
-        } else // using minimum separation
-        {
+        } else { // using minimum separation
 #ifdef TIGHT_INCLUSION_WITH_DOUBLE_PRECISION
             eefilter = 7.105427357601002e-15;
             vffilter = 7.549516567451064e-15;
@@ -613,7 +612,7 @@ namespace ticcd {
         }
 
         Vector3 max = vertices[0].cwiseAbs();
-        for (int i = 0; i < vertices.size(); i++) {
+        for (int i = 1; i < vertices.size(); i++) {
             max = max.cwiseMax(vertices[i].cwiseAbs());
         }
         Vector3 delta = max.cwiseMin(1);
