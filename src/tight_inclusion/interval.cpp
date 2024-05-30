@@ -1,6 +1,8 @@
 // An interval object.
 #include "interval.hpp"
 
+#include <cassert>
+
 namespace ticcd {
 
     static constexpr uint8_t MAX_DENOM_POWER = 8 * sizeof(uint64_t) - 1;
