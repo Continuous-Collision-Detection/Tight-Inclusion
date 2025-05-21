@@ -29,7 +29,7 @@ jobs:
             name: Linux
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3.5.3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 10
 
@@ -48,7 +48,7 @@ jobs:
 
       - name: Cache Build
         id: cache-build
-        uses: actions/cache@v3.0.11
+        uses: actions/cache@v4
         with:
           path: ${{ env.CACHE_PATH }}
           key: ${{ runner.os }}-${{ matrix.config }}-cache
@@ -96,7 +96,7 @@ jobs:
         config: [Debug, Release]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3.5.3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 10
 
@@ -109,7 +109,7 @@ jobs:
 
       - name: Cache build
         id: cache-build
-        uses: actions/cache@v3.0.11
+        uses: actions/cache@v4
         with:
           path: ${{ env.appdata }}\Mozilla\sccache
           key: ${{ runner.os }}-${{ matrix.config }}-cache-${{ github.sha }}
