@@ -9,7 +9,7 @@ A conservative continuous collision detection (CCD) method with support for mini
 To know more about this work, please read our ACM Transactions on Graphics paper:<br>
 ["A Large Scale Benchmark and an Inclusion-Based Algorithm for Continuous Collision Detection"](https://continuous-collision-detection.github.io/tight_inclusion/) and watch our [SIGGRAPH 2022 presentation](https://www.youtube.com/watch?v=7cRg52cWL8c).
 
-## Build
+## Installation via CMake
 
 To compile the code, first, make sure CMake is installed.
 
@@ -27,6 +27,12 @@ Then you can run a CCD example:
 ```bash
 ./app/Tight_Inclusion_bin
 ```
+## Installation via Conda
+You can also install Tight-Inclusion via 
+```sh
+conda install conda-forge::tight-inclusion
+```
+if you have [Anaconda](https://www.anaconda.com/) installed on your machine. 
 
 ### Optional
 
@@ -112,3 +118,4 @@ If you use this work in your project, please consider citing the original paper:
     numpages     = 16
 }
 ```
+
