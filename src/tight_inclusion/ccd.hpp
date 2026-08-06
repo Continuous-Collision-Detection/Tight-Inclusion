@@ -12,6 +12,7 @@ namespace ticcd {
     enum class CCDRootFindingMethod {
         DEPTH_FIRST_SEARCH,
         BREADTH_FIRST_SEARCH,
+        BUCKET_DEPTH_FIRST_SEARCH,
     };
 
     /// @brief This function can give you the answer of continuous collision detection with minimum
@@ -55,7 +56,7 @@ namespace ticcd {
         Scalar &output_tolerance,
         bool no_zero_toi = DEFAULT_NO_ZERO_TOI,
         const CCDRootFindingMethod ccd_method =
-            CCDRootFindingMethod::BREADTH_FIRST_SEARCH);
+            CCDRootFindingMethod::BUCKET_DEPTH_FIRST_SEARCH);
 
     /// This function can give you the answer of continuous collision detection with minimum
     /// separation, and the earliest collision time if collision happens.
@@ -98,7 +99,7 @@ namespace ticcd {
         Scalar &output_tolerance,
         bool no_zero_toi = DEFAULT_NO_ZERO_TOI,
         const CCDRootFindingMethod ccd_method =
-            CCDRootFindingMethod::BREADTH_FIRST_SEARCH);
+            CCDRootFindingMethod::BUCKET_DEPTH_FIRST_SEARCH);
 
     Array3 compute_vertex_face_tolerances(
         const Vector3 &v_t0,
@@ -144,7 +145,7 @@ namespace ticcd {
         double &output_tolerance,
         bool no_zero_toi = DEFAULT_NO_ZERO_TOI,
         const CCDRootFindingMethod ccd_method =
-            CCDRootFindingMethod::BREADTH_FIRST_SEARCH);
+            CCDRootFindingMethod::BUCKET_DEPTH_FIRST_SEARCH);
 
     bool vertexFaceCCD(
         const Eigen::Vector3d &v_t0,
@@ -164,6 +165,6 @@ namespace ticcd {
         double &output_tolerance,
         bool no_zero_toi = DEFAULT_NO_ZERO_TOI,
         const CCDRootFindingMethod ccd_method =
-            CCDRootFindingMethod::BREADTH_FIRST_SEARCH);
+            CCDRootFindingMethod::BUCKET_DEPTH_FIRST_SEARCH);
 #endif
 } // namespace ticcd

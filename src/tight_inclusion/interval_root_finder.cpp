@@ -5,6 +5,7 @@
 #include <tight_inclusion/avx.hpp>
 #include <tight_inclusion/logger.hpp>
 
+#include <map>
 #include <queue>
 
 namespace ticcd {
@@ -571,6 +572,111 @@ namespace ticcd {
             output_tolerance);
     }
 
+    // Based on narrowphase benchmark, >95% of CPU time is dominated by queries with
+    // deep traversal level (10+). However, compared to u and v the refinement level
+    // of time is low. Thus instead of BFS we choose DFS with dedicated traversal
+    // stack for each t lower bound.
+    template <bool is_vertex_face>
+    bool interval_root_finder_bucket_DFS(
+        const Vector3 &a_t0,
+        const Vector3 &b_t0,
+        const Vector3 &c_t0,
+        const Vector3 &d_t0,
+        const Vector3 &a_t1,
+        const Vector3 &b_t1,
+        const Vector3 &c_t1,
+        const Vector3 &d_t1,
+        const Array3 &tolerances,
+        Scalar co_domain_tolerance,
+        const Array3 &err,
+        Scalar minimum_separation,
+        Scalar max_time,
+        long max_iterations,
+        Scalar &toi,
+        Scalar &output_tolerance)
+    {
+        output_tolerance = co_domain_tolerance;
+        toi = std::numeric_limits<Scalar>::infinity();
+
+        Interval zero_to_one(NumCCD(0, 0), NumCCD(1, 0));
+        Interval3 initial = {{zero_to_one, zero_to_one, zero_to_one}};
+
+        // Each exact t.lower owns a LIFO traversal stack. Processing the smallest
+        // key first preserves chronological TOI order while exploring u/v deeply.
+        std::map<NumCCD, std::vector<Interval3>> stacks;
+
+        Interval3 current = initial;
+        bool has_current = true;
+
+        long iteration_count = 0;
+        while (has_current || !stacks.empty()) {
+            auto bucket = stacks.end();
+            if (!has_current) {
+                bucket = stacks.begin();
+                std::vector<Interval3> &stack = bucket->second;
+                current = std::move(stack.back());
+                stack.pop_back();
+            }
+            has_current = false;
+
+            ++iteration_count;
+            // True if L1 distance function eval resides completely inside zero interval.
+            bool bbox_in_eps;
+            Array3 true_tolerance;
+            // True if L1 distance function eval intersects with zero interval.
+            bool origin_in_bbox =
+                origin_in_function_bounding_box_vector<is_vertex_face>(
+                    current, a_t0, b_t0, c_t0, d_t0, a_t1, b_t1, c_t1, d_t1,
+                    err, bbox_in_eps, minimum_separation, &true_tolerance);
+            if (!origin_in_bbox) {
+                if (bucket != stacks.end() && bucket->second.empty()) {
+                    stacks.erase(bucket);
+                }
+                continue;
+            }
+
+            Array3 widths = ticcd::width(current);
+            bool parameter_tolerance_reached = (widths <= tolerances).all();
+            bool co_domain_tolerance_reached =
+                (true_tolerance <= co_domain_tolerance).all();
+            if (parameter_tolerance_reached || co_domain_tolerance_reached
+                || bbox_in_eps) {
+                toi = current[0].lower.value();
+                return true;
+            }
+
+            // The current box has the smallest pending t.lower, so it is the earliest
+            // conservative fallback when the iteration cap is reached.
+            if (max_iterations > 0 && iteration_count > max_iterations) {
+                toi = current[0].lower.value();
+                output_tolerance = std::max(
+                    {true_tolerance[0], true_tolerance[1], true_tolerance[2],
+                     co_domain_tolerance});
+                return true;
+            }
+
+            int split_index = find_next_split(widths, tolerances);
+            auto push = [&stacks](const Interval3 &child) {
+                stacks[child[0].lower].push_back(child);
+            };
+            if (split_and_push(
+                    current, split_index, push, is_vertex_face, max_time)) {
+                toi = current[0].lower.value();
+                output_tolerance = std::max(
+                    {true_tolerance[0], true_tolerance[1], true_tolerance[2],
+                     co_domain_tolerance});
+                return true;
+            }
+            // Keep an emptied bucket alive through evaluation and splitting so
+            // children with the same t.lower reuse its vector allocation.
+            if (bucket != stacks.end() && bucket->second.empty()) {
+                stacks.erase(bucket);
+            }
+        }
+
+        return false;
+    }
+
     void print_times()
     {
         logger().trace("[time] origin predicates, {}", time_predicates);
@@ -708,6 +814,56 @@ namespace ticcd {
             output_tolerance);
     }
 
+    bool edge_edge_interval_root_finder_bucket_DFS(
+        const Vector3 &ea0_t0,
+        const Vector3 &ea1_t0,
+        const Vector3 &eb0_t0,
+        const Vector3 &eb1_t0,
+        const Vector3 &ea0_t1,
+        const Vector3 &ea1_t1,
+        const Vector3 &eb0_t1,
+        const Vector3 &eb1_t1,
+        const Array3 &tol,
+        const Scalar co_domain_tolerance,
+        // this is the maximum error on each axis when calculating the vertices, err, aka, filter
+        const Array3 &err,
+        const Scalar ms,
+        const Scalar max_time,
+        const long max_itr,
+        Scalar &toi,
+        Scalar &output_tolerance)
+    {
+        return interval_root_finder_bucket_DFS<false>(
+            ea0_t0, ea1_t0, eb0_t0, eb1_t0, ea0_t1, ea1_t1, eb0_t1, eb1_t1, tol,
+            co_domain_tolerance, err, ms, max_time, max_itr, toi,
+            output_tolerance);
+    }
+
+    bool vertex_face_interval_root_finder_bucket_DFS(
+        const Vector3 &v_t0,
+        const Vector3 &f0_t0,
+        const Vector3 &f1_t0,
+        const Vector3 &f2_t0,
+        const Vector3 &v_t1,
+        const Vector3 &f0_t1,
+        const Vector3 &f1_t1,
+        const Vector3 &f2_t1,
+        const Array3 &tol,
+        const Scalar co_domain_tolerance,
+        // this is the maximum error on each axis when calculating the vertices, err, aka, filter
+        const Array3 &err,
+        const Scalar ms,
+        const Scalar max_time,
+        const long max_itr,
+        Scalar &toi,
+        Scalar &output_tolerance)
+    {
+        return interval_root_finder_bucket_DFS<true>(
+            v_t0, f0_t0, f1_t0, f2_t0, v_t1, f0_t1, f1_t1, f2_t1, tol,
+            co_domain_tolerance, err, ms, max_time, max_itr, toi,
+            output_tolerance);
+    }
+
     // ------------------------------------------------------------------------
     // Template instantiation
     // ------------------------------------------------------------------------
@@ -717,6 +873,8 @@ namespace ticcd {
     template bool interval_root_finder_DFS<true>(const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Array3 &,const Array3 &,const Scalar,Scalar &);
     template bool interval_root_finder_BFS<false>(const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Array3 &,const Scalar,const Array3 &,const Scalar,const Scalar,const long,Scalar &,Scalar &);
     template bool interval_root_finder_BFS<true>(const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Array3 &,const Scalar,const Array3 &,const Scalar,const Scalar,const long,Scalar &,Scalar &);
+    template bool interval_root_finder_bucket_DFS<false>(const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Array3 &,const Scalar,const Array3 &,const Scalar,const Scalar,const long,Scalar &,Scalar &);
+    template bool interval_root_finder_bucket_DFS<true>(const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Vector3 &,const Array3 &,const Scalar,const Array3 &,const Scalar,const Scalar,const long,Scalar &,Scalar &);
     // clang-format on
 
 } // namespace ticcd

@@ -207,6 +207,14 @@ namespace ticcd {
                     a_t0, b_t0, c_t0, d_t0, a_t1, b_t1, c_t1, d_t1, tol,
                     tolerance, err, ms, t_max, max_itr, toi, output_tolerance);
                 break;
+            case CCDRootFindingMethod::BUCKET_DEPTH_FIRST_SEARCH:
+                assert(t_max >= 0 && t_max <= 1);
+                tmp_is_impacting =
+                    interval_root_finder_bucket_DFS<is_vertex_face>(
+                        a_t0, b_t0, c_t0, d_t0, a_t1, b_t1, c_t1, d_t1, tol,
+                        tolerance, err, ms, t_max, max_itr, toi,
+                        output_tolerance);
+                break;
             }
             assert(!tmp_is_impacting || toi >= 0);
 

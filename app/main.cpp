@@ -57,7 +57,7 @@ void check_sample_queries(
     constexpr double t_max = 1;
     constexpr bool no_zero_toi = false;
     constexpr CCDRootFindingMethod ccd_method =
-        CCDRootFindingMethod::BREADTH_FIRST_SEARCH;
+        CCDRootFindingMethod::BUCKET_DEPTH_FIRST_SEARCH;
 
     int total_positives = 0;
     int total_false_positives = 0;

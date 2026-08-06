@@ -16,4 +16,4 @@ endif()
 message(STATUS "Third-party: creating target 'CLI11::CLI11'")
 
 include(CPM)
-CPMAddPackage("gh:CLIUtils/CLI11@2.3.2")
+CPMAddPackage("gh:CLIUtils/CLI11@2.6.2")
