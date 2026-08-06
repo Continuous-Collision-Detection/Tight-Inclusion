@@ -1,8 +1,14 @@
 # Tight-Inclusion Continuous Collision Detection
 
 [![Build](https://github.com/Continuous-Collision-Detection/Tight-Inclusion/actions/workflows/continuous.yml/badge.svg)](https://github.com/Continuous-Collision-Detection/Tight-Inclusion/actions/workflows/continuous.yml)
+[![Conda Version](https://img.shields.io/conda/vn/conda-forge/tight-inclusion)](https://anaconda.org/channels/conda-forge/packages/tight-inclusion/overview)
+[![GitHub License](https://img.shields.io/github/license/Continuous-Collision-Detection/Tight-Inclusion?color=blue)](https://github.com/Continuous-Collision-Detection/Tight-Inclusion/blob/main/LICENS)
 
-![](https://continuous-collision-detection.github.io/assets/tight-inclusion-teaser.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://continuous-collision-detection.github.io/assets/tight-inclusion-teaser.png">
+  <source media="(prefers-color-scheme: light)" srcset="https://continuous-collision-detection.github.io/assets/tight-inclusion-teaser-light.png">
+  <img alt="Fallback description of the image" src="https://continuous-collision-detection.github.io/assets/tight-inclusion-teaser.png">
+</picture>
 
 A conservative continuous collision detection (CCD) method with support for minimum separation.
 
